@@ -106,6 +106,8 @@ jobs:
     needs: [build, test]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout code
@@ -115,52 +117,13 @@ jobs:
       uses: actions/download-artifact@v4
 
     - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        files: |
+          cli-frontend-linux-x86_64/cli-frontend-linux-x86_64
+          cli-frontend-windows-x86_64.exe/cli-frontend-windows-x86_64.exe
+          cli-frontend-macos-x86_64/cli-frontend-macos-x86_64
+          cli-frontend-macos-aarch64/cli-frontend-macos-aarch64
+        generate_release_notes: true
         draft: false
         prerelease: false
-
-    - name: Upload Linux Binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./cli-frontend-linux-x86_64/cli-frontend-linux-x86_64
-        asset_name: cli-frontend-linux-x86_64
-        asset_content_type: application/octet-stream
-
-    - name: Upload Windows Binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./cli-frontend-windows-x86_64.exe/cli-frontend-windows-x86_64.exe
-        asset_name: cli-frontend-windows-x86_64.exe
-        asset_content_type: application/octet-stream
-
-    - name: Upload macOS Intel Binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./cli-frontend-macos-x86_64/cli-frontend-macos-x86_64
-        asset_name: cli-frontend-macos-x86_64
-        asset_content_type: application/octet-stream
-
-    - name: Upload macOS ARM Binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./cli-frontend-macos-aarch64/cli-frontend-macos-aarch64
-        asset_name: cli-frontend-macos-aarch64
-        asset_content_type: application/octet-stream
