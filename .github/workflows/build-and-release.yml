@@ -116,14 +116,413 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
 
+    - name: Prepare installers and binaries
+      run: |
+        # Create release directory
+        mkdir -p release-assets
+        
+        # Copy binaries to release assets
+        cp cli-frontend-linux-x86_64/cli-frontend-linux-x86_64 release-assets/
+        cp cli-frontend-windows-x86_64.exe/cli-frontend-windows-x86_64.exe release-assets/
+        cp cli-frontend-macos-x86_64/cli-frontend-macos-x86_64 release-assets/
+        cp cli-frontend-macos-aarch64/cli-frontend-macos-aarch64 release-assets/
+        
+        # Make binaries executable
+        chmod +x release-assets/cli-frontend-*
+        
+        # Create platform-specific installers
+        
+        # Linux/Unix installer with embedded binary
+        cat > release-assets/install-linux.sh << 'EOF'
+        #!/bin/bash
+        # CLI Frontend Generator - Linux Quick Installer
+        set -e
+        
+        # Colors
+        RED='\033[0;31m'
+        GREEN='\033[0;32m'
+        YELLOW='\033[1;33m'
+        BLUE='\033[0;34m'
+        NC='\033[0m'
+        
+        INSTALL_DIR="$HOME/.cli-template"
+        BINARY_DIR="$HOME/.local/bin"
+        BINARY_NAME="cli-frontend"
+        
+        echo -e "${BLUE}🚀 CLI Frontend Generator - Linux Installer${NC}"
+        echo -e "${BLUE}=============================================${NC}"
+        
+        # Create directories
+        mkdir -p "$INSTALL_DIR"
+        mkdir -p "$BINARY_DIR"
+        
+        # Download binary
+        echo -e "${BLUE}⬇️  Downloading binary...${NC}"
+        LATEST_RELEASE=$(curl -s "https://api.github.com/repos/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest")
+        DOWNLOAD_URL=$(echo "$LATEST_RELEASE" | grep -o "https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/download/[^\"]*cli-frontend-linux-x86_64[^\"]*" | head -1)
+        
+        if [ -z "$DOWNLOAD_URL" ]; then
+            echo -e "${RED}❌ Could not find download URL${NC}"
+            exit 1
+        fi
+        
+        curl -L -o "$BINARY_DIR/$BINARY_NAME" "$DOWNLOAD_URL"
+        chmod +x "$BINARY_DIR/$BINARY_NAME"
+        
+        # Download templates
+        echo -e "${BLUE}📄 Downloading templates...${NC}"
+        TEMPLATES_URL="https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/archive/main.zip"
+        TEMP_DIR=$(mktemp -d)
+        curl -L -o "$TEMP_DIR/templates.zip" "$TEMPLATES_URL"
+        cd "$TEMP_DIR"
+        unzip -q templates.zip
+        cp -r "CLI-FRONTEND-RUST-main/templates" "$INSTALL_DIR/"
+        rm -rf "$TEMP_DIR"
+        
+        # Add to PATH
+        SHELL_CONFIG=""
+        if [ -n "$BASH_VERSION" ]; then
+            SHELL_CONFIG="$HOME/.bashrc"
+        elif [ -n "$ZSH_VERSION" ]; then
+            SHELL_CONFIG="$HOME/.zshrc"
+        else
+            SHELL_CONFIG="$HOME/.profile"
+        fi
+        
+        if ! echo "$PATH" | grep -q "$BINARY_DIR"; then
+            echo -e "${BLUE}🔧 Adding to PATH...${NC}"
+            echo "" >> "$SHELL_CONFIG"
+            echo "# CLI Frontend Generator" >> "$SHELL_CONFIG"
+            echo "export PATH=\"\$PATH:$BINARY_DIR\"" >> "$SHELL_CONFIG"
+            echo -e "${GREEN}✅ Added to PATH. Please run: source $SHELL_CONFIG${NC}"
+        fi
+        
+        echo -e "${GREEN}🎉 Installation completed successfully!${NC}"
+        echo -e "${BLUE}📍 Binary: $BINARY_DIR/$BINARY_NAME${NC}"
+        echo -e "${BLUE}📄 Templates: $INSTALL_DIR/templates${NC}"
+        echo -e "${YELLOW}Usage: cli-frontend MyComponent --type component${NC}"
+        EOF
+        
+        # macOS installer
+        cat > release-assets/install-macos.sh << 'EOF'
+        #!/bin/bash
+        # CLI Frontend Generator - macOS Quick Installer
+        set -e
+        
+        # Colors
+        RED='\033[0;31m'
+        GREEN='\033[0;32m'
+        YELLOW='\033[1;33m'
+        BLUE='\033[0;34m'
+        NC='\033[0m'
+        
+        INSTALL_DIR="$HOME/.cli-template"
+        BINARY_DIR="$HOME/.local/bin"
+        BINARY_NAME="cli-frontend"
+        
+        echo -e "${BLUE}🚀 CLI Frontend Generator - macOS Installer${NC}"
+        echo -e "${BLUE}============================================${NC}"
+        
+        # Detect architecture
+        ARCH=$(uname -m)
+        if [ "$ARCH" = "arm64" ]; then
+            ASSET_NAME="cli-frontend-macos-aarch64"
+        else
+            ASSET_NAME="cli-frontend-macos-x86_64"
+        fi
+        
+        echo -e "${BLUE}🔍 Detected architecture: $ARCH${NC}"
+        
+        # Create directories
+        mkdir -p "$INSTALL_DIR"
+        mkdir -p "$BINARY_DIR"
+        
+        # Download binary
+        echo -e "${BLUE}⬇️  Downloading binary...${NC}"
+        LATEST_RELEASE=$(curl -s "https://api.github.com/repos/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest")
+        DOWNLOAD_URL=$(echo "$LATEST_RELEASE" | grep -o "https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/download/[^\"]*$ASSET_NAME[^\"]*" | head -1)
+        
+        if [ -z "$DOWNLOAD_URL" ]; then
+            echo -e "${RED}❌ Could not find download URL for $ASSET_NAME${NC}"
+            exit 1
+        fi
+        
+        curl -L -o "$BINARY_DIR/$BINARY_NAME" "$DOWNLOAD_URL"
+        chmod +x "$BINARY_DIR/$BINARY_NAME"
+        
+        # Download templates
+        echo -e "${BLUE}📄 Downloading templates...${NC}"
+        TEMPLATES_URL="https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/archive/main.zip"
+        TEMP_DIR=$(mktemp -d)
+        curl -L -o "$TEMP_DIR/templates.zip" "$TEMPLATES_URL"
+        cd "$TEMP_DIR"
+        unzip -q templates.zip
+        cp -r "CLI-FRONTEND-RUST-main/templates" "$INSTALL_DIR/"
+        rm -rf "$TEMP_DIR"
+        
+        # Add to PATH
+        SHELL_CONFIG=""
+        if [ -n "$ZSH_VERSION" ] || [ "$SHELL" = "/bin/zsh" ]; then
+            SHELL_CONFIG="$HOME/.zshrc"
+        elif [ -n "$BASH_VERSION" ] || [ "$SHELL" = "/bin/bash" ]; then
+            SHELL_CONFIG="$HOME/.bash_profile"
+        else
+            SHELL_CONFIG="$HOME/.profile"
+        fi
+        
+        if ! echo "$PATH" | grep -q "$BINARY_DIR"; then
+            echo -e "${BLUE}🔧 Adding to PATH...${NC}"
+            echo "" >> "$SHELL_CONFIG"
+            echo "# CLI Frontend Generator" >> "$SHELL_CONFIG"
+            echo "export PATH=\"\$PATH:$BINARY_DIR\"" >> "$SHELL_CONFIG"
+            echo -e "${GREEN}✅ Added to PATH. Please run: source $SHELL_CONFIG${NC}"
+        fi
+        
+        echo -e "${GREEN}🎉 Installation completed successfully!${NC}"
+        echo -e "${BLUE}📍 Binary: $BINARY_DIR/$BINARY_NAME${NC}"
+        echo -e "${BLUE}📄 Templates: $INSTALL_DIR/templates${NC}"
+        echo -e "${YELLOW}Usage: cli-frontend MyComponent --type component${NC}"
+        EOF
+        
+        # Windows PowerShell installer
+        cat > release-assets/install-windows.ps1 << 'EOF'
+        # CLI Frontend Generator - Windows Quick Installer
+        param(
+            [string]$InstallPath = "$env:USERPROFILE\.cli-template"
+        )
+        
+        # Color functions
+        function Write-ColorOutput($ForegroundColor) {
+            $fc = $host.UI.RawUI.ForegroundColor
+            $host.UI.RawUI.ForegroundColor = $ForegroundColor
+            if ($args) {
+                Write-Output $args
+            } else {
+                $input | Write-Output
+            }
+            $host.UI.RawUI.ForegroundColor = $fc
+        }
+        
+        $Green = [System.ConsoleColor]::Green
+        $Red = [System.ConsoleColor]::Red
+        $Yellow = [System.ConsoleColor]::Yellow
+        $Blue = [System.ConsoleColor]::Cyan
+        
+        Write-ColorOutput $Blue "🚀 CLI Frontend Generator - Windows Installer"
+        Write-ColorOutput $Blue "=============================================="
+        
+        # Create directories
+        Write-ColorOutput $Blue "📁 Creating installation directory..."
+        if (-not (Test-Path $InstallPath)) {
+            New-Item -ItemType Directory -Path $InstallPath -Force | Out-Null
+        }
+        
+        # Download binary
+        Write-ColorOutput $Blue "⬇️  Downloading binary..."
+        try {
+            $LatestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest"
+            $DownloadUrl = $null
+            foreach ($asset in $LatestRelease.assets) {
+                if ($asset.name -eq "cli-frontend-windows-x86_64.exe") {
+                    $DownloadUrl = $asset.browser_download_url
+                    break
+                }
+            }
+            
+            if (-not $DownloadUrl) {
+                Write-ColorOutput $Red "❌ Could not find Windows binary in latest release"
+                exit 1
+            }
+            
+            $BinaryPath = Join-Path $InstallPath "cli-frontend.exe"
+            Invoke-WebRequest -Uri $DownloadUrl -OutFile $BinaryPath -UseBasicParsing
+            Write-ColorOutput $Green "✅ Binary downloaded successfully"
+        } catch {
+            Write-ColorOutput $Red "❌ Failed to download binary: $($_.Exception.Message)"
+            exit 1
+        }
+        
+        # Download templates
+        Write-ColorOutput $Blue "📄 Downloading templates..."
+        try {
+            $TemplatesUrl = "https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/archive/main.zip"
+            $TempDir = [System.IO.Path]::GetTempPath()
+            $ZipPath = Join-Path $TempDir "templates.zip"
+            
+            Invoke-WebRequest -Uri $TemplatesUrl -OutFile $ZipPath -UseBasicParsing
+            
+            $ExtractPath = Join-Path $TempDir "cli-frontend-temp"
+            if (Test-Path $ExtractPath) {
+                Remove-Item $ExtractPath -Recurse -Force
+            }
+            
+            Expand-Archive -Path $ZipPath -DestinationPath $ExtractPath -Force
+            
+            $SourceTemplatesPath = Join-Path $ExtractPath "CLI-FRONTEND-RUST-main\templates"
+            $DestTemplatesPath = Join-Path $InstallPath "templates"
+            
+            if (Test-Path $DestTemplatesPath) {
+                Remove-Item $DestTemplatesPath -Recurse -Force
+            }
+            
+            Copy-Item -Path $SourceTemplatesPath -Destination $DestTemplatesPath -Recurse -Force
+            
+            # Cleanup
+            Remove-Item $ZipPath -Force -ErrorAction SilentlyContinue
+            Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
+            
+            Write-ColorOutput $Green "✅ Templates downloaded successfully"
+        } catch {
+            Write-ColorOutput $Yellow "⚠️  Failed to download templates: $($_.Exception.Message)"
+        }
+        
+        # Add to PATH
+        $currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
+        if ($currentPath -notlike "*$InstallPath*") {
+            Write-ColorOutput $Blue "🔧 Adding to PATH..."
+            [Environment]::SetEnvironmentVariable("PATH", "$currentPath;$InstallPath", "User")
+            Write-ColorOutput $Green "✅ Added to PATH. Please restart your terminal."
+        }
+        
+        Write-ColorOutput $Green "🎉 Installation completed successfully!"
+        Write-ColorOutput $Blue "📍 Binary: $InstallPath\cli-frontend.exe"
+        Write-ColorOutput $Blue "📄 Templates: $InstallPath\templates"
+        Write-ColorOutput $Yellow "Usage: cli-frontend MyComponent --type component"
+        EOF
+        
+        # Make installers executable
+        chmod +x release-assets/install-*.sh
+        
+        # Create a universal installer
+        cat > release-assets/install.sh << 'EOF'
+        #!/bin/bash
+        # CLI Frontend Generator - Universal Installer
+        set -e
+        
+        OS=""
+        case "$(uname -s)" in
+            Linux*)     OS="linux";;
+            Darwin*)    OS="macos";;
+            *)          echo "❌ Unsupported OS: $(uname -s)"; exit 1;;
+        esac
+        
+        echo "🚀 Detected OS: $OS"
+        
+        if [ "$OS" = "linux" ]; then
+            curl -sSL https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install-linux.sh | bash
+        elif [ "$OS" = "macos" ]; then
+            curl -sSL https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install-macos.sh | bash
+        fi
+        EOF
+        chmod +x release-assets/install.sh
+        
+        # Create README for installers
+        cat > release-assets/INSTALL_README.md << 'EOF'
+        # CLI Frontend Generator - Installation Guide
+        
+        ## Quick Install (Recommended)
+        
+        ### Linux/macOS (One-liner):
+        ```bash
+        curl -sSL https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install.sh | bash
+        ```
+        
+        ### Windows (PowerShell):
+        ```powershell
+        iwr -useb https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install-windows.ps1 | iex
+        ```
+        
+        ## Platform-Specific Installers
+        
+        ### Linux:
+        ```bash
+        curl -sSL https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install-linux.sh | bash
+        ```
+        
+        ### macOS:
+        ```bash
+        curl -sSL https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install-macos.sh | bash
+        ```
+        
+        ### Windows:
+        ```powershell
+        iwr -useb https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install-windows.ps1 | iex
+        ```
+        
+        ## Manual Installation
+        
+        1. Download the binary for your platform from the assets below
+        2. Place it in your PATH
+        3. Download templates from the repository
+        4. Run: `cli-frontend --help`
+        
+        ## Usage
+        
+        ```bash
+        # Create a React component
+        cli-frontend MyComponent --type component
+        
+        # Create a custom hook
+        cli-frontend useAuth --type hook
+        
+        # Create a service
+        cli-frontend ApiService --type service
+        
+        # See all available templates
+        cli-frontend --help
+        ```
+        EOF
+
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          cli-frontend-linux-x86_64/cli-frontend-linux-x86_64
-          cli-frontend-windows-x86_64.exe/cli-frontend-windows-x86_64.exe
-          cli-frontend-macos-x86_64/cli-frontend-macos-x86_64
-          cli-frontend-macos-aarch64/cli-frontend-macos-aarch64
+          release-assets/cli-frontend-linux-x86_64
+          release-assets/cli-frontend-windows-x86_64.exe
+          release-assets/cli-frontend-macos-x86_64
+          release-assets/cli-frontend-macos-aarch64
+          release-assets/install.sh
+          release-assets/install-linux.sh
+          release-assets/install-macos.sh
+          release-assets/install-windows.ps1
+          release-assets/INSTALL_README.md
         generate_release_notes: true
         draft: false
         prerelease: false
+        body: |
+          ## 🚀 Quick Install
+          
+          ### Linux/macOS (One-liner):
+          ```bash
+          curl -sSL https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install.sh | bash
+          ```
+          
+          ### Windows (PowerShell):
+          ```powershell
+          iwr -useb https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install-windows.ps1 | iex
+          ```
+          
+          ## 📦 What's Included
+          - ✅ Pre-compiled binaries for Linux, Windows, macOS (Intel & ARM)
+          - ✅ Automatic installers for all platforms
+          - ✅ Template library with React components, hooks, services, and more
+          - ✅ Smart naming conventions and file generation
+          
+          ## 🎯 Usage
+          ```bash
+          # Create components, hooks, services, and more
+          cli-frontend MyComponent --type component
+          cli-frontend useAuth --type hook  
+          cli-frontend ApiService --type service
+          
+          # See all available templates
+          cli-frontend --help
+          ```
+          
+          ## 📋 Platform Support
+          - ✅ Linux x86_64
+          - ✅ Windows x86_64  
+          - ✅ macOS Intel (x86_64)
+          - ✅ macOS Apple Silicon (ARM64)
+          
+          See `INSTALL_README.md` for detailed installation instructions.
