@@ -17,43 +17,40 @@ Un potente generador CLI escrito en Rust para crear componentes React, hooks, se
 - ✨ **Detección automática de templates** - No requiere recompilación para agregar nuevos templates
 - 🚀 **Templates dinámicos** - El CLI descubre automáticamente carpetas de templates
 
-## 🛠️ Instalación
+## � Instalación
 
-### Desde los binarios compilados
+### Instalación rápida (Recomendada)
 
-### Instalación Global (Recomendado)
+**Linux/macOS:**
+```bash
+curl -sSL https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/main/install-quick.sh | bash
+```
 
-Para usar el CLI desde cualquier directorio del sistema:
+**Windows (PowerShell):**
+```powershell
+iwr -useb https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/main/install-quick.ps1 | iex
+```
+
+> ℹ️ **La instalación rápida descarga automáticamente binarios precompilados. Si no están disponibles para tu plataforma, automáticamente compila desde el código fuente.**
+
+### Instalación desde código fuente
 
 **Linux/macOS:**
 ```bash
 git clone https://github.com/FrancoCastro1990/cli-frontend-rust.git
 cd cli-frontend-rust
-cargo build --release
 chmod +x install.sh
-sudo ./install.sh  # Instalación del sistema
+./install.sh  # Compila automáticamente si no encuentra el binario
 ```
 
-**Windows (PowerShell como Administrador):**
+**Windows (PowerShell):**
 ```powershell
-# Descargar y compilar el proyecto
 git clone https://github.com/FrancoCastro1990/cli-frontend-rust.git
 cd cli-frontend-rust
-cargo build --release
-
-# Instalar globalmente
-./install.ps1  # (Crear script similar para Windows)
+./install.ps1  # Compila automáticamente si no encuentra el binario
 ```
 
-Ver [INSTALLATION.md](./INSTALLATION.md) para instrucciones detalladas.
-
-### Desde los binarios compilados
-
-1. Descarga el binario para tu sistema desde las releases
-2. Coloca el ejecutable en tu PATH
-3. ¡Ya está listo para usar!
-
-### Compilación desde el código fuente
+> 💡 **Los instaladores ahora compilan automáticamente el proyecto si no encuentran el binario precompilado.**
 
 ```bash
 # Clona el repositorio

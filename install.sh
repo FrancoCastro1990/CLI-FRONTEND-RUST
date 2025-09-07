@@ -30,10 +30,30 @@ else
     USER_INSTALL=true
 fi
 
-# Check if binary exists
+# Check if binary exists, if not try to build it
 if [ ! -f "./target/release/cli-frontend" ]; then
-    echo -e "${RED}❌ Binary not found. Please run 'cargo build --release' first${NC}"
-    exit 1
+    echo -e "${YELLOW}⚠️  Binary not found. Attempting to build...${NC}"
+    
+    # Check if cargo is available
+    if ! command -v cargo >/dev/null 2>&1; then
+        echo -e "${RED}❌ Cargo not found. Please install Rust first:${NC}"
+        echo -e "${BLUE}curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh${NC}"
+        exit 1
+    fi
+    
+    # Check if Cargo.toml exists
+    if [ ! -f "./Cargo.toml" ]; then
+        echo -e "${RED}❌ Cargo.toml not found. Please run this script from the project root directory.${NC}"
+        exit 1
+    fi
+    
+    echo -e "${BLUE}🔨 Building project with cargo build --release...${NC}"
+    if ! cargo build --release; then
+        echo -e "${RED}❌ Build failed. Please check for compilation errors.${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}✅ Build completed successfully!${NC}"
 fi
 
 echo -e "${BLUE}📁 Installing to: $INSTALL_DIR${NC}"
