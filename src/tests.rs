@@ -53,7 +53,7 @@ mod tests {
         let templates = Args::discover_templates(&templates_dir);
 
         // Si el directorio existe, debe retornar una lista (puede estar vacía)
-        // Si no existe, también debe retornar una lista vacía  
+        // Si no existe, también debe retornar una lista vacía
         // Este test simplemente verifica que la función no panic
 
         // Si hay templates, verificar que no hay duplicados
