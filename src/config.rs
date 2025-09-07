@@ -29,7 +29,7 @@ impl Default for Config {
 
 impl Config {
     /// Find templates directory in order of preference
-    fn find_templates_directory() -> PathBuf {
+    pub fn find_templates_directory() -> PathBuf {
         let mut search_paths = vec![
             PathBuf::from("./templates"),                    // Current directory first
             PathBuf::from("./.cli-template"),               // Hidden directory in current

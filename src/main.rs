@@ -2,6 +2,9 @@ mod cli;
 mod config;
 mod template_engine;
 
+#[cfg(test)]
+mod tests;
+
 use anyhow::Result;
 use clap::Parser;
 use cli::Args;
