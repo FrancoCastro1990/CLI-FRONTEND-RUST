@@ -1,0 +1,32 @@
+[package]
+name = "cli-frontend"
+version = "1.0.0"
+edition = "2021"
+authors = ["Franco Castro <franco@example.com>"]
+description = "A powerful CLI tool for generating React components, hooks, services, and more"
+license = "MIT"
+repository = "https://github.com/FrancoCastro1990/cli-frontend-rust"
+
+[[bin]]
+name = "cli-frontend"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive", "cargo"] }
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+handlebars = "4.0"
+anyhow = "1.0"
+thiserror = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+dirs = "5.0"
+walkdir = "2.4"
+colored = "2.0"
+serde_json = "1.0"
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"

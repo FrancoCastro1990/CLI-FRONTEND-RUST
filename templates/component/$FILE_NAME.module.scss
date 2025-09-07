@@ -1,0 +1,37 @@
+// $FILE_NAME Component Styles
+// TODO: Add your component-specific styles here
+
+.$FILE_NAME {
+  // Base styles for $FILE_NAME component
+  display: block;
+  
+  // Add your styles here
+  // Example:
+  // padding: 1rem;
+  // margin: 0;
+  // border: 1px solid #ccc;
+  // border-radius: 4px;
+  
+  // Modifiers
+  &--variant {
+    // Add variant styles
+  }
+  
+  // States
+  &:hover {
+    // Add hover styles
+  }
+  
+  &:focus {
+    // Add focus styles
+  }
+  
+  &:disabled {
+    // Add disabled styles
+  }
+  
+  // Nested elements
+  &__element {
+    // Add nested element styles
+  }
+}
