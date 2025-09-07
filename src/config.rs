@@ -14,19 +14,56 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+        // Try multiple locations for templates directory
+        let templates_dir = Self::find_templates_directory();
         
         Self {
             default_type: "component".to_string(),
             create_folder: true,
             enable_hooks: true,
-            templates_dir: home_dir.join(".cli-template"),
-            output_dir: PathBuf::from("./src"),
+            templates_dir,
+            output_dir: PathBuf::from("."),
         }
     }
 }
 
 impl Config {
+    /// Find templates directory in order of preference
+    fn find_templates_directory() -> PathBuf {
+        let mut search_paths = vec![
+            PathBuf::from("./templates"),                    // Current directory first
+            PathBuf::from("./.cli-template"),               // Hidden directory in current
+        ];
+        
+        // Add home directory paths
+        if let Some(home_dir) = dirs::home_dir() {
+            let home_paths = vec![
+                home_dir.join(".cli-template"),              // User's home directory
+                home_dir.join(".config/cli-frontend/templates"), // XDG config directory
+            ];
+            
+            search_paths.extend(home_paths);
+            
+            // On Unix systems, also check system directories
+            #[cfg(unix)]
+            search_paths.extend(vec![
+                PathBuf::from("/usr/local/share/cli-frontend/templates"),
+                PathBuf::from("/usr/share/cli-frontend/templates"),
+            ]);
+        }
+        
+        // Return first existing directory, or default to home/.cli-template
+        for path in search_paths {
+            if path.exists() && path.is_dir() {
+                return path;
+            }
+        }
+        
+        // Fallback to home directory or current directory
+        dirs::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join(".cli-template")
+    }
     pub async fn load(config_path: &Option<PathBuf>) -> Result<Self> {
         let config_file = match config_path {
             Some(path) => path.clone(),

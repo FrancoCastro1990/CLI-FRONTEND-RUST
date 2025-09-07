@@ -20,6 +20,10 @@ pub struct Args {
     #[arg(long = "no-folder")]
     pub no_folder: bool,
     
+    /// Output directory for generated files (overrides config)
+    #[arg(short = 'o', long = "output-dir")]
+    pub output_dir: Option<PathBuf>,
+    
     /// Path to custom configuration file
     #[arg(short = 'c', long = "config")]
     pub config: Option<PathBuf>,
@@ -99,6 +103,7 @@ impl Args {
         }
         
         println!("  --no-folder             Generate the file without creating a folder");
+        println!("  -o, --output-dir <DIR>  Output directory for generated files (overrides config)");
         println!("  -c, --config <CONFIG>   Path to custom configuration file");
         println!("  --help                  Show this help message");
         println!("");

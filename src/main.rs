@@ -28,10 +28,16 @@ async fn main() -> Result<()> {
         None => config.default_type.clone(),
     };
     
+    // Determine output directory (CLI arg overrides config)
+    let output_dir = match args.output_dir {
+        Some(dir) => dir,
+        None => config.output_dir.clone(),
+    };
+    
     // Initialize template engine
     let template_engine = TemplateEngine::new(
         config.templates_dir.clone(),
-        config.output_dir.clone(),
+        output_dir,
     )?;
     
     // Validate template type exists

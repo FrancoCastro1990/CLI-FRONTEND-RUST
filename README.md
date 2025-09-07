@@ -21,6 +21,34 @@ Un potente generador CLI escrito en Rust para crear componentes React, hooks, se
 
 ### Desde los binarios compilados
 
+### Instalación Global (Recomendado)
+
+Para usar el CLI desde cualquier directorio del sistema:
+
+**Linux/macOS:**
+```bash
+git clone https://github.com/FrancoCastro1990/cli-frontend-rust.git
+cd cli-frontend-rust
+cargo build --release
+chmod +x install.sh
+sudo ./install.sh  # Instalación del sistema
+```
+
+**Windows (PowerShell como Administrador):**
+```powershell
+# Descargar y compilar el proyecto
+git clone https://github.com/FrancoCastro1990/cli-frontend-rust.git
+cd cli-frontend-rust
+cargo build --release
+
+# Instalar globalmente
+./install.ps1  # (Crear script similar para Windows)
+```
+
+Ver [INSTALLATION.md](./INSTALLATION.md) para instrucciones detalladas.
+
+### Desde los binarios compilados
+
 1. Descarga el binario para tu sistema desde las releases
 2. Coloca el ejecutable en tu PATH
 3. ¡Ya está listo para usar!
@@ -41,11 +69,14 @@ cargo build --release
 ## 🚀 Uso Rápido
 
 ```bash
-# Ver templates disponibles
+# Ver templates disponibles (funciona desde cualquier directorio)
 cli-frontend --help
 
-# Generar un componente
+# Generar en el directorio actual
 cli-frontend Button --type component
+
+# Especificar directorio de salida
+cli-frontend Header --type component --output-dir ./src/components
 
 # Generar un hook
 cli-frontend useAuth --type hook
@@ -81,7 +112,11 @@ Argumentos:
   <nombre>              El nombre del template a generar
 
 Opciones:
-  -t, --type <TIPO>     El tipo de template a generar (detección automática de templates disponibles)
+  -t, --type <TIPO>     El tipo de template a generar (detección automática)
+  --no-folder           Generar archivos sin crear una carpeta
+  -o, --output-dir <DIR> Directorio de salida para archivos generados
+  -c, --config <CONFIG> Ruta a archivo de configuración personalizado
+  --help                Mostrar ayuda y templates disponibles
   --no-folder           Generar archivos sin crear una carpeta
   -c, --config <CONFIG> Ruta a archivo de configuración personalizado
   --help                Mostrar este mensaje de ayuda
