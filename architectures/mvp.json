@@ -1,39 +1,43 @@
 {
   "name": "MVP (Model-View-Presenter)",
-  "description": "Similar a MVC, pero el Presenter actúa como intermediario entre Vista y Modelo",
+  "description": "Architectural pattern derived from MVC where the Presenter acts as an intermediary layer between View and Model, handling all UI logic and user interactions. The View becomes completely passive, containing no business logic, while the Presenter orchestrates data flow and presentation logic. This pattern maximizes testability by ensuring Views are purely declarative and all logic resides in easily testable Presenters with clear interfaces.",
   "benefits": [
-    "Testable",
-    "Desacopla la vista de la lógica de negocio",
-    "Facilita testing unitario"
+    "Maximum testability through complete View-logic separation",
+    "Highly decoupled architecture with clear component boundaries",
+    "Simplified unit testing with mock-friendly interfaces", 
+    "Enhanced maintainability through single-responsibility principle",
+    "Platform-agnostic business logic enabling code reuse"
   ],
   "limitations": [
-    "Más boilerplate",
-    "Puede volverse verboso en proyectos grandes"
+    "Increased boilerplate code and development overhead",
+    "Higher initial complexity for simple user interactions",
+    "Potential performance overhead with excessive abstraction layers",
+    "Steep learning curve for developers unfamiliar with passive views"
   ],
   "structure": [
     {
       "path": "models",
       "template": "service",
       "filename_pattern": "{name}Model", 
-      "description": "Modelo de datos"
+      "description": "Data model encapsulating business entities and validation rules"
     },
     {
       "path": "views",
       "template": "component",
       "filename_pattern": "{name}View",
-      "description": "Vista pasiva"
+      "description": "Passive React component handling only UI rendering and events"
     },
     {
       "path": "presenters",
       "template": "service",
       "filename_pattern": "{name}Presenter",
-      "description": "Presenter que maneja lógica de presentación"
+      "description": "Presentation logic coordinator managing View state and Model interactions"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Interfaces entre capas"
+      "description": "TypeScript contracts defining interfaces between architectural layers"
     }
   ]
 }

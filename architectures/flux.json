@@ -1,46 +1,57 @@
 {
   "name": "Flux Architecture",
-  "description": "Gestión de estado unidireccional centralizado con Actions, Dispatcher y Stores",
+  "description": "Unidirectional data flow architecture pattern developed by Facebook featuring a centralized Dispatcher that orchestrates all state mutations. The complete flow follows: Actions → Dispatcher → Stores → Views, where the Dispatcher ensures sequential action processing and prevents cascading updates. This pattern eliminates circular dependencies, provides predictable state management, and enables powerful debugging capabilities through centralized action coordination.",
   "benefits": [
-    "Control del estado global",
-    "Predictibilidad",
-    "Flujo de datos unidireccional",
-    "Herramientas de debugging"
+    "Guaranteed unidirectional data flow with centralized Dispatcher coordination",
+    "Eliminates circular dependencies and cascading update scenarios",
+    "Predictable state mutations through sequential action processing",
+    "Enhanced debugging with centralized action logging and replay capabilities",
+    "Clear separation of concerns with distinct architectural components",
+    "Excellent scalability for complex applications with multiple data sources"
   ],
   "limitations": [
-    "Puede ser excesivo para apps pequeñas",
-    "Boilerplate y curva de aprendizaje"
+    "Significant boilerplate overhead with Dispatcher, Actions, and Store setup",
+    "Complex learning curve requiring understanding of unidirectional patterns",
+    "Performance considerations with Dispatcher bottleneck for high-frequency updates",
+    "Overkill architecture for simple state management scenarios",
+    "Requires strict discipline to maintain proper Flux flow patterns"
   ],
   "structure": [
     {
       "path": "actions",
       "template": "service",
       "filename_pattern": "{name}Actions",
-      "description": "Actions para modificar estado"
+      "description": "Action creators defining state mutation commands and payloads"
+    },
+    {
+      "path": "dispatcher",
+      "template": "service",
+      "filename_pattern": "{name}Dispatcher",
+      "description": "Central dispatcher hub managing action distribution to registered stores"
     },
     {
       "path": "stores",
       "template": "store",
       "filename_pattern": "{name}Store",
-      "description": "Store que mantiene el estado"
+      "description": "State containers handling business logic and data transformations"
     },
     {
       "path": "views",
       "template": "component",
       "filename_pattern": "{name}View",
-      "description": "Vista que consume el store"
+      "description": "React components consuming store state and dispatching actions"
     },
     {
       "path": "hooks",
       "template": "hook",
       "filename_pattern": "use{name}",
-      "description": "Hook para acceder al store"
+      "description": "Custom React hooks providing store subscription and action dispatch"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Tipos para actions y estado"
+      "description": "TypeScript definitions for action payloads and store state interfaces"
     }
   ]
 }

@@ -1,52 +1,55 @@
 {
   "name": "Event-Driven Architecture",
-  "description": "Features se comunican mediante eventos",
+  "description": "Asynchronous communication pattern where application components interact through loosely-coupled event publishing and subscription mechanisms. Features communicate via event buses rather than direct method calls, enabling reactive programming paradigms where state changes trigger cascading event flows. This architecture promotes loose coupling, horizontal scalability, and temporal decoupling between producers and consumers.",
   "benefits": [
-    "Bajo acoplamiento",
-    "Flexible", 
-    "Ideal para apps altamente interactivas",
-    "Escalabilidad horizontal"
+    "Minimal coupling between components through event-mediated communication",
+    "Enhanced flexibility with dynamic component registration and hot-swapping",
+    "Excellent scalability for highly interactive and real-time applications",
+    "Temporal decoupling enabling asynchronous processing and buffering",
+    "Natural support for audit trails and event sourcing patterns"
   ],
   "limitations": [
-    "Difícil de depurar",
-    "Seguimiento de flujo de eventos complejo"
+    "Complex debugging scenarios with asynchronous event flow tracing",
+    "Difficult event flow comprehension in systems with extensive event chains",
+    "Potential performance overhead from event bus infrastructure",
+    "Risk of memory leaks from improper event listener cleanup"
   ],
   "structure": [
     {
       "path": "events",
       "template": "service",
       "filename_pattern": "{name}Events",
-      "description": "Definición de eventos"
+      "description": "Event definition interfaces and payload structure specifications"
     },
     {
       "path": "listeners",
       "template": "service",
       "filename_pattern": "{name}Listeners",
-      "description": "Listeners de eventos"
+      "description": "Event listener implementations handling specific event types and reactions"
     },
     {
       "path": "publishers",
       "template": "service", 
       "filename_pattern": "{name}Publisher",
-      "description": "Publicadores de eventos"
+      "description": "Event publisher services responsible for broadcasting events to subscribers"
     },
     {
       "path": "components",
       "template": "component",
       "filename_pattern": "{name}",
-      "description": "Componentes que consumen eventos"
+      "description": "React components consuming and responding to application events"
     },
     {
       "path": "hooks",
       "template": "hook",
       "filename_pattern": "use{name}Events",
-      "description": "Hooks para eventos"
+      "description": "Custom React hooks managing event subscription and cleanup lifecycle"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Tipos de eventos y payloads"
+      "description": "TypeScript event type definitions and payload interface contracts"
     }
   ]
 }

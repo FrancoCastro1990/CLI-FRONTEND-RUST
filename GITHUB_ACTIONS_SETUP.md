@@ -1,6 +1,8 @@
 # GitHub Actions Setup Guide
 
-Esta guía te ayuda a configurar GitHub Actions para compilar automáticamente binarios para Windows, Linux y macOS.
+Esta guía te ayuda a configurar GitHub Actions para compilar automáticamente binarios para Windows, Linux y macOS, con **instaladores inteligentes que incluyen configuración automática**.
+
+> 🎉 **Actualizado para v1.2.3** - Instaladores con configuración automática de archivos `.conf`
 
 ## 🚀 Configuración Automática
 
@@ -9,18 +11,20 @@ Esta guía te ayuda a configurar GitHub Actions para compilar automáticamente b
 Los archivos ya están creados en tu proyecto:
 
 ```
-.github/workflows/build-and-release.yml   # Workflow principal
-install-quick.sh                          # Instalador rápido Unix
-install-quick.ps1                         # Instalador rápido Windows
+.github/workflows/build-and-release.yml   # Workflow principal con instaladores mejorados
+install-quick.sh                          # Instalador rápido Unix (con configuración automática)
+install-quick.ps1                         # Instalador rápido Windows (con configuración automática)
 install.sh                               # Instalador desde código fuente Unix
 install.ps1                              # Instalador desde código fuente Windows
 ```
+
+> ✨ **Nuevo en v1.2.3**: Los instaladores ahora crean automáticamente el archivo `.cli-frontend.conf` con las rutas correctas
 
 ### 2. Hacer commit y push
 
 ```bash
 git add .github/ install-quick.sh install-quick.ps1 install.ps1
-git commit -m "Add GitHub Actions workflow and installers"
+git commit -m "Add GitHub Actions workflow and installers v1.2.3"
 git push origin main
 ```
 
@@ -28,8 +32,8 @@ git push origin main
 
 ```bash
 # Crear un tag de versión
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.2.3
+git push origin v1.2.3
 ```
 
 ## 🔧 Cómo funciona
@@ -51,20 +55,23 @@ git push origin v1.0.0
 
 1. **Build** - Compila para todas las plataformas
 2. **Test** - Ejecuta tests, clippy y formatting
-3. **Release** - Si es un tag, crea release con binarios
+3. **Create installers** - Genera instaladores con configuración automática integrada
+4. **Release** - Si es un tag, crea release con binarios e instaladores
 
 ## 🎯 Uso de los binarios
 
 ### Una vez que GitHub Actions crea el release:
 
-**Instalación rápida (descarga binarios precompilados):**
+**Instalación rápida desde GitHub (descarga binarios precompilados con configuración automática):**
 ```bash
 # Linux/macOS
-curl -sSL https://raw.githubusercontent.com/TU_USUARIO/cli-frontend-rust/main/install-quick.sh | bash
+curl -sSL https://github.com/TU_USUARIO/CLI-FRONTEND-RUST/releases/latest/download/install-linux.sh | bash
 
-# Windows
-iwr -useb https://raw.githubusercontent.com/TU_USUARIO/cli-frontend-rust/main/install-quick.ps1 | iex
+# Windows (PowerShell)
+iwr -useb https://github.com/TU_USUARIO/CLI-FRONTEND-RUST/releases/latest/download/install-windows.ps1 | iex
 ```
+
+> ✨ **Nuevo en v1.2.3**: Los instaladores del release incluyen creación automática del archivo `.cli-frontend.conf`
 
 **Instalación desde código fuente (compila localmente):**
 ```bash
@@ -77,23 +84,33 @@ iwr -useb https://raw.githubusercontent.com/TU_USUARIO/cli-frontend-rust/main/in
 
 ## 📋 Ventajas de cada método
 
-### GitHub Actions (Recomendado)
+### Instalación desde GitHub Release (Recomendado v1.2.3)
 ✅ **Pros:**
 - No requiere Rust en la máquina del usuario
 - Instalación super rápida (solo descarga)
+- **Configuración automática** del archivo `.cli-frontend.conf`
 - Soporte automático para múltiples plataformas
 - Verificación automática de calidad de código
 - Distribución consistente
+- **Rutas correctas configuradas automáticamente**
 
 ❌ **Contras:**
 - Dependes de GitHub para la compilación
 - Requiere configuración inicial
 
-### Compilación Local
+### Instalación desde Código Fuente
 ✅ **Pros:**
 - Control total sobre la compilación
 - No dependes de servicios externos
 - Puedes compilar versiones personalizadas
+- **También incluye configuración automática** (v1.2.3)
+
+❌ **Contras:**
+- Requiere Rust instalado localmente
+- Proceso de compilación más lento
+- Posibles diferencias entre plataformas
+
+> 🔧 **Nota v1.2.3**: Ambos métodos ahora crean automáticamente la configuración necesaria, incluyendo rutas correctas para templates y arquitecturas.
 
 ❌ **Contras:**
 - Requiere Rust instalado

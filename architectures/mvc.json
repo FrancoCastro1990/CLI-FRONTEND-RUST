@@ -1,39 +1,43 @@
 {
   "name": "MVC (Model-View-Controller)",
-  "description": "Separa la aplicación en Modelo (datos), Vista (UI) y Controlador (lógica de negocio)",
+  "description": "Classic architectural pattern that separates application concerns into three interconnected components: Model manages data and business rules, View handles presentation layer and user interface rendering, Controller orchestrates user input and coordinates between Model and View. This separation promotes code organization, testability, and maintainability by establishing clear boundaries between data, presentation, and business logic layers.",
   "benefits": [
-    "Claridad en separación de responsabilidades",
-    "Fácil de entender para principiantes",
-    "Patrón ampliamente conocido"
+    "Clear separation of concerns with well-defined boundaries",
+    "High testability through isolated component responsibilities", 
+    "Excellent developer familiarity and widespread adoption",
+    "Simplified debugging through predictable data flow patterns",
+    "Reusable components across different views and controllers"
   ],
   "limitations": [
-    "En apps modernas con mucho estado dinámico puede volverse rígido",
-    "Acoplamiento entre controlador y vista"
+    "Can become rigid with complex state management requirements",
+    "Potential tight coupling between Controller and View layers",
+    "May introduce unnecessary complexity for simple applications",
+    "Limited scalability for real-time data synchronization needs"
   ],
   "structure": [
     {
       "path": "models",
       "template": "service", 
       "filename_pattern": "{name}Model",
-      "description": "Modelo de datos del feature"
+      "description": "Data model containing business logic and state management"
     },
     {
       "path": "views",
       "template": "component",
       "filename_pattern": "{name}View",
-      "description": "Vista/Componente del feature"
+      "description": "React component responsible for UI rendering and presentation"
     },
     {
       "path": "controllers",
       "template": "service",
       "filename_pattern": "{name}Controller", 
-      "description": "Controlador con lógica de negocio"
+      "description": "Business logic coordinator managing Model-View interactions"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Interfaces y tipos"
+      "description": "TypeScript interfaces and type definitions for MVC components"
     }
   ]
 }

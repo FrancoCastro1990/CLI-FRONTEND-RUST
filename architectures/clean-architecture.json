@@ -1,59 +1,61 @@
 {
   "name": "Clean Architecture",
-  "description": "Separa en capas: dominio, aplicación, infraestructura y UI",
+  "description": "Simplified layered architecture for frontend applications emphasizing separation of concerns through three main layers: Domain (business logic and entities), Application (use cases and orchestration), and Infrastructure (external services and UI). This streamlined approach maintains Clean Architecture principles while being practical for frontend development without unnecessary complexity.",
   "benefits": [
-    "Alta mantenibilidad",
-    "Altamente testeable",
-    "Desacoplada",
-    "Independiente de frameworks"
+    "Clear separation between business logic and UI concerns",
+    "Excellent testability with isolated domain and application layers",
+    "Framework independence allowing easy technology migrations",
+    "Maintainable codebase with well-defined layer responsibilities",
+    "Scalable structure for growing frontend applications"
   ],
   "limitations": [
-    "Puede ser demasiado estructurada para apps simples",
-    "Más código inicial",
-    "Curva de aprendizaje"
+    "Initial setup overhead for simple applications",
+    "Requires understanding of layered architecture principles",
+    "May introduce complexity for basic CRUD operations",
+    "Learning curve for developers unfamiliar with domain-driven design"
   ],
   "structure": [
     {
       "path": "domain/entities",
       "template": "service",
       "filename_pattern": "{name}Entity",
-      "description": "Entidades del dominio"
+      "description": "Core business entities containing essential business rules and data"
     },
     {
       "path": "domain/repositories",
       "template": "service", 
       "filename_pattern": "{name}Repository",
-      "description": "Interfaces de repositorios"
+      "description": "Abstract repository interfaces defining data access contracts"
     },
     {
       "path": "application/usecases",
       "template": "service",
       "filename_pattern": "{name}UseCase",
-      "description": "Casos de uso de la aplicación"
+      "description": "Application use cases orchestrating business logic and data flow"
     },
     {
-      "path": "infrastructure/repositories",
+      "path": "infrastructure/services",
       "template": "service",
-      "filename_pattern": "{name}RepositoryImpl",
-      "description": "Implementación de repositorios"
+      "filename_pattern": "{name}Service",
+      "description": "External service implementations including API calls and data persistence"
     },
     {
       "path": "presentation/components",
       "template": "component",
       "filename_pattern": "{name}",
-      "description": "Componentes de presentación"
+      "description": "React presentation components handling UI rendering and user interaction"
     },
     {
       "path": "presentation/hooks",
       "template": "hook",
       "filename_pattern": "use{name}",
-      "description": "Hooks de presentación"
+      "description": "Custom React hooks connecting UI components to application use cases"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Interfaces y tipos"
+      "description": "TypeScript interfaces and contracts for cross-layer communication"
     }
   ]
 }

@@ -1,13 +1,13 @@
-# 🏗️ Guía de Arquitecturas de Software
+# 🏗️ Software Architecture Guide
 
-Esta guía documenta las **11 arquitecturas de software** disponibles en el CLI Frontend Generator. Cada arquitectura está diseñada para diferentes escenarios y necesidades de desarrollo.
+This guide documents the **12 software architectures** available in the CLI Frontend Generator. Each architecture is designed for specific development scenarios and requirements, enabling professional developers to generate complete feature structures following established architectural patterns.
 
-## 📖 Índice
+## 📖 Table of Contents
 
-1. [¿Qué son las Arquitecturas de Features?](#qué-son-las-arquitecturas-de-features)
-2. [Cómo Usar las Arquitecturas](#cómo-usar-las-arquitecturas)
-3. [Arquitecturas Disponibles](#arquitecturas-disponibles)
-   - [Screaming Architecture](#screaming-architecture-por-defecto)
+1. [What are Feature Architectures?](#what-are-feature-architectures)
+2. [How to Use Architectures](#how-to-use-architectures)
+3. [Available Architectures](#available-architectures)
+   - [Screaming Architecture](#screaming-architecture-default)
    - [MVC (Model-View-Controller)](#mvc-model-view-controller)
    - [MVP (Model-View-Presenter)](#mvp-model-view-presenter)
    - [MVVM (Model-View-ViewModel)](#mvvm-model-view-viewmodel)
@@ -18,70 +18,70 @@ Esta guía documenta las **11 arquitecturas de software** disponibles en el CLI 
    - [Atomic Design](#atomic-design)
    - [Micro-Frontends](#micro-frontends)
    - [Event-Driven Architecture](#event-driven-architecture)
-4. [¿Qué Arquitectura Elegir?](#qué-arquitectura-elegir)
-5. [Crear Arquitecturas Personalizadas](#crear-arquitecturas-personalizadas)
+4. [Architecture Selection Guide](#architecture-selection-guide)
+5. [Creating Custom Architectures](#creating-custom-architectures)
 
 ---
 
-## ¿Qué son las Arquitecturas de Features?
+## What are Feature Architectures?
 
-Las **arquitecturas de features** permiten generar estructuras completas de código que siguen patrones arquitectónicos específicos. En lugar de generar archivos individuales, generas una **feature completa** con:
+**Feature architectures** enable the generation of complete code structures that follow specific architectural patterns. Instead of generating individual files, you generate a **complete feature** with:
 
-- 📁 **Estructura de carpetas** organizada según el patrón elegido
-- 📄 **Múltiples archivos** trabajando en conjunto
-- 🔗 **Separación de responsabilidades** clara
-- 📝 **Documentación** sobre beneficios y limitaciones
+- 📁 **Folder structure** organized according to the chosen pattern
+- 📄 **Multiple files** working together cohesively
+- 🔗 **Clear separation of concerns** and responsibilities
+- 📝 **Technical documentation** covering benefits and limitations
 
 ---
 
-## Cómo Usar las Arquitecturas
+## How to Use Architectures
 
-### Sintaxis Básica
+### Basic Syntax
 ```bash
-cli-frontend [NombreFeature] --type feature --architecture [nombre-arquitectura]
+cli-frontend [FeatureName] --type feature --architecture [architecture-name]
 ```
 
-### Ejemplos
+### Examples
 ```bash
-# Arquitectura por defecto (Screaming Architecture)
+# Default architecture (Screaming Architecture)
 cli-frontend UserAuth --type feature
 
-# Especificar arquitectura
+# Specify architecture
 cli-frontend UserAuth --type feature --architecture mvc
 cli-frontend ShoppingCart --type feature --architecture atomic-design
 cli-frontend PaymentSystem --type feature --architecture clean-architecture
 ```
 
-### Ver Arquitecturas Disponibles
+### View Available Architectures
 ```bash
 cli-frontend --help
 ```
 
 ---
 
-## Arquitecturas Disponibles
+## Available Architectures
 
-### Screaming Architecture (Por Defecto)
+### Screaming Architecture (Default)
 
-**📐 Filosofía:** "La arquitectura debe gritar el propósito del sistema"
+**📐 Philosophy:** "Architecture should scream the system's purpose"
 
-**🎯 Cuándo usar:**
-- Equipos grandes que trabajan en diferentes features
-- Aplicaciones que crecerán significativamente
-- Cuando quieres que el código "grite" qué hace el negocio
-- Proyectos donde las features son independientes
+**🎯 When to use:**
+- Large teams working on different features
+- Applications with significant growth potential
+- Projects where business domain should be immediately evident
+- Feature-independent development scenarios
 
-**✅ Beneficios:**
-- Muy claro para grandes equipos
-- Grita el negocio
-- Fácil escalabilidad
-- Estructura que refleja el dominio
+**✅ Benefits:**
+- Excellent clarity for large development teams
+- Domain-driven structure that reflects business needs
+- Natural scalability and maintainability
+- Self-documenting codebase organization
 
-**⚠️ Limitaciones:**
-- Puede generar duplicación si no hay shared modules
-- Requiere disciplina para naming y convenciones
+**⚠️ Limitations:**
+- Potential code duplication without proper shared modules
+- Requires disciplined naming conventions and team coordination
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend UserAuth --type feature
 ```
@@ -105,74 +105,74 @@ UserAuth/
 
 ### MVC (Model-View-Controller)
 
-**📐 Filosofía:** Separación clásica en tres capas: datos, vista y lógica
+**📐 Philosophy:** Classic three-layer separation: data, view, and business logic
 
-**🎯 Cuándo usar:**
-- Aplicaciones tradicionales donde la lógica de negocio es compleja
-- Equipos familiares con patrones MVC
-- Aplicaciones con mucha interacción de formularios
-- Sistemas CRUD tradicionales
+**🎯 When to use:**
+- Traditional applications with complex business logic
+- Teams familiar with MVC architectural patterns
+- Form-heavy applications with extensive user interactions
+- Traditional CRUD systems with clear data flow
 
-**✅ Beneficios:**
-- Claridad en separación de responsabilidades
-- Fácil de entender para principiantes
-- Patrón ampliamente conocido
+**✅ Benefits:**
+- Clear separation of responsibilities across layers
+- Beginner-friendly pattern with widespread recognition
+- Well-established architectural pattern with proven results
 
-**⚠️ Limitaciones:**
-- En apps modernas con mucho estado dinámico puede volverse rígido
-- Acoplamiento entre controlador y vista
+**⚠️ Limitations:**
+- Can become rigid in modern dynamic state applications
+- Potential tight coupling between controller and view components
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend UserManagement --type feature --architecture mvc
 ```
 ```
 UserManagement/
 ├── models/
-│   └── UserManagementModel.ts      # Lógica de datos
+│   └── UserManagementModel.ts      # Data logic and business rules
 ├── views/
-│   ├── UserManagementView.tsx      # Interfaz de usuario
+│   ├── UserManagementView.tsx      # User interface components
 │   ├── UserManagementView.spec.tsx
 │   └── UserManagementView.module.scss
 ├── controllers/
-│   └── UserManagementController.ts # Lógica de negocio
-└── types.ts                        # Interfaces
+│   └── UserManagementController.ts # Business logic orchestration
+└── types.ts                        # Interface definitions
 ```
 
 ---
 
 ### MVP (Model-View-Presenter)
 
-**📐 Filosofía:** El Presenter actúa como intermediario entre Vista y Modelo
+**📐 Philosophy:** The Presenter acts as an intermediary between View and Model
 
-**🎯 Cuándo usar:**
-- Cuando necesitas alta testabilidad
-- Vistas muy complejas que requieren mucha lógica de presentación
-- Aplicaciones donde la lógica de UI es independiente de los datos
+**🎯 When to use:**
+- Applications requiring high testability standards
+- Complex views with extensive presentation logic requirements
+- Applications where UI logic is independent from data sources
 
-**✅ Beneficios:**
-- Testable
-- Desacopla la vista de la lógica de negocio
-- Facilita testing unitario
+**✅ Benefits:**
+- Highly testable architecture with isolated presentation logic
+- Decouples view from business logic for better maintainability
+- Facilitates comprehensive unit testing strategies
 
-**⚠️ Limitaciones:**
-- Más boilerplate
-- Puede volverse verboso en proyectos grandes
+**⚠️ Limitations:**
+- Increased boilerplate code for simple operations
+- Can become verbose in large-scale projects
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend ProductCatalog --type feature --architecture mvp
 ```
 ```
 ProductCatalog/
 ├── models/
-│   └── ProductCatalogModel.ts      # Modelo de datos
+│   └── ProductCatalogModel.ts      # Data model definitions
 ├── views/
-│   ├── ProductCatalogView.tsx      # Vista pasiva
+│   ├── ProductCatalogView.tsx      # Passive view components
 │   ├── ProductCatalogView.spec.tsx
 │   └── ProductCatalogView.module.scss
 ├── presenters/
-│   └── ProductCatalogPresenter.ts  # Lógica de presentación
+│   └── ProductCatalogPresenter.ts  # Presentation logic coordination
 └── types.ts
 ```
 
@@ -180,39 +180,39 @@ ProductCatalog/
 
 ### MVVM (Model-View-ViewModel)
 
-**📐 Filosofía:** Data binding bidireccional entre Vista y ViewModel
+**📐 Philosophy:** Bidirectional data binding between View and ViewModel
 
-**🎯 Cuándo usar:**
-- Aplicaciones React/Vue/Angular con mucho estado reactivo
-- Formularios complejos con validación en tiempo real
-- Dashboards interactivos
-- Aplicaciones con mucho data binding
+**🎯 When to use:**
+- React/Vue/Angular applications with reactive state management
+- Complex forms with real-time validation requirements
+- Interactive dashboards with dynamic data binding
+- Applications prioritizing reactive data synchronization
 
-**✅ Beneficios:**
-- Facilita data binding
-- Ideal para frameworks reactivos (React, Vue, Angular)
-- Separación clara de responsabilidades
+**✅ Benefits:**
+- Facilitates seamless data binding and state synchronization
+- Optimal for reactive frameworks (React, Vue, Angular)
+- Clear separation of concerns with reactive patterns
 
-**⚠️ Limitaciones:**
-- Puede generar dependencias implícitas si se abusa del binding
-- Más complejo de depurar
+**⚠️ Limitations:**
+- Can create implicit dependencies with excessive binding
+- More complex debugging scenarios with reactive chains
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend Dashboard --type feature --architecture mvvm
 ```
 ```
 Dashboard/
 ├── models/
-│   └── DashboardModel.ts           # Modelo de datos
+│   └── DashboardModel.ts           # Data model definitions
 ├── views/
-│   ├── DashboardView.tsx           # Vista reactiva
+│   ├── DashboardView.tsx           # Reactive view components
 │   ├── DashboardView.spec.tsx
 │   └── DashboardView.module.scss
 ├── viewmodels/
-│   └── DashboardViewModel.ts       # ViewModel con estado
+│   └── DashboardViewModel.ts       # ViewModel with reactive state
 ├── hooks/
-│   ├── useDashboard.ts             # Hook para binding
+│   ├── useDashboard.ts             # Data binding hooks
 │   └── useDashboard.test.ts
 └── types.ts
 ```
@@ -221,43 +221,46 @@ Dashboard/
 
 ### Flux Architecture
 
-**📐 Filosofía:** Flujo de datos unidireccional con Actions, Dispatcher y Stores
+**📐 Philosophy:** Unidirectional data flow with Actions, Dispatcher, and Stores
 
-**🎯 Cuándo usar:**
-- Aplicaciones con estado complejo y muchas interacciones
-- Cuando necesitas flujo de datos predecible
-- Aplicaciones que manejan muchos eventos de usuario
-- Sistemas en tiempo real
+**🎯 When to use:**
+- Applications with complex state and multiple user interactions
+- Systems requiring predictable data flow patterns
+- Real-time applications with event-driven architectures
+- Applications handling numerous user events and state changes
 
-**✅ Beneficios:**
-- Control del estado global
-- Predictibilidad
-- Flujo de datos unidireccional
-- Herramientas de debugging
+**✅ Benefits:**
+- Guaranteed unidirectional data flow with centralized Dispatcher coordination
+- Eliminates circular dependencies and cascading update scenarios
+- Predictable state mutations through sequential action processing
+- Enhanced debugging with centralized action logging capabilities
 
-**⚠️ Limitaciones:**
-- Puede ser excesivo para apps pequeñas
-- Boilerplate y curva de aprendizaje
+**⚠️ Limitations:**
+- Significant boilerplate overhead with Dispatcher, Actions, and Store setup
+- Complex learning curve requiring understanding of unidirectional patterns
+- May be excessive for simple state management requirements
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend ChatApp --type feature --architecture flux
 ```
 ```
 ChatApp/
 ├── actions/
-│   └── ChatAppActions.ts           # Actions para modificar estado
+│   └── ChatAppActions.ts           # Action creators for state mutations
+├── dispatcher/
+│   └── ChatAppDispatcher.ts        # Central dispatcher hub managing action distribution
 ├── stores/
-│   ├── ChatAppStore.ts             # Store que mantiene estado
+│   ├── ChatAppStore.ts             # State containers with business logic
 │   ├── ChatAppStore.types.ts
 │   ├── ChatAppStore.thunks.ts
 │   └── ChatAppStore.store.test.ts
 ├── views/
-│   ├── ChatAppView.tsx             # Vista que consume store
+│   ├── ChatAppView.tsx             # React components consuming store state
 │   ├── ChatAppView.spec.tsx
 │   └── ChatAppView.module.scss
 ├── hooks/
-│   ├── useChatApp.ts               # Hook para acceder al store
+│   ├── useChatApp.ts               # Custom hooks for store subscription
 │   └── useChatApp.test.ts
 └── types.ts
 ```
@@ -266,45 +269,52 @@ ChatApp/
 
 ### Redux Architecture
 
-**📐 Filosofía:** Estado predecible con reducers, actions y estado inmutable
+**📐 Philosophy:** Predictable state management with reducers, actions, and immutable state
 
-**🎯 Cuándo usar:**
-- Aplicaciones grandes con estado complejo
-- Cuando necesitas time-travel debugging
-- Aplicaciones que requieren persistencia de estado
-- Equipos grandes que necesitan patrones consistentes
+**🎯 When to use:**
+- Large applications with complex state management needs
+- Systems requiring time-travel debugging capabilities
+- Applications needing state persistence and rehydration
+- Large teams requiring consistent state management patterns
 
-**✅ Beneficios:**
-- Estado predecible
-- Time-travel debugging
-- Middleware ecosystem
-- DevTools excelentes
+**✅ Benefits:**
+- Predictable state updates through pure reducer functions
+- Powerful time-travel debugging and state inspection capabilities
+- Rich middleware ecosystem for async operations and side effects
+- Excellent developer tooling with Redux DevTools integration
 
-**⚠️ Limitaciones:**
-- Boilerplate extenso
-- Curva de aprendizaje pronunciada
+**⚠️ Limitations:**
+- Extensive boilerplate code for simple state operations
+- Steep learning curve with functional programming concepts
+- Performance considerations with frequent state updates
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend ShoppingCart --type feature --architecture redux
 ```
 ```
 ShoppingCart/
 ├── store/
-│   ├── ShoppingCartStore.ts        # Store principal
+│   ├── ShoppingCartStore.ts        # Redux store with root reducer
 │   ├── ShoppingCartStore.types.ts
 │   ├── ShoppingCartStore.thunks.ts
 │   └── ShoppingCartStore.store.test.ts
 ├── actions/
-│   └── ShoppingCartActions.ts      # Action creators
+│   └── ShoppingCartActions.ts      # Action creators and type definitions
 ├── reducers/
-│   └── ShoppingCartReducer.ts      # Reducers para estado
+│   └── ShoppingCartReducer.ts      # Pure reducer functions for state
+├── selectors/
+│   └── ShoppingCartSelectors.ts    # Memoized selector functions for data extraction
+├── middleware/
+│   └── ShoppingCartMiddleware.ts   # Custom middleware for async operations
+├── constants/
+│   └── ShoppingCartConstants.ts    # Action type constants and configuration
 ├── components/
-│   ├── ShoppingCart.tsx            # Componente conectado
+│   ├── ShoppingCart.tsx            # Redux-connected React components
 │   ├── ShoppingCart.spec.tsx
 │   └── ShoppingCart.module.scss
 ├── hooks/
-│   ├── useShoppingCart.ts          # useSelector/useDispatch
+│   ├── useShoppingCart.ts          # Custom Redux hooks with useSelector/useDispatch
 │   └── useShoppingCart.test.ts
 └── types.ts
 ```
@@ -313,26 +323,26 @@ ShoppingCart/
 
 ### Clean Architecture
 
-**📐 Filosofía:** Arquitectura por capas con dependencias hacia adentro
+**📐 Philosophy:** Simplified layered architecture with inward-facing dependencies
 
-**🎯 Cuándo usar:**
-- Aplicaciones empresariales complejas
-- Sistemas que deben ser altamente testeable
-- Aplicaciones que cambiarán frameworks/tecnologías
-- Proyectos a largo plazo con múltiples equipos
+**🎯 When to use:**
+- Enterprise applications with complex business requirements
+- Systems requiring high testability and maintainability
+- Applications that may change frameworks or technologies
+- Long-term projects with multiple development teams
 
-**✅ Beneficios:**
-- Alta mantenibilidad
-- Altamente testeable
-- Desacoplada
-- Independiente de frameworks
+**✅ Benefits:**
+- Clear separation between business logic and UI concerns
+- Excellent testability with isolated domain and application layers
+- Framework independence allowing easy technology migrations
+- Maintainable codebase with well-defined layer responsibilities
 
-**⚠️ Limitaciones:**
-- Puede ser demasiado estructurada para apps simples
-- Más código inicial
-- Curva de aprendizaje
+**⚠️ Limitations:**
+- Initial setup overhead for simple applications
+- Requires understanding of layered architecture principles
+- May introduce complexity for basic CRUD operations
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend PaymentSystem --type feature --architecture clean-architecture
 ```
@@ -340,22 +350,22 @@ cli-frontend PaymentSystem --type feature --architecture clean-architecture
 PaymentSystem/
 ├── domain/
 │   ├── entities/
-│   │   └── PaymentSystemEntity.ts      # Entidades del dominio
+│   │   └── PaymentSystemEntity.ts      # Core business entities with rules
 │   └── repositories/
-│       └── PaymentSystemRepository.ts  # Interfaces de repos
+│       └── PaymentSystemRepository.ts  # Abstract repository interfaces
 ├── application/
 │   └── usecases/
-│       └── PaymentSystemUseCase.ts     # Casos de uso
+│       └── PaymentSystemUseCase.ts     # Application use cases orchestration
 ├── infrastructure/
-│   └── repositories/
-│       └── PaymentSystemRepositoryImpl.ts # Implementaciones
+│   └── services/
+│       └── PaymentSystemService.ts     # External service implementations
 ├── presentation/
 │   ├── components/
-│   │   ├── PaymentSystem.tsx           # Componentes UI
+│   │   ├── PaymentSystem.tsx           # UI presentation components
 │   │   ├── PaymentSystem.spec.tsx
 │   │   └── PaymentSystem.module.scss
 │   └── hooks/
-│       ├── usePaymentSystem.ts         # Hooks de presentación
+│       ├── usePaymentSystem.ts         # React hooks for UI integration
 │       └── usePaymentSystem.test.ts
 └── types.ts
 ```
@@ -364,25 +374,25 @@ PaymentSystem/
 
 ### Component-Based Architecture
 
-**📐 Filosofía:** Organización por componentes reutilizables y su jerarquía
+**📐 Philosophy:** Organization through reusable components and hierarchical structure
 
-**🎯 Cuándo usar:**
-- Aplicaciones con muchos componentes reutilizables
-- Design systems
-- Aplicaciones que priorizan la reutilización
-- Equipos enfocados en UI/UX
+**🎯 When to use:**
+- Applications with extensive reusable component requirements
+- Design system development and implementation
+- Applications prioritizing code reusability and modularity
+- Teams focused on UI/UX development workflows
 
-**✅ Beneficios:**
-- Escalable
-- Reutilizable
-- Fácil de testear y mantener
-- Encapsulación clara
+**✅ Benefits:**
+- Highly scalable component-driven development approach
+- Maximum code reusability across application features
+- Clear encapsulation with maintainable component boundaries
+- Natural testing and debugging at component level
 
-**⚠️ Limitaciones:**
-- Si no hay convenciones, puede volverse desordenada
-- Acoplamiento implícito si los props/estado no se manejan bien
+**⚠️ Limitations:**
+- Risk of organizational chaos without proper conventions
+- Potential implicit coupling through props and state management
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend UILibrary --type feature --architecture component-based
 ```
@@ -390,19 +400,19 @@ cli-frontend UILibrary --type feature --architecture component-based
 UILibrary/
 ├── components/
 │   ├── common/
-│   │   ├── UILibrary.tsx               # Componentes reutilizables
+│   │   ├── UILibrary.tsx               # Reusable component library
 │   │   ├── UILibrary.spec.tsx
 │   │   └── UILibrary.module.scss
 │   ├── containers/
-│   │   ├── UILibraryContainer.tsx      # Componentes con lógica
+│   │   ├── UILibraryContainer.tsx      # Logic-heavy container components
 │   │   ├── UILibraryContainer.spec.tsx
 │   │   └── UILibraryContainer.module.scss
 │   └── presentation/
-│       ├── UILibraryPresentation.tsx   # Componentes puros
+│       ├── UILibraryPresentation.tsx   # Pure presentation components
 │       ├── UILibraryPresentation.spec.tsx
 │       └── UILibraryPresentation.module.scss
 ├── hooks/
-│   ├── useUILibrary.ts                 # Hooks personalizados
+│   ├── useUILibrary.ts                 # Custom component hooks
 │   └── useUILibrary.test.ts
 └── types.ts
 ```
@@ -411,48 +421,48 @@ UILibrary/
 
 ### Atomic Design
 
-**📐 Filosofía:** Jerarquía de componentes: Átomos → Moléculas → Organismos → Plantillas → Páginas
+**📐 Philosophy:** Component hierarchy: Atoms → Molecules → Organisms → Templates → Pages
 
-**🎯 Cuándo usar:**
-- Design systems complejos
-- Aplicaciones que requieren consistencia visual
-- Equipos de diseño y desarrollo trabajando juntos
-- Sistemas con muchos componentes reutilizables
+**🎯 When to use:**
+- Complex design system implementation and maintenance
+- Applications requiring visual consistency across features
+- Design and development teams working collaboratively
+- Systems with extensive reusable component requirements
 
-**✅ Beneficios:**
-- Facilita diseño consistente
-- Modularización UI clara
-- Reutilización sistemática
-- Design System natural
+**✅ Benefits:**
+- Systematic design consistency across application layers
+- Clear UI component modularization and reusability
+- Natural design system development methodology
+- Facilitates designer-developer collaboration workflows
 
-**⚠️ Limitaciones:**
-- No cubre lógica de negocio
-- Requiere disciplina para no mezclar niveles
+**⚠️ Limitations:**
+- Limited business logic coverage requiring additional patterns
+- Requires discipline to maintain proper component hierarchy
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend DesignSystem --type feature --architecture atomic-design
 ```
 ```
 DesignSystem/
 ├── atoms/
-│   ├── DesignSystemAtom.tsx        # Elementos básicos (botones, inputs)
+│   ├── DesignSystemAtom.tsx        # Basic UI elements (buttons, inputs)
 │   ├── DesignSystemAtom.spec.tsx
 │   └── DesignSystemAtom.module.scss
 ├── molecules/
-│   ├── DesignSystemMolecule.tsx    # Combinación de átomos
+│   ├── DesignSystemMolecule.tsx    # Combined atomic components
 │   ├── DesignSystemMolecule.spec.tsx
 │   └── DesignSystemMolecule.module.scss
 ├── organisms/
-│   ├── DesignSystemOrganism.tsx    # Secciones complejas
+│   ├── DesignSystemOrganism.tsx    # Complex component sections
 │   ├── DesignSystemOrganism.spec.tsx
 │   └── DesignSystemOrganism.module.scss
 ├── templates/
-│   ├── DesignSystemTemplate.tsx    # Layout sin contenido
+│   ├── DesignSystemTemplate.tsx    # Layout structures without content
 │   ├── DesignSystemTemplate.spec.tsx
 │   └── DesignSystemTemplate.module.scss
 ├── pages/
-│   ├── DesignSystemPage.tsx        # Páginas completas
+│   ├── DesignSystemPage.tsx        # Complete page implementations
 │   ├── DesignSystemPage.spec.tsx
 │   └── DesignSystemPage.module.scss
 └── types.ts
@@ -462,213 +472,213 @@ DesignSystem/
 
 ### Micro-Frontends
 
-**📐 Filosofía:** Cada feature es un "mini-frontend" independiente
+**📐 Philosophy:** Each feature operates as an independent "mini-frontend" application
 
-**🎯 Cuándo usar:**
-- Equipos grandes trabajando en paralelo
-- Aplicaciones que necesitan despliegues independientes
-- Migración gradual de sistemas legacy
-- Diferentes tecnologías por equipo
+**🎯 When to use:**
+- Large teams working in parallel on different features
+- Applications requiring independent deployment capabilities
+- Gradual migration from legacy systems and technologies
+- Organizations with diverse technology stacks per team
 
-**✅ Beneficios:**
-- Escalabilidad de equipos grandes
-- Despliegues independientes
-- Tecnologías independientes
-- Isolación de fallos
+**✅ Benefits:**
+- Excellent scalability for large development teams
+- Independent deployment and release cycles
+- Technology stack freedom for different teams
+- Fault isolation and system resilience
 
-**⚠️ Limitaciones:**
-- Complejidad de integración
-- Duplicación de dependencias
-- Más infraestructura
+**⚠️ Limitations:**
+- Complex integration and orchestration requirements
+- Potential dependency duplication and bundle size issues
+- Increased infrastructure and deployment complexity
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend OrderModule --type feature --architecture micro-frontends
 ```
 ```
 OrderModule/
 ├── shell/
-│   ├── OrderModuleShell.tsx        # Container del microfrontend
+│   ├── OrderModuleShell.tsx        # Microfrontend container and orchestration
 │   ├── OrderModuleShell.spec.tsx
 │   └── OrderModuleShell.module.scss
 ├── components/
-│   ├── OrderModule.tsx             # Componentes internos
+│   ├── OrderModule.tsx             # Internal module components
 │   ├── OrderModule.spec.tsx
 │   └── OrderModule.module.scss
 ├── services/
-│   └── OrderModuleService.ts       # Servicios del módulo
+│   └── OrderModuleService.ts       # Module-specific service implementations
 ├── hooks/
-│   ├── useOrderModule.ts           # Hooks del módulo
+│   ├── useOrderModule.ts           # Module-scoped custom hooks
 │   └── useOrderModule.test.ts
 ├── api/
-│   └── OrderModuleApi.ts           # API del módulo
-└── types.ts                        # Tipos públicos
+│   └── OrderModuleApi.ts           # Module API interface and contracts
+└── types.ts                        # Public type definitions and interfaces
 ```
 
 ---
 
 ### Event-Driven Architecture
 
-**📐 Filosofía:** Comunicación entre features mediante eventos
+**📐 Philosophy:** Feature communication through decoupled event publishing and subscription
 
-**🎯 Cuándo usar:**
-- Aplicaciones altamente interactivas
-- Sistemas en tiempo real
-- Aplicaciones con muchos módulos independientes
-- Chat apps, juegos, dashboards en vivo
+**🎯 When to use:**
+- Highly interactive applications with real-time requirements
+- Real-time systems with live data synchronization needs
+- Applications with independent modules requiring loose coupling
+- Chat applications, gaming interfaces, and live dashboards
 
-**✅ Beneficios:**
-- Bajo acoplamiento
-- Flexible
-- Ideal para apps altamente interactivas
-- Escalabilidad horizontal
+**✅ Benefits:**
+- Extremely low coupling between system components
+- High flexibility and extensibility for new features
+- Optimal for highly interactive and real-time applications
+- Natural horizontal scalability patterns
 
-**⚠️ Limitaciones:**
-- Difícil de depurar
-- Seguimiento de flujo de eventos complejo
+**⚠️ Limitations:**
+- Complex debugging and event flow tracing
+- Challenging event sequence and dependency management
 
-**📁 Estructura Generada:**
+**📁 Generated Structure:**
 ```bash
 cli-frontend NotificationSystem --type feature --architecture event-driven
 ```
 ```
 NotificationSystem/
 ├── events/
-│   └── NotificationSystemEvents.ts    # Definición de eventos
+│   └── NotificationSystemEvents.ts    # Event type definitions and schemas
 ├── listeners/
-│   └── NotificationSystemListeners.ts # Listeners de eventos
+│   └── NotificationSystemListeners.ts # Event listener implementations
 ├── publishers/
-│   └── NotificationSystemPublisher.ts # Publicadores de eventos
+│   └── NotificationSystemPublisher.ts # Event publishing and dispatch logic
 ├── components/
-│   ├── NotificationSystem.tsx         # Componentes que consumen eventos
+│   ├── NotificationSystem.tsx         # Event-reactive UI components
 │   ├── NotificationSystem.spec.tsx
 │   └── NotificationSystem.module.scss
 ├── hooks/
-│   ├── useNotificationSystemEvents.ts # Hooks para eventos
+│   ├── useNotificationSystemEvents.ts # Event subscription and handling hooks
 │   └── useNotificationSystemEvents.test.ts
-└── types.ts                           # Tipos de eventos y payloads
+└── types.ts                           # Event payload and interface definitions
 ```
 
 ---
 
-## ¿Qué Arquitectura Elegir?
+## Architecture Selection Guide
 
-### 🎯 Para Proyectos Pequeños/Medianos (< 10 desarrolladores)
-- **Screaming Architecture** - Para features bien definidas
-- **Component-Based** - Para aplicaciones UI-heavy
-- **MVVM** - Para formularios complejos
+### 🎯 Small to Medium Projects (< 10 developers)
+- **Screaming Architecture** - For well-defined feature boundaries
+- **Component-Based** - For UI-heavy applications and design systems
+- **MVVM** - For complex forms and reactive data requirements
 
-### 🏢 Para Proyectos Empresariales (> 10 desarrolladores)
-- **Clean Architecture** - Para sistemas complejos a largo plazo
-- **Micro-Frontends** - Para equipos grandes independientes
-- **MVC/MVP** - Para sistemas tradicionales
+### 🏢 Enterprise Projects (> 10 developers)
+- **Clean Architecture** - For complex long-term systems requiring maintainability
+- **Micro-Frontends** - For large independent teams with deployment autonomy
+- **MVC/MVP** - For traditional enterprise systems with established patterns
 
-### 🎨 Para Design Systems
-- **Atomic Design** - Para bibliotecas de componentes
-- **Component-Based** - Para sistemas de componentes
+### 🎨 Design System Development
+- **Atomic Design** - For comprehensive component libraries and design systems
+- **Component-Based** - For reusable component system development
 
-### ⚡ Para Aplicaciones Interactivas
-- **Event-Driven** - Para sistemas en tiempo real
-- **Flux/Redux** - Para estado complejo
+### ⚡ Interactive Applications
+- **Event-Driven** - For real-time systems and live data applications
+- **Flux/Redux** - For complex state management and predictable data flow
 
-### 📊 Tabla de Decisión
+### 📊 Decision Matrix
 
-| Escenario | Arquitectura Recomendada | Alternativa |
-|-----------|-------------------------|-------------|
-| App pequeña con features claras | Screaming | Component-Based |
-| Sistema empresarial complejo | Clean Architecture | MVC |
-| Design System | Atomic Design | Component-Based |
-| App con estado complejo | Redux | Flux |
-| Equipos grandes independientes | Micro-Frontends | Clean Architecture |
-| App en tiempo real | Event-Driven | Flux |
-| Formularios complejos | MVVM | MVP |
-| Sistema CRUD tradicional | MVC | MVP |
+| Scenario | Recommended Architecture | Alternative |
+|----------|-------------------------|-------------|
+| Small app with clear feature boundaries | Screaming Architecture | Component-Based |
+| Complex enterprise system | Clean Architecture | MVC |
+| Design system development | Atomic Design | Component-Based |
+| Complex state management | Redux | Flux |
+| Large independent teams | Micro-Frontends | Clean Architecture |
+| Real-time applications | Event-Driven | Flux |
+| Complex form applications | MVVM | MVP |
+| Traditional CRUD systems | MVC | MVP |
 
 ---
 
-## Crear Arquitecturas Personalizadas
+## Creating Custom Architectures
 
-Puedes crear tus propias arquitecturas agregando archivos JSON en el directorio `architectures/`:
+You can create custom architectures by adding JSON configuration files to the `architectures/` directory:
 
-### 1. Crear archivo JSON
+### 1. Create JSON Configuration File
 ```bash
-# Crear nueva arquitectura
-nano architectures/mi-arquitectura.json
+# Create new architecture configuration
+nano architectures/my-architecture.json
 ```
 
-### 2. Definir estructura
+### 2. Define Architecture Structure
 ```json
 {
-  "name": "Mi Arquitectura Personalizada",
-  "description": "Descripción de mi arquitectura",
+  "name": "My Custom Architecture",
+  "description": "Technical description of your custom architecture pattern",
   "benefits": [
-    "Beneficio 1",
-    "Beneficio 2"
+    "Benefit 1: Specific technical advantage",
+    "Benefit 2: Performance or maintainability improvement"
   ],
   "limitations": [
-    "Limitación 1",
-    "Limitación 2"
+    "Limitation 1: Specific constraint or trade-off",
+    "Limitation 2: Learning curve or complexity consideration"
   ],
   "structure": [
     {
-      "path": "carpeta1",
+      "path": "folder1",
       "template": "component",
       "filename_pattern": "{name}Custom",
-      "description": "Descripción de esta parte"
+      "description": "Technical description of this component's role"
     },
     {
-      "path": "carpeta2", 
+      "path": "folder2", 
       "template": "service",
       "filename_pattern": "{name}Service",
-      "description": "Descripción del servicio"
+      "description": "Service layer implementation details"
     }
   ]
 }
 ```
 
-### 3. Usar tu arquitectura
+### 3. Use Your Custom Architecture
 ```bash
-cli-frontend MiFeature --type feature --architecture mi-arquitectura
+cli-frontend MyFeature --type feature --architecture my-architecture
 ```
 
-### Variables disponibles en `filename_pattern`:
-- `{name}` - Nombre original
-- `use{name}` - Para hooks (agrega 'use' automáticamente)
-- `{name}Context` - Para contextos
-- `{name}Provider` - Para proveedores  
-- `{name}Page` - Para páginas
+### Available Filename Pattern Variables:
+- `{name}` - Original feature name
+- `use{name}` - Automatically prefixed for React hooks
+- `{name}Context` - Suffixed for React context providers
+- `{name}Provider` - Suffixed for provider components  
+- `{name}Page` - Suffixed for page components
 
-### Templates disponibles para reutilizar:
-- `component` - Componente React
-- `hook` - Hook personalizado
-- `service` - Servicio/clase
-- `context` - Contexto React
-- `page` - Página
-- `store` - Store Redux
-- `api` - Servicio API
-- `types` - Archivo de tipos
-
----
-
-## 🤝 Contribuir
-
-¿Tienes ideas para nuevas arquitecturas? ¡Las contribuciones son bienvenidas!
-
-1. Crea una nueva arquitectura JSON
-2. Documenta beneficios y limitaciones
-3. Añade ejemplos de uso
-4. Haz un Pull Request
+### Available Template Types:
+- `component` - React component with TypeScript and SCSS
+- `hook` - Custom React hook with testing
+- `service` - Service class or utility functions
+- `context` - React context implementation
+- `page` - Page component with routing integration
+- `store` - Redux/state management store
+- `api` - API service interface and implementation
+- `types` - TypeScript type definitions and interfaces
 
 ---
 
-## 📚 Referencias
+## 🤝 Contributing
+
+Have ideas for new architectures? Contributions are welcome!
+
+1. Create a new architecture JSON configuration
+2. Document technical benefits and limitations
+3. Add comprehensive usage examples and scenarios
+4. Submit a Pull Request with detailed implementation notes
+
+---
+
+## 📚 References
 
 - [Clean Architecture - Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [Flux Architecture](https://facebook.github.io/flux/)
-- [Atomic Design - Brad Frost](https://atomicdesign.bradfrost.com/)
-- [Screaming Architecture](https://blog.cleancoder.com/uncle-bob/2011/09/30/Screaming-Architecture.html)
-- [Micro-Frontends](https://micro-frontends.org/)
+- [Flux Architecture Documentation](https://facebookarchive.github.io/flux/docs/in-depth-overview)
+- [Atomic Design Methodology - Brad Frost](https://atomicdesign.bradfrost.com/)
+- [Screaming Architecture Principles](https://blog.cleancoder.com/uncle-bob/2011/09/30/Screaming-Architecture.html)
+- [Micro-Frontends Implementation Guide](https://micro-frontends.org/)
 
 ---
 
-**💡 ¿Necesitas ayuda eligiendo una arquitectura?** Considera el tamaño de tu equipo, la complejidad del proyecto y los requisitos futuros. Cuando tengas dudas, **Screaming Architecture** es una excelente opción por defecto.
+**💡 Need help choosing an architecture?** Consider your team size, project complexity, and future requirements. When in doubt, **Screaming Architecture** provides an excellent default foundation for most frontend applications.

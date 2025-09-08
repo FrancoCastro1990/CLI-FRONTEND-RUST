@@ -1,40 +1,43 @@
 {
   "name": "Screaming Architecture",
-  "description": "Organiza código por features/dominios en lugar de capas técnicas",
+  "description": "Domain-driven organization pattern that structures code by business features rather than technical layers. This architecture makes the business domain immediately apparent from the codebase structure, with each feature encapsulating its complete functionality including UI components, business logic, data access, and types. Promotes high cohesion within features and loose coupling between them, making it ideal for large-scale applications with complex business domains.",
   "benefits": [
-    "Muy claro para grandes equipos",
-    "Grita el negocio", 
-    "Fácil escalabilidad",
-    "Estructura que refleja el dominio"
+    "High business domain visibility and discoverability",
+    "Strong feature encapsulation with clear boundaries", 
+    "Excellent scalability for large development teams",
+    "Simplified onboarding through self-documenting structure",
+    "Reduced cognitive load when navigating codebase"
   ],
   "limitations": [
-    "Puede generar duplicación si no hay shared modules",
-    "Requiere disciplina para naming y convenciones"
+    "Potential code duplication without proper shared module strategy",
+    "Requires strict naming conventions and architectural discipline",
+    "May introduce complexity for simple applications",
+    "Cross-cutting concerns need careful abstraction planning"
   ],
   "structure": [
     {
       "path": "components",
       "template": "component",
       "filename_pattern": "{name}",
-      "description": "Componente principal del feature"
+      "description": "Primary React component implementing the feature's UI logic"
     },
     {
       "path": "pages",
       "template": "page", 
       "filename_pattern": "{name}Page",
-      "description": "Página principal del feature"
+      "description": "Top-level page component serving as feature entry point"
     },
     {
       "path": "hooks",
       "template": "hook",
       "filename_pattern": "use{name}",
-      "description": "Hook personalizado para el feature"
+      "description": "Custom React hooks encapsulating feature-specific state logic"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Definiciones de tipos TypeScript"
+      "description": "TypeScript type definitions and interfaces for the feature domain"
     }
   ]
 }

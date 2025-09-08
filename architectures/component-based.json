@@ -1,46 +1,49 @@
 {
   "name": "Component-Based Architecture", 
-  "description": "La UI se organiza en componentes reutilizables",
+  "description": "Modular architecture pattern organizing UI into self-contained, reusable components with clear separation between container components (managing state and logic) and presentation components (handling rendering and user interactions). This pattern promotes encapsulation, testability, and code reusability by establishing component hierarchies with well-defined props interfaces and single-responsibility principles.",
   "benefits": [
-    "Escalable",
-    "Reutilizable",
-    "Fácil de testear y mantener",
-    "Encapsulación clara"
+    "Excellent scalability through modular component composition",
+    "High reusability with encapsulated component logic and styling",
+    "Simplified testing through isolated component responsibilities",
+    "Clear encapsulation boundaries with well-defined component APIs",
+    "Enhanced developer productivity with predictable component patterns"
   ],
   "limitations": [
-    "Si no hay convenciones, puede volverse desordenada",
-    "Acoplamiento implícito si los props/estado no se manejan bien"
+    "Risk of architectural inconsistency without established conventions",
+    "Potential implicit coupling through poorly designed prop interfaces",
+    "Component explosion in large applications without proper organization",
+    "Debugging complexity with deep component hierarchies and prop drilling"
   ],
   "structure": [
     {
       "path": "components/common",
       "template": "component",
       "filename_pattern": "{name}",
-      "description": "Componentes reutilizables"
+      "description": "Shared reusable components with generic functionality"
     },
     {
       "path": "components/containers",
       "template": "component",
       "filename_pattern": "{name}Container",
-      "description": "Componentes contenedores con lógica"
+      "description": "Smart components managing state, business logic, and data fetching"
     },
     {
       "path": "components/presentation",
       "template": "component", 
       "filename_pattern": "{name}Presentation",
-      "description": "Componentes de presentación puros"
+      "description": "Pure presentation components focused on UI rendering and user interaction"
     },
     {
       "path": "hooks",
       "template": "hook",
       "filename_pattern": "use{name}",
-      "description": "Hooks personalizados"
+      "description": "Custom React hooks encapsulating reusable stateful logic"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Props interfaces y tipos"
+      "description": "TypeScript prop interfaces and component API type definitions"
     }
   ]
 }

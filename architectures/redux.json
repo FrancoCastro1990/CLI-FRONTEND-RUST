@@ -1,52 +1,73 @@
 {
-  "name": "Redux Architecture",
-  "description": "Gestión de estado predictible con reducers, actions y estado inmutable",
+  "name": "Redux Architecture", 
+  "description": "Predictable state management architecture based on functional programming principles, utilizing pure reducer functions and immutable state updates. Actions describe state changes, reducers specify state transformations, and a single store maintains the entire application state tree. This pattern ensures deterministic behavior, enables powerful debugging tools, and provides excellent ecosystem support for complex state management scenarios.",
   "benefits": [
-    "Estado predecible",
-    "Time-travel debugging",
-    "Middleware ecosystem",
-    "DevTools excelentes"
+    "Predictable state updates through pure reducer functions",
+    "Powerful time-travel debugging and state inspection capabilities",
+    "Rich middleware ecosystem for async operations and side effects",
+    "Excellent developer tooling with Redux DevTools integration", 
+    "Strong typing support and immutability guarantees"
   ],
   "limitations": [
-    "Boilerplate extenso",
-    "Curva de aprendizaje pronunciada"
+    "Extensive boilerplate code for simple state operations",
+    "Steep learning curve with functional programming concepts",
+    "Performance considerations with frequent state updates",
+    "Complexity overhead for applications with minimal state needs"
   ],
   "structure": [
     {
       "path": "store",
       "template": "store",
       "filename_pattern": "{name}Store",
-      "description": "Store principal con reducers"
+      "description": "Redux store configuration with root reducer and middleware setup"
     },
     {
       "path": "actions",
       "template": "service",
       "filename_pattern": "{name}Actions",
-      "description": "Action creators"
+      "description": "Action creators and action type definitions for state mutations"
     },
     {
       "path": "reducers",
       "template": "service",
       "filename_pattern": "{name}Reducer",
-      "description": "Reducers para manejar estado"
+      "description": "Pure reducer functions handling state transformations immutably"
+    },
+    {
+      "path": "selectors",
+      "template": "service",
+      "filename_pattern": "{name}Selectors",
+      "description": "Memoized selector functions for efficient state data extraction"
+    },
+    {
+      "path": "middleware",
+      "template": "service",
+      "filename_pattern": "{name}Middleware",
+      "description": "Custom middleware for handling async operations and side effects"
+    },
+    {
+      "path": "constants",
+      "template": "service",
+      "filename_pattern": "{name}Constants",
+      "description": "Action type constants and Redux-related configuration values"
     },
     {
       "path": "components",
       "template": "component",
       "filename_pattern": "{name}",
-      "description": "Componente conectado a Redux"
+      "description": "React components connected to Redux store via hooks or connectors"
     },
     {
       "path": "hooks",
       "template": "hook",
       "filename_pattern": "use{name}",
-      "description": "Hooks de Redux (useSelector, useDispatch)"
+      "description": "Custom Redux hooks utilizing useSelector and useDispatch patterns"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Tipos para estado y actions"
+      "description": "TypeScript definitions for state shape, actions, and reducer interfaces"
     }
   ]
 }

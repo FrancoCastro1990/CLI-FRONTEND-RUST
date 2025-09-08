@@ -1,53 +1,55 @@
 {
   "name": "Micro-Frontends",
-  "description": "Cada feature o módulo es un 'mini-frontend' independiente",
+  "description": "Distributed architecture pattern extending microservices principles to frontend development, where independent teams build and deploy autonomous frontend applications that compose into a unified user experience. Each micro-frontend owns its complete technology stack, development lifecycle, and deployment pipeline while communicating through well-defined contracts and shared infrastructure.",
   "benefits": [
-    "Escalabilidad de equipos grandes",
-    "Despliegues independientes",
-    "Tecnologías independientes",
-    "Isolación de fallos"
+    "Enhanced team scalability with autonomous development and deployment cycles",
+    "Technology independence allowing diverse frontend frameworks and libraries",
+    "Improved fault isolation preventing cascading failures across features",
+    "Simplified team coordination through clear ownership boundaries",
+    "Parallel development enabling faster feature delivery and release cycles"
   ],
   "limitations": [
-    "Complejidad de integración",
-    "Duplicación de dependencias",
-    "Más infraestructura"
+    "Significant integration complexity requiring sophisticated orchestration tooling",
+    "Dependency duplication leading to increased bundle sizes and performance overhead",
+    "Infrastructure complexity with multiple build, deployment, and monitoring systems",
+    "Potential user experience inconsistencies across different micro-frontend boundaries"
   ],
   "structure": [
     {
       "path": "shell",
       "template": "component",
       "filename_pattern": "{name}Shell",
-      "description": "Shell container del microfrontend"
+      "description": "Container shell component managing micro-frontend lifecycle and integration"
     },
     {
       "path": "components",
       "template": "component",
       "filename_pattern": "{name}",
-      "description": "Componentes internos del microfrontend"
+      "description": "Internal React components encapsulated within micro-frontend boundaries"
     },
     {
       "path": "services",
       "template": "service",
       "filename_pattern": "{name}Service",
-      "description": "Servicios del microfrontend"
+      "description": "Business logic services specific to micro-frontend domain concerns"
     },
     {
       "path": "hooks",
       "template": "hook",
       "filename_pattern": "use{name}",
-      "description": "Hooks del microfrontend"
+      "description": "Custom React hooks managing micro-frontend state and side effects"
     },
     {
       "path": "api",
       "template": "api",
       "filename_pattern": "{name}Api",
-      "description": "API del microfrontend"
+      "description": "API layer defining external communication contracts and data fetching"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Tipos públicos del microfrontend"
+      "description": "Public TypeScript interfaces exposed to other micro-frontends and shell"
     }
   ]
 }

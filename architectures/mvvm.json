@@ -1,45 +1,49 @@
 {
   "name": "MVVM (Model-View-ViewModel)",
-  "description": "La Vista se enlaza a un ViewModel que expone los datos y comandos",
+  "description": "Data-binding architectural pattern where Views bind declaratively to ViewModels that expose observable data and command interfaces. The ViewModel acts as a binding layer between the View and Model, handling presentation logic and state management. This pattern leverages reactive programming principles, making it ideal for modern frontend frameworks with automatic UI synchronization capabilities.",
   "benefits": [
-    "Facilita data binding",
-    "Ideal para frameworks reactivos (React, Vue, Angular)",
-    "Separación clara de responsabilidades"
+    "Seamless two-way data binding with automatic UI synchronization",
+    "Optimal integration with reactive frameworks like React and Vue",
+    "Clear separation of presentation logic from UI rendering concerns",
+    "Enhanced testability through ViewModel unit testing capabilities",
+    "Reduced boilerplate code for state management and UI updates"
   ],
   "limitations": [
-    "Puede generar dependencias implícitas si se abusa del binding",
-    "Más complejo de depurar"
+    "Risk of implicit dependencies through excessive data binding coupling",
+    "Complex debugging scenarios with reactive data flow chains",
+    "Potential memory leaks from improper observable cleanup",
+    "Learning curve for developers unfamiliar with reactive programming"
   ],
   "structure": [
     {
       "path": "models",
       "template": "service",
       "filename_pattern": "{name}Model",
-      "description": "Modelo de datos"
+      "description": "Business data model containing domain entities and validation logic"
     },
     {
       "path": "views",
       "template": "component", 
       "filename_pattern": "{name}View",
-      "description": "Vista que se enlaza al ViewModel"
+      "description": "React component with declarative data binding to ViewModel"
     },
     {
       "path": "viewmodels",
       "template": "service",
       "filename_pattern": "{name}ViewModel",
-      "description": "ViewModel que expone datos y comandos"
+      "description": "Observable state container exposing data and command interfaces"
     },
     {
       "path": "hooks",
       "template": "hook",
       "filename_pattern": "use{name}",
-      "description": "Hook para enlace con ViewModel"
+      "description": "Custom React hook managing ViewModel binding and lifecycle"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Interfaces de binding"
+      "description": "TypeScript interfaces for data binding contracts and observables"
     }
   ]
 }

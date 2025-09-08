@@ -1,52 +1,55 @@
 {
   "name": "Atomic Design",
-  "description": "Organiza componentes en átomos, moléculas, organismos y páginas",
+  "description": "Component-driven design methodology organizing UI elements in hierarchical levels inspired by chemistry: Atoms (basic HTML elements), Molecules (simple component groups), Organisms (complex UI components), Templates (page-level layouts), and Pages (specific instances). This pattern promotes systematic component reusability, design consistency, and creates a natural foundation for design systems while maintaining clear component relationships and dependencies.",
   "benefits": [
-    "Facilita diseño consistente",
-    "Modularización UI clara",
-    "Reutilización sistemática",
-    "Design System natural"
+    "Systematic design consistency through hierarchical component organization",
+    "Natural foundation for scalable design system development",
+    "Enhanced component reusability with clear dependency relationships",
+    "Improved collaboration between designers and developers",
+    "Simplified UI testing through isolated component boundaries"
   ],
   "limitations": [
-    "No cubre lógica de negocio",
-    "Requiere disciplina para no mezclar niveles"
+    "Limited coverage of business logic and state management concerns",
+    "Requires strict discipline to maintain proper abstraction levels",
+    "Potential over-categorization for simple UI requirements",
+    "Learning curve for teams unfamiliar with atomic design principles"
   ],
   "structure": [
     {
       "path": "atoms",
       "template": "component",
       "filename_pattern": "{name}Atom",
-      "description": "Componentes atómicos básicos (botones, inputs)"
+      "description": "Fundamental UI building blocks: buttons, inputs, labels, and basic HTML elements"
     },
     {
       "path": "molecules", 
       "template": "component",
       "filename_pattern": "{name}Molecule",
-      "description": "Combinación simple de átomos"
+      "description": "Simple component groups combining atoms with specific functionality"
     },
     {
       "path": "organisms",
       "template": "component",
       "filename_pattern": "{name}Organism",
-      "description": "Secciones complejas de UI"
+      "description": "Complex UI components forming distinct interface sections"
     },
     {
       "path": "templates",
       "template": "component",
       "filename_pattern": "{name}Template",
-      "description": "Layout de páginas sin contenido"
+      "description": "Page-level layout structures defining content placement without data"
     },
     {
       "path": "pages",
       "template": "page",
       "filename_pattern": "{name}Page",
-      "description": "Páginas completas con contenido"
+      "description": "Complete page instances with real content and specific use cases"
     },
     {
       "path": "",
       "template": "types",
       "filename_pattern": "types",
-      "description": "Props y tipos de componentes"
+      "description": "TypeScript prop definitions and component interface contracts"
     }
   ]
 }
