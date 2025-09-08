@@ -1,210 +1,537 @@
-# 📚 Guía para Crear Templates Personalizados
+# 📚 Custom Template Development Guide
 
-Esta guía te explica paso a paso cómo crear nuevos templates para el CLI Frontend Generator y cómo funciona internamente el sistema de templates.
+**Comprehensive guide for creating production-ready templates in CLI Frontend Generator**
 
-## 🎯 ¿Qué hace nuestro software?
+This guide provides technical documentation for extending the CLI Frontend Generator with custom templates. Learn how to create sophisticated template structures that integrate seamlessly with the existing architecture and provide value for professional development teams.
 
-El CLI Frontend Generator es una herramienta que automatiza la creación de código frontend mediante un sistema de plantillas (templates). El software:
+## 🎯 CLI Frontend Generator Architecture Overview
 
-1. **Lee templates** desde un directorio configurable
-2. **Procesa variables** y aplicar transformaciones de nomenclatura
-3. **Genera archivos** basados en las plantillas con el nombre proporcionado
-4. **Crea estructuras** de carpetas organizadas
-5. **Aplica convenciones** de nomenclatura automáticamente
+The CLI Frontend Generator is a sophisticated code generation tool that automates frontend development through an extensible template system. The software provides:
 
-## 🔧 ¿Cómo funciona internamente?
+1. **Dynamic Template Discovery** - Automatically detects and loads custom templates without recompilation
+2. **Intelligent Name Processing** - Applies context-aware transformations based on file types and conventions
+3. **Handlebars Integration** - Leverages powerful templating with conditional logic and custom helpers
+4. **Multi-Convention Support** - Handles PascalCase, camelCase, snake_case, kebab-case transformations
+5. **Architecture Integration** - Seamlessly integrates with 12 software architecture patterns
 
-### 1. **Flujo de Ejecución**
+## 🔧 Internal System Architecture
+
+### 1. **Execution Flow**
 ```
-Usuario ejecuta comando → CLI parsea argumentos → Carga configuración → 
-Busca template → Procesa archivos → Aplica transformaciones → Genera output
+Command Input → Argument Parsing → Configuration Loading → 
+Template Discovery → File Processing → Variable Transformation → Output Generation
 ```
 
-### 2. **Sistema de Templates**
-- Utiliza **Handlebars** como motor de plantillas
-- Soporta **variables dinámicas** y **helpers personalizados**
-- Procesa **nombres inteligentes** para diferentes tipos de archivos
-- Aplica **transformaciones de caso** automáticamente
+### 2. **Template Engine Architecture**
+- **Handlebars Engine** - Industry-standard templating with conditional logic and loops
+- **Dynamic Variable System** - Context-aware variable processing with intelligent naming
+- **Custom Helper Functions** - Extended Handlebars functionality for specific use cases
+- **File System Abstraction** - Cross-platform file operations with error handling
 
-### 3. **Procesamiento de Nombres**
-El software incluye lógica inteligente para procesar nombres:
-- **Hooks**: Agrega `use` al inicio si no está presente
-- **Contexts**: Agrega `Context` al final si no está presente
-- **Providers**: Agrega `Provider` y maneja sufijos existentes
-- **Pages**: Agrega `Page` al final si no está presente
+### 3. **Intelligent Name Processing**
+The system includes sophisticated logic for processing different file types:
+- **React Hooks**: Automatically prefixes `use` if not present (`useAuth` from `Auth`)
+- **React Contexts**: Appends `Context` suffix when appropriate (`AuthContext` from `Auth`)
+- **Provider Components**: Handles `Provider` suffix with existing suffix detection
+- **Page Components**: Appends `Page` suffix for routing components (`HomePage` from `Home`)
+- **Convention Detection**: Automatically detects and preserves existing naming patterns
 
-## 📝 Paso a Paso: Crear un Nuevo Template
+### 4. **Template Resolution System**
+```rust
+// Template discovery hierarchy
+1. Project-local templates  (./templates/)
+2. User-global templates    (~/.cli-frontend/templates/)
+3. System-default templates (built-in)
+```
 
-### Paso 1: Preparar el Directorio de Templates
+## 📝 Professional Template Development Workflow
 
-1. **Localiza el directorio de templates**:
+### Step 1: Template Directory Setup
+
+1. **Locate the templates directory**:
    ```bash
-   # Por defecto en: ~/.cli-template/ o ./templates/
+   # Default locations (in order of precedence):
+   ./templates/          # Project-specific templates
+   ~/.cli-frontend/      # User-global templates
    ```
 
-2. **Crea una nueva carpeta** para tu template:
+2. **Create a new template directory**:
    ```bash
-   mkdir ~/.cli-template/mi-nuevo-template
+   mkdir ~/.cli-frontend/templates/my-custom-template
    ```
 
-### Paso 2: Crear Archivos de Template
+### Step 2: Template Variable System
 
-Los archivos de template pueden usar las siguientes variables:
+The CLI provides a comprehensive variable system for maximum flexibility:
 
-#### **Variables Básicas**
-- `$FILE_NAME` - Nombre original proporcionado
-- `{{name}}` - Nombre original (Handlebars)
-- `{{pascal_name}}` - PascalCase (ej: `MyComponent`)
-- `{{camel_name}}` - camelCase (ej: `myComponent`)
-- `{{snake_name}}` - snake_case (ej: `my_component`)
-- `{{kebab_name}}` - kebab-case (ej: `my-component`)
-- `{{upper_name}}` - MAYÚSCULAS (ej: `MY_COMPONENT`)
+#### **Core Variables**
+- `$FILE_NAME` - Direct filename replacement (legacy support)
+- `{{name}}` - Original input name (Handlebars syntax)
+- `{{pascal_name}}` - PascalCase transformation (`MyComponent`)
+- `{{camel_name}}` - camelCase transformation (`myComponent`)
+- `{{snake_name}}` - snake_case transformation (`my_component`)
+- `{{kebab_name}}` - kebab-case transformation (`my-component`)
+- `{{upper_name}}` - UPPER_CASE transformation (`MY_COMPONENT`)
 
-#### **Variables Inteligentes**
-- `{{hook_name}}` - Nombre optimizado para hooks
-- `{{context_name}}` - Nombre optimizado para contextos
-- `{{provider_name}}` - Nombre optimizado para proveedores
-- `{{page_name}}` - Nombre optimizado para páginas
+#### **Context-Aware Smart Variables**
+- `{{hook_name}}` - Intelligent hook naming (`useAuth` from `Auth`)
+- `{{context_name}}` - Context naming with suffix (`AuthContext`)
+- `{{provider_name}}` - Provider component naming (`AuthProvider`)
+- `{{page_name}}` - Page component naming (`AuthPage`)
 
-### Paso 3: Ejemplo Práctico - Template para Store (Redux)
+#### **Advanced Handlebars Variables**
+```handlebars
+{{#if (eq type "component")}}
+// Component-specific code
+{{/if}}
 
-Vamos a crear un template para generar stores de Redux:
+{{#unless (eq environment "production")}}
+// Development-only code
+{{/unless}}
+```
 
-#### 3.1 Crear la estructura
+### Step 3: Production-Ready Example - Redux Store Template
+
+Let's create a comprehensive Redux store template with modern patterns and TypeScript best practices:
+
+#### 3.1 Create template structure
 ```bash
-mkdir ~/.cli-template/store
-cd ~/.cli-template/store
+mkdir ~/.cli-frontend/templates/store
+cd ~/.cli-frontend/templates/store
 ```
 
-#### 3.2 Crear el archivo del store (`$FILE_NAME.store.ts`)
+#### 3.2 Main store file (`$FILE_NAME.store.ts`)
 ```typescript
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createSelector } from '@reduxjs/toolkit';
+import { RootState } from '../store';
 
-// Estado inicial para {{pascal_name}}
-interface {{pascal_name}}State {
-  data: any[];
+/**
+ * {{pascal_name}} Store
+ * Generated by CLI Frontend Generator
+ * 
+ * @description Redux store slice for {{pascal_name}} feature
+ * @generated true
+ */
+
+// State interface for {{pascal_name}}
+export interface {{pascal_name}}State {
+  entities: Record<string, {{pascal_name}}Entity>;
+  ids: string[];
   loading: boolean;
   error: string | null;
+  lastUpdated: number | null;
+  filters: {{pascal_name}}Filters;
 }
 
+// Initial state with proper typing
 const initialState: {{pascal_name}}State = {
-  data: [],
+  entities: {},
+  ids: [],
   loading: false,
   error: null,
+  lastUpdated: null,
+  filters: {
+    search: '',
+    status: 'all',
+    sortBy: 'name',
+    sortOrder: 'asc',
+  },
 };
 
-// Slice para {{pascal_name}}
+// Redux Toolkit slice with comprehensive actions
 export const {{camel_name}}Slice = createSlice({
   name: '{{kebab_name}}',
   initialState,
   reducers: {
-    set{{pascal_name}}Loading: (state, action: PayloadAction<boolean>) => {
+    // Loading state management
+    setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
+      if (action.payload) {
+        state.error = null;
+      }
     },
-    set{{pascal_name}}Data: (state, action: PayloadAction<any[]>) => {
-      state.data = action.payload;
+
+    // Entity management with normalization
+    setEntities: (state, action: PayloadAction<{{pascal_name}}Entity[]>) => {
+      const entities: Record<string, {{pascal_name}}Entity> = {};
+      const ids: string[] = [];
+      
+      action.payload.forEach((entity) => {
+        entities[entity.id] = entity;
+        ids.push(entity.id);
+      });
+      
+      state.entities = entities;
+      state.ids = ids;
       state.loading = false;
       state.error = null;
+      state.lastUpdated = Date.now();
     },
-    set{{pascal_name}}Error: (state, action: PayloadAction<string>) => {
+
+    // Add single entity
+    addEntity: (state, action: PayloadAction<{{pascal_name}}Entity>) => {
+      const entity = action.payload;
+      state.entities[entity.id] = entity;
+      if (!state.ids.includes(entity.id)) {
+        state.ids.push(entity.id);
+      }
+      state.lastUpdated = Date.now();
+    },
+
+    // Update entity with partial data
+    updateEntity: (state, action: PayloadAction<{ id: string; changes: Partial<{{pascal_name}}Entity> }>) => {
+      const { id, changes } = action.payload;
+      if (state.entities[id]) {
+        state.entities[id] = { ...state.entities[id], ...changes };
+        state.lastUpdated = Date.now();
+      }
+    },
+
+    // Remove entity
+    removeEntity: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      delete state.entities[id];
+      state.ids = state.ids.filter(entityId => entityId !== id);
+      state.lastUpdated = Date.now();
+    },
+
+    // Error handling
+    setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
       state.loading = false;
     },
-    clear{{pascal_name}}: (state) => {
-      state.data = [];
-      state.error = null;
+
+    // Filter management
+    setFilters: (state, action: PayloadAction<Partial<{{pascal_name}}Filters>>) => {
+      state.filters = { ...state.filters, ...action.payload };
     },
+
+    // Clear all data
+    clearAll: () => initialState,
   },
 });
 
+// Action creators export
 export const {
-  set{{pascal_name}}Loading,
-  set{{pascal_name}}Data,
-  set{{pascal_name}}Error,
-  clear{{pascal_name}},
+  setLoading,
+  setEntities,
+  addEntity,
+  updateEntity,
+  removeEntity,
+  setError,
+  setFilters,
+  clearAll,
 } = {{camel_name}}Slice.actions;
+
+// Memoized selectors for performance
+export const {{camel_name}}Selectors = {
+  // Basic selectors
+  selectState: (state: RootState) => state.{{camel_name}},
+  selectEntities: (state: RootState) => state.{{camel_name}}.entities,
+  selectIds: (state: RootState) => state.{{camel_name}}.ids,
+  selectLoading: (state: RootState) => state.{{camel_name}}.loading,
+  selectError: (state: RootState) => state.{{camel_name}}.error,
+  selectFilters: (state: RootState) => state.{{camel_name}}.filters,
+
+  // Computed selectors
+  selectAllEntities: createSelector(
+    [(state: RootState) => state.{{camel_name}}.entities, (state: RootState) => state.{{camel_name}}.ids],
+    (entities, ids) => ids.map(id => entities[id])
+  ),
+
+  selectEntityById: createSelector(
+    [(state: RootState) => state.{{camel_name}}.entities, (_: RootState, id: string) => id],
+    (entities, id) => entities[id] || null
+  ),
+
+  selectFilteredEntities: createSelector(
+    [
+      (state: RootState) => state.{{camel_name}}.entities,
+      (state: RootState) => state.{{camel_name}}.ids,
+      (state: RootState) => state.{{camel_name}}.filters,
+    ],
+    (entities, ids, filters) => {
+      let filtered = ids.map(id => entities[id]);
+
+      // Apply search filter
+      if (filters.search) {
+        filtered = filtered.filter(entity =>
+          entity.name.toLowerCase().includes(filters.search.toLowerCase())
+        );
+      }
+
+      // Apply status filter
+      if (filters.status !== 'all') {
+        filtered = filtered.filter(entity => entity.status === filters.status);
+      }
+
+      // Apply sorting
+      filtered.sort((a, b) => {
+        const aValue = a[filters.sortBy as keyof {{pascal_name}}Entity];
+        const bValue = b[filters.sortBy as keyof {{pascal_name}}Entity];
+        const comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        return filters.sortOrder === 'asc' ? comparison : -comparison;
+      });
+
+      return filtered;
+    }
+  ),
+
+  // Statistics selectors
+  selectEntityCount: createSelector(
+    [(state: RootState) => state.{{camel_name}}.ids],
+    (ids) => ids.length
+  ),
+
+  selectHasData: createSelector(
+    [(state: RootState) => state.{{camel_name}}.ids],
+    (ids) => ids.length > 0
+  ),
+};
 
 export default {{camel_name}}Slice.reducer;
 ```
 
-#### 3.3 Crear el archivo de tipos (`$FILE_NAME.types.ts`)
+#### 3.3 Type definitions (`$FILE_NAME.types.ts`)
 ```typescript
-// Tipos para {{pascal_name}}
-export interface {{pascal_name}}Item {
-  id: string | number;
-  // Agrega propiedades específicas aquí
+/**
+ * {{pascal_name}} Type Definitions
+ * Generated by CLI Frontend Generator
+ */
+
+// Core entity interface
+export interface {{pascal_name}}Entity {
+  id: string;
+  name: string;
+  status: '{{kebab_name}}-active' | '{{kebab_name}}-inactive' | '{{kebab_name}}-pending';
+  createdAt: string;
+  updatedAt: string;
+  // Add domain-specific properties here
 }
 
-export interface {{pascal_name}}Response {
-  data: {{pascal_name}}Item[];
+// API Response interfaces
+export interface {{pascal_name}}ListResponse {
+  data: {{pascal_name}}Entity[];
   total: number;
   page: number;
+  limit: number;
+  hasMore: boolean;
 }
 
+export interface {{pascal_name}}CreateRequest {
+  name: string;
+  // Add required creation fields
+}
+
+export interface {{pascal_name}}UpdateRequest {
+  id: string;
+  changes: Partial<Omit<{{pascal_name}}Entity, 'id' | 'createdAt' | 'updatedAt'>>;
+}
+
+// Filter and sorting interfaces
 export interface {{pascal_name}}Filters {
-  search?: string;
-  status?: string;
-  // Agrega filtros específicos aquí
+  search: string;
+  status: 'all' | '{{kebab_name}}-active' | '{{kebab_name}}-inactive' | '{{kebab_name}}-pending';
+  sortBy: keyof {{pascal_name}}Entity;
+  sortOrder: 'asc' | 'desc';
+}
+
+// Error interfaces
+export interface {{pascal_name}}ApiError {
+  code: string;
+  message: string;
+  details?: Record<string, any>;
+}
+
+// Hook return types
+export interface Use{{pascal_name}}Return {
+  entities: {{pascal_name}}Entity[];
+  loading: boolean;
+  error: string | null;
+  filters: {{pascal_name}}Filters;
+  actions: {
+    fetch: (filters?: Partial<{{pascal_name}}Filters>) => Promise<void>;
+    create: (data: {{pascal_name}}CreateRequest) => Promise<{{pascal_name}}Entity>;
+    update: (data: {{pascal_name}}UpdateRequest) => Promise<{{pascal_name}}Entity>;
+    remove: (id: string) => Promise<void>;
+    setFilters: (filters: Partial<{{pascal_name}}Filters>) => void;
+    clearError: () => void;
+  };
 }
 ```
 
-#### 3.4 Crear el archivo de acciones async (`$FILE_NAME.thunks.ts`)
+#### 3.4 Async thunks (`$FILE_NAME.thunks.ts`)
 ```typescript
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { {{pascal_name}}Response, {{pascal_name}}Filters } from './{{kebab_name}}.types';
+import { 
+  {{pascal_name}}Entity, 
+  {{pascal_name}}ListResponse, 
+  {{pascal_name}}CreateRequest,
+  {{pascal_name}}UpdateRequest,
+  {{pascal_name}}Filters,
+  {{pascal_name}}ApiError 
+} from './{{kebab_name}}.types';
 
-// Thunk para obtener {{pascal_name}}
-export const fetch{{pascal_name}} = createAsyncThunk(
-  '{{kebab_name}}/fetch{{pascal_name}}',
-  async (filters: {{pascal_name}}Filters = {}) => {
-    // Implementa tu lógica de API aquí
-    const response = await fetch('/api/{{kebab_name}}', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(filters),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch {{kebab_name}}');
+// Base API configuration
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
+const {{upper_name}}_ENDPOINT = `${API_BASE_URL}/{{kebab_name}}`;
+
+// Utility function for API calls
+const apiCall = async <T>(url: string, options: RequestInit = {}): Promise<T> => {
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    const error: {{pascal_name}}ApiError = await response.json();
+    throw new Error(error.message || `HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
+// Fetch entities with filtering and pagination
+export const fetch{{pascal_name}}Entities = createAsyncThunk<
+  {{pascal_name}}Entity[],
+  Partial<{{pascal_name}}Filters> & { page?: number; limit?: number },
+  { rejectValue: string }
+>(
+  '{{kebab_name}}/fetchEntities',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          searchParams.append(key, String(value));
+        }
+      });
+
+      const url = `${{{upper_name}}_ENDPOINT}?${searchParams.toString()}`;
+      const response = await apiCall<{{pascal_name}}ListResponse>(url);
+      
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch {{kebab_name}} entities');
     }
-    
-    const data: {{pascal_name}}Response = await response.json();
-    return data;
   }
 );
 
-// Thunk para crear {{pascal_name}}
-export const create{{pascal_name}} = createAsyncThunk(
-  '{{kebab_name}}/create{{pascal_name}}',
-  async (newItem: Omit<{{pascal_name}}Item, 'id'>) => {
-    const response = await fetch('/api/{{kebab_name}}', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newItem),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to create {{kebab_name}}');
+// Create new entity
+export const create{{pascal_name}}Entity = createAsyncThunk<
+  {{pascal_name}}Entity,
+  {{pascal_name}}CreateRequest,
+  { rejectValue: string }
+>(
+  '{{kebab_name}}/createEntity',
+  async (createData, { rejectWithValue }) => {
+    try {
+      return await apiCall<{{pascal_name}}Entity>({{upper_name}}_ENDPOINT, {
+        method: 'POST',
+        body: JSON.stringify(createData),
+      });
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to create {{kebab_name}} entity');
     }
-    
-    return await response.json();
+  }
+);
+
+// Update existing entity
+export const update{{pascal_name}}Entity = createAsyncThunk<
+  {{pascal_name}}Entity,
+  {{pascal_name}}UpdateRequest,
+  { rejectValue: string }
+>(
+  '{{kebab_name}}/updateEntity',
+  async ({ id, changes }, { rejectWithValue }) => {
+    try {
+      return await apiCall<{{pascal_name}}Entity>(`${{{upper_name}}_ENDPOINT}/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(changes),
+      });
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to update {{kebab_name}} entity');
+    }
+  }
+);
+
+// Delete entity
+export const delete{{pascal_name}}Entity = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>(
+  '{{kebab_name}}/deleteEntity',
+  async (id, { rejectWithValue }) => {
+    try {
+      await apiCall(`${{{upper_name}}_ENDPOINT}/${id}`, {
+        method: 'DELETE',
+      });
+      return id;
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to delete {{kebab_name}} entity');
+    }
+  }
+);
+
+// Bulk operations
+export const bulk{{pascal_name}}Operation = createAsyncThunk<
+  {{pascal_name}}Entity[],
+  { operation: 'delete' | 'update'; ids: string[]; data?: Partial<{{pascal_name}}Entity> },
+  { rejectValue: string }
+>(
+  '{{kebab_name}}/bulkOperation',
+  async ({ operation, ids, data }, { rejectWithValue }) => {
+    try {
+      return await apiCall<{{pascal_name}}Entity[]>(`${{{upper_name}}_ENDPOINT}/bulk`, {
+        method: 'POST',
+        body: JSON.stringify({ operation, ids, data }),
+      });
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : `Failed to perform bulk ${operation} operation`);
+    }
   }
 );
 ```
 
-#### 3.5 Crear archivo de tests (`$FILE_NAME.store.test.ts`)
+#### 3.5 Comprehensive test suite (`$FILE_NAME.store.test.ts`)
 ```typescript
 import { configureStore } from '@reduxjs/toolkit';
 import {{camel_name}}Reducer, {
-  set{{pascal_name}}Loading,
-  set{{pascal_name}}Data,
-  set{{pascal_name}}Error,
-  clear{{pascal_name}},
+  setLoading,
+  setEntities,
+  addEntity,
+  updateEntity,
+  removeEntity,
+  setError,
+  setFilters,
+  clearAll,
+  {{camel_name}}Selectors,
 } from './{{kebab_name}}.store';
+import { {{pascal_name}}Entity, {{pascal_name}}Filters } from './{{kebab_name}}.types';
+
+// Mock data
+const mockEntity: {{pascal_name}}Entity = {
+  id: '1',
+  name: 'Test {{pascal_name}}',
+  status: '{{kebab_name}}-active',
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z',
+};
+
+const mockEntities: {{pascal_name}}Entity[] = [
+  mockEntity,
+  {
+    id: '2',
+    name: 'Another {{pascal_name}}',
+    status: '{{kebab_name}}-inactive',
+    createdAt: '2024-01-02T00:00:00Z',
+    updatedAt: '2024-01-02T00:00:00Z',
+  },
+];
 
 describe('{{pascal_name}} Store', () => {
   let store: ReturnType<typeof configureStore>;
@@ -217,47 +544,142 @@ describe('{{pascal_name}} Store', () => {
     });
   });
 
-  it('should handle set{{pascal_name}}Loading', () => {
-    store.dispatch(set{{pascal_name}}Loading(true));
-    const state = store.getState().{{camel_name}};
-    expect(state.loading).toBe(true);
+  describe('Actions', () => {
+    it('should handle setLoading', () => {
+      store.dispatch(setLoading(true));
+      const state = store.getState().{{camel_name}};
+      
+      expect(state.loading).toBe(true);
+      expect(state.error).toBe(null);
+    });
+
+    it('should handle setEntities', () => {
+      store.dispatch(setEntities(mockEntities));
+      const state = store.getState().{{camel_name}};
+      
+      expect(state.entities['1']).toEqual(mockEntity);
+      expect(state.ids).toContain('1');
+      expect(state.ids).toContain('2');
+      expect(state.loading).toBe(false);
+      expect(state.error).toBe(null);
+      expect(state.lastUpdated).toBeTruthy();
+    });
+
+    it('should handle addEntity', () => {
+      store.dispatch(addEntity(mockEntity));
+      const state = store.getState().{{camel_name}};
+      
+      expect(state.entities['1']).toEqual(mockEntity);
+      expect(state.ids).toContain('1');
+      expect(state.lastUpdated).toBeTruthy();
+    });
+
+    it('should handle updateEntity', () => {
+      store.dispatch(setEntities([mockEntity]));
+      store.dispatch(updateEntity({ 
+        id: '1', 
+        changes: { name: 'Updated Name' } 
+      }));
+      
+      const state = store.getState().{{camel_name}};
+      expect(state.entities['1'].name).toBe('Updated Name');
+      expect(state.lastUpdated).toBeTruthy();
+    });
+
+    it('should handle removeEntity', () => {
+      store.dispatch(setEntities(mockEntities));
+      store.dispatch(removeEntity('1'));
+      
+      const state = store.getState().{{camel_name}};
+      expect(state.entities['1']).toBeUndefined();
+      expect(state.ids).not.toContain('1');
+      expect(state.ids).toContain('2');
+    });
+
+    it('should handle setError', () => {
+      const errorMessage = 'Test error message';
+      store.dispatch(setError(errorMessage));
+      
+      const state = store.getState().{{camel_name}};
+      expect(state.error).toBe(errorMessage);
+      expect(state.loading).toBe(false);
+    });
+
+    it('should handle setFilters', () => {
+      const newFilters: Partial<{{pascal_name}}Filters> = {
+        search: 'test',
+        status: '{{kebab_name}}-active',
+      };
+      
+      store.dispatch(setFilters(newFilters));
+      const state = store.getState().{{camel_name}};
+      
+      expect(state.filters.search).toBe('test');
+      expect(state.filters.status).toBe('{{kebab_name}}-active');
+    });
+
+    it('should handle clearAll', () => {
+      store.dispatch(setEntities(mockEntities));
+      store.dispatch(setError('Some error'));
+      store.dispatch(clearAll());
+      
+      const state = store.getState().{{camel_name}};
+      expect(state.entities).toEqual({});
+      expect(state.ids).toEqual([]);
+      expect(state.error).toBe(null);
+      expect(state.loading).toBe(false);
+    });
   });
 
-  it('should handle set{{pascal_name}}Data', () => {
-    const mockData = [{ id: 1, name: 'Test' }];
-    store.dispatch(set{{pascal_name}}Data(mockData));
-    const state = store.getState().{{camel_name}};
-    
-    expect(state.data).toEqual(mockData);
-    expect(state.loading).toBe(false);
-    expect(state.error).toBe(null);
-  });
+  describe('Selectors', () => {
+    beforeEach(() => {
+      store.dispatch(setEntities(mockEntities));
+    });
 
-  it('should handle set{{pascal_name}}Error', () => {
-    const errorMessage = 'Test error';
-    store.dispatch(set{{pascal_name}}Error(errorMessage));
-    const state = store.getState().{{camel_name}};
-    
-    expect(state.error).toBe(errorMessage);
-    expect(state.loading).toBe(false);
-  });
+    it('should select all entities', () => {
+      const state = store.getState();
+      const entities = {{camel_name}}Selectors.selectAllEntities(state);
+      
+      expect(entities).toHaveLength(2);
+      expect(entities[0]).toEqual(mockEntity);
+    });
 
-  it('should handle clear{{pascal_name}}', () => {
-    // Primero agregamos datos
-    store.dispatch(set{{pascal_name}}Data([{ id: 1, name: 'Test' }]));
-    // Luego los limpiamos
-    store.dispatch(clear{{pascal_name}}());
-    const state = store.getState().{{camel_name}};
-    
-    expect(state.data).toEqual([]);
-    expect(state.error).toBe(null);
+    it('should select entity by id', () => {
+      const state = store.getState();
+      const entity = {{camel_name}}Selectors.selectEntityById(state, '1');
+      
+      expect(entity).toEqual(mockEntity);
+    });
+
+    it('should select filtered entities', () => {
+      store.dispatch(setFilters({ status: '{{kebab_name}}-active' }));
+      const state = store.getState();
+      const filtered = {{camel_name}}Selectors.selectFilteredEntities(state);
+      
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0].status).toBe('{{kebab_name}}-active');
+    });
+
+    it('should select entity count', () => {
+      const state = store.getState();
+      const count = {{camel_name}}Selectors.selectEntityCount(state);
+      
+      expect(count).toBe(2);
+    });
+
+    it('should select hasData', () => {
+      const state = store.getState();
+      const hasData = {{camel_name}}Selectors.selectHasData(state);
+      
+      expect(hasData).toBe(true);
+    });
   });
 });
 ```
 
-### Paso 4: Actualizar el CLI (si es necesario)
+### Step 4: CLI Integration (Optional)
 
-Si quieres que tu nuevo template aparezca en la lista de tipos disponibles, actualiza el enum en `src/cli.rs`:
+For complete integration with the CLI's type system, update the template type enum in `src/cli.rs`:
 
 ```rust
 #[derive(ValueEnum, Clone, Debug)]
@@ -267,120 +689,137 @@ pub enum TemplateType {
     Service,
     Context,
     Page,
-    Store,  // ← Agregar aquí
+    Store,  // ← Add your new template type here
+    Api,
+    Types,
 }
 ```
 
-### Paso 5: Probar el Nuevo Template
+### Step 5: Template Testing and Validation
 
 ```bash
-# Generar un store
-cli-frontend UserStore --type store
+# Test your new template
+cli-frontend UserManagement --type store
 
-# O si no agregaste el enum, usa el directorio:
-cli-frontend UserStore --type store
+# Verify generated structure
+ls -la UserManagement/
+# Expected output:
+# UserManagement.store.ts
+# UserManagement.types.ts
+# UserManagement.thunks.ts
+# UserManagement.store.test.ts
 ```
 
-## 📋 Convenciones y Mejores Prácticas
+## 📋 Professional Development Standards
 
-### 1. **Nomenclatura de Archivos**
-- Usa `$FILE_NAME` para reemplazos simples
-- Usa `{{variable}}` para transformaciones con Handlebars
-- Nombra archivos descriptivamente: `$FILE_NAME.store.ts`, `$FILE_NAME.types.ts`
-
-### 2. **Estructura de Carpetas**
-```
-mi-template/
-├── $FILE_NAME.main.ext       # Archivo principal
-├── $FILE_NAME.types.ext      # Definiciones de tipos
-├── $FILE_NAME.test.ext       # Archivos de testing
-├── $FILE_NAME.styles.ext     # Estilos (si aplica)
-└── subfolder/                # Subcarpetas si es necesario
-    └── $FILE_NAME.helper.ext
+### 1. **File Naming Conventions**
+```typescript
+// Use descriptive, consistent naming
+$FILE_NAME.store.ts           // Main implementation
+$FILE_NAME.types.ts           // Type definitions
+$FILE_NAME.test.ts            // Unit tests
+$FILE_NAME.integration.test.ts // Integration tests
+$FILE_NAME.stories.ts         // Storybook stories
+$FILE_NAME.doc.md            // Documentation
 ```
 
-### 3. **Documentación en Templates**
-Incluye comentarios descriptivos en tus templates:
+### 2. **Template Directory Structure**
+```
+professional-template/
+├── core/
+│   └── $FILE_NAME.ts         # Core implementation
+├── types/
+│   └── $FILE_NAME.types.ts   # Type definitions
+├── tests/
+│   ├── $FILE_NAME.test.ts    # Unit tests
+│   └── $FILE_NAME.integration.test.ts
+├── docs/
+│   └── $FILE_NAME.md         # Auto-generated documentation
+└── stories/
+    └── $FILE_NAME.stories.ts # Storybook integration
+```
+
+### 3. **Documentation Standards**
+Include comprehensive documentation headers in templates:
 ```typescript
 /**
- * {{pascal_name}} Component
- * Generado automáticamente por CLI Frontend Generator
+ * {{pascal_name}} Template
+ * Generated by CLI Frontend Generator v1.2.3
  * 
- * @description TODO: Describe qué hace este componente
- * @author {{author}} - Fecha: {{date}}
+ * @description Production-ready {{template_type}} following {{architecture_pattern}} architecture
+ * @author Generated on {{generation_date}}
+ * @version 1.0.0
+ * @generated true
+ * 
+ * @example
+ * ```typescript
+ * // Usage example for {{pascal_name}}
+ * import { {{pascal_name}} } from './{{kebab_name}}';
+ * 
+ * const instance = new {{pascal_name}}();
+ * ```
  */
 ```
 
-### 4. **Variables de Configuración Avanzadas**
-Puedes usar variables de entorno o configuración en tus templates:
+### 4. **Production Configuration Variables**
 ```typescript
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
-const {{upper_name}}_ENDPOINT = '{{kebab_name}}';
+// Environment-aware configuration
+const config = {
+  API_BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+  {{upper_name}}_ENDPOINT: process.env.REACT_APP_{{upper_name}}_ENDPOINT || '/{{kebab_name}}',
+  ENABLE_LOGGING: process.env.NODE_ENV === 'development',
+  CACHE_TTL: parseInt(process.env.REACT_APP_CACHE_TTL || '300000'), // 5 minutes
+  MAX_RETRIES: parseInt(process.env.REACT_APP_MAX_RETRIES || '3'),
+};
 ```
 
-## 🚀 Templates Avanzados
+## 🚀 Advanced Template Features
 
-### Helper Personalizado en Templates
-Si necesitas lógica más compleja, puedes usar helpers de Handlebars:
-
+### Conditional Template Logic
 ```handlebars
-{{#if (eq template_type "component")}}
-// Código específico para componentes
+{{#if (eq architecture "clean-architecture")}}
+// Clean architecture specific imports
+import { UseCase } from '../core/UseCase';
+import { Repository } from '../core/Repository';
+{{else if (eq architecture "mvc")}}
+// MVC specific imports
+import { Controller } from '../core/Controller';
+import { Model } from '../core/Model';
 {{/if}}
 
-{{#each props}}
-  {{@key}}: {{this}};
-{{/each}}
+{{#unless (eq environment "production")}}
+// Development-only code
+console.log('Debug: {{pascal_name}} initialized');
+{{/unless}}
 ```
 
-### Plantillas Condicionales
+### Custom Handlebars Helpers
 ```typescript
-{{#if enable_hooks}}
-import { useState, useEffect } from 'react';
-{{/if}}
+// Custom helper for generating timestamps
+{{timestamp format="ISO"}}  // Outputs: 2024-01-01T00:00:00Z
 
-{{#if include_styles}}
-import styles from './{{kebab_name}}.module.scss';
+// Custom helper for generating UUIDs
+{{uuid}}  // Outputs: 550e8400-e29b-41d4-a716-446655440000
+
+// Custom helper for environment checks
+{{#if (env "development")}}
+// Development code
 {{/if}}
 ```
 
-## 🔍 Debugging y Troubleshooting
-
-### Problemas Comunes
-
-1. **Template no encontrado**:
-   - Verifica que la carpeta existe en el directorio de templates
-   - Revisa la configuración de `templates_dir`
-
-2. **Variables no se reemplazan**:
-   - Usa `$FILE_NAME` para reemplazos directos
-   - Usa `{{variable}}` para Handlebars
-   - Verifica la sintaxis de Handlebars
-
-3. **Archivos no se generan**:
-   - Revisa los permisos del directorio de output
-   - Verifica que no hay errores en la sintaxis del template
-
-### Modo Debug
-Para ver qué está pasando internamente:
-```bash
-RUST_LOG=debug cli-frontend MyComponent --type component
+### Multi-Framework Support
+```handlebars
+{{#if (eq framework "react")}}
+import React from 'react';
+export const {{pascal_name}}: React.FC = () => {
+{{else if (eq framework "vue")}}
+import { defineComponent } from 'vue';
+export default defineComponent({
+  name: '{{pascal_name}}',
+{{else if (eq framework "angular")}}
+import { Component } from '@angular/core';
+@Component({
+  selector: '{{kebab_name}}',
+{{/if}}
 ```
 
-## 🎉 Conclusión
-
-Crear templates personalizados te permite:
-- **Automatizar** patrones específicos de tu proyecto
-- **Mantener consistencia** en el código
-- **Acelerar el desarrollo** eliminando código repetitivo
-- **Estandarizar** estructuras de archivos y nomenclatura
-
-¡Experimenta con diferentes tipos de templates y adapta el CLI a las necesidades específicas de tu proyecto! 🚀
-
----
-
-## 📚 Recursos Adicionales
-
-- [Documentación de Handlebars](https://handlebarsjs.com/)
-- [Convenciones de nomenclatura](https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Writing_style_guide/Code_style_guide)
-- [Mejores prácticas de React](https://react.dev/learn/thinking-in-react)
