@@ -107,6 +107,7 @@ enable_hooks=true
 templates_dir=$TEMPLATES_DIR
 architectures_dir=$ARCHITECTURES_DIR
 output_dir=.
+default_architecture=screaming-architecture
 EOF
 
 echo -e "${GREEN}✅ Configuration created at $CONFIG_DIR/config.conf${NC}"

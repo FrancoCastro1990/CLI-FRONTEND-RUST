@@ -130,6 +130,28 @@ try {
     Write-ColorOutput $Yellow "💡 Please manually download templates and architectures from GitHub"
 }
 
+# Create configuration file
+Write-ColorOutput $Blue "⚙️  Creating configuration file..."
+$configContent = @"
+# CLI Frontend Generator Configuration
+# Global installation configuration
+
+# General settings
+default_type=component
+create_folder=true
+enable_hooks=true
+
+# Paths configuration
+templates_dir=$InstallPath\templates
+architectures_dir=$InstallPath\architectures
+output_dir=.
+default_architecture=screaming-architecture
+"@
+
+$configPath = Join-Path $InstallPath ".cli-frontend.conf"
+$configContent | Out-File -FilePath $configPath -Encoding UTF8
+Write-ColorOutput $Green "✅ Configuration file created at $configPath"
+
 # Add to PATH if not already present
 $currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
 if ($currentPath -notlike "*$InstallPath*") {
@@ -149,6 +171,7 @@ Write-ColorOutput $Blue "📍 Installation location: $InstallPath"
 Write-ColorOutput $Blue "🔧 Binary: $InstallPath\$BinaryName"
 Write-ColorOutput $Blue "📄 Templates: $InstallPath\templates"
 Write-ColorOutput $Blue "🏗️  Architectures: $InstallPath\architectures"
+Write-ColorOutput $Blue "⚙️  Configuration: $InstallPath\.cli-frontend.conf"
 Write-ColorOutput $Blue ""
 Write-ColorOutput $Yellow "Usage examples:"
 Write-ColorOutput $Yellow "  cli-frontend MyComponent --type component"

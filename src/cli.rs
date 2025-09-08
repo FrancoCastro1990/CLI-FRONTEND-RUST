@@ -50,7 +50,7 @@ impl Args {
             for entry in entries.flatten() {
                 if entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false) {
                     if let Some(name) = entry.file_name().to_str() {
-                        if !name.starts_with('.') {
+                        if !name.starts_with('.') && name != "architectures" {
                             templates.push(name.to_string());
                         }
                     }
@@ -60,7 +60,6 @@ impl Args {
 
         // Add the special "feature" type which uses architecture configurations
         templates.push("feature".to_string());
-
         templates.sort();
         templates
     }
