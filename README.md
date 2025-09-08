@@ -257,6 +257,44 @@ architectures_dir=/home/franco/.cli-template/architectures
 default_architecture=screaming-architecture
 ```
 
+### 🔧 **Troubleshooting Configuration Issues**
+
+If the installer didn't create the configuration file, or you're experiencing template detection issues, manually create the configuration:
+
+```bash
+# Create configuration file manually
+cat > ~/.cli-frontend.conf << 'EOF'
+# CLI Frontend Generator Configuration
+
+# General settings
+default_type=component
+create_folder=true
+enable_hooks=true
+
+# Path configuration (replace with your actual username)
+templates_dir=/home/$(whoami)/.cli-template/templates
+output_dir=.
+architectures_dir=/home/$(whoami)/.cli-template/architectures
+
+# Architecture settings
+default_architecture=screaming-architecture
+EOF
+```
+
+**Verify your installation:**
+```bash
+# Check if directories exist
+ls -la ~/.cli-template/
+ls -la ~/.cli-template/templates/
+ls -la ~/.cli-template/architectures/
+
+# Check configuration file
+cat ~/.cli-frontend.conf
+
+# Test CLI detection
+cli-frontend --list
+```
+
 ## 🔧 Technical Architecture
 
 ### Project Structure
