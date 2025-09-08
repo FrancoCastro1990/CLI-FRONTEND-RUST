@@ -72,11 +72,11 @@ impl Config {
                 PathBuf::from("/usr/local/share/cli-frontend/templates"),
                 PathBuf::from("/usr/share/cli-frontend/templates"),
             ]);
-            
+
             // On Windows, also check common installation locations
             #[cfg(windows)]
             search_paths.extend(vec![
-                home_dir.join(".cli-template/templates"),  // Windows installer location
+                home_dir.join(".cli-template/templates"), // Windows installer location
                 PathBuf::from("C:\\Program Files\\cli-frontend\\templates"),
                 PathBuf::from("C:\\cli-frontend\\templates"),
             ]);
@@ -117,11 +117,11 @@ impl Config {
                 PathBuf::from("/usr/local/share/cli-frontend/architectures"),
                 PathBuf::from("/usr/share/cli-frontend/architectures"),
             ]);
-            
+
             // On Windows, also check common installation locations
             #[cfg(windows)]
             search_paths.extend(vec![
-                home_dir.join(".cli-template/architectures"),  // Windows installer location
+                home_dir.join(".cli-template/architectures"), // Windows installer location
                 PathBuf::from("C:\\Program Files\\cli-frontend\\architectures"),
                 PathBuf::from("C:\\cli-frontend\\architectures"),
             ]);
