@@ -125,6 +125,7 @@ if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
 fi
 
 # Create configuration file with absolute paths
+echo -e "${BLUE}⚙️  Creating configuration file...${NC}"
 CONFIG_FILE="$HOME/.cli-frontend.conf"
 
 cat > "$CONFIG_FILE" << EOF
@@ -144,6 +145,8 @@ architectures_dir=$HOME/.cli-template/architectures
 # Feature settings
 default_architecture=screaming-architecture
 EOF
+
+echo -e "${GREEN}✅ Configuration file created at: $CONFIG_FILE${NC}"
 
 echo -e "${GREEN}🎉 Installation completed successfully!${NC}"
 echo -e "${BLUE}📍 Binary: ${INSTALL_DIR}/${BINARY_NAME}${NC}"
