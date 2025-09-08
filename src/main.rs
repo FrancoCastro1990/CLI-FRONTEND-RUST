@@ -19,7 +19,7 @@ async fn main() -> Result<()> {
     // Load configuration first to get templates directory
     let config = Config::load(&args.config).await?;
 
-    if args.help {
+    if args.list {
         Args::print_help_with_templates(&config.templates_dir);
         return Ok(());
     }

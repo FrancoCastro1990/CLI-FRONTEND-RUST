@@ -94,7 +94,7 @@ fi
 
 # Create global configuration
 echo -e "${YELLOW}⚙️  Creating configuration...${NC}"
-cat > "$CONFIG_DIR/config.conf" << EOF
+cat > "$HOME/.cli-frontend.conf" << EOF
 # CLI Frontend Generator Configuration
 # Global installation configuration
 
@@ -103,14 +103,14 @@ default_type=component
 create_folder=true
 enable_hooks=true
 
-# Paths configuration
+# Paths configuration (using absolute paths)
 templates_dir=$TEMPLATES_DIR
 architectures_dir=$ARCHITECTURES_DIR
 output_dir=.
 default_architecture=screaming-architecture
 EOF
 
-echo -e "${GREEN}✅ Configuration created at $CONFIG_DIR/config.conf${NC}"
+echo -e "${GREEN}✅ Configuration created at $HOME/.cli-frontend.conf${NC}"
 
 # Add to PATH if needed (for user installations)
 if [ "$USER_INSTALL" = true ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
@@ -136,7 +136,7 @@ if command -v cli-frontend >/dev/null 2>&1; then
     echo "  cli-frontend UserAuth --type feature                   # Generate a complete feature"
     echo "  cli-frontend UserAuth --type feature --architecture mvc # Generate with MVC architecture"
     echo ""
-    echo -e "${YELLOW}Configuration file:${NC} $CONFIG_DIR/config.conf"
+    echo -e "${YELLOW}Configuration file:${NC} $HOME/.cli-frontend.conf"
     echo -e "${YELLOW}Templates directory:${NC} $TEMPLATES_DIR"
     echo -e "${YELLOW}Architectures directory:${NC} $ARCHITECTURES_DIR"
     echo ""

@@ -144,6 +144,26 @@ else
     echo -e "${GREEN}✅ Already in PATH${NC}"
 fi
 
+# Create configuration file with absolute paths
+echo -e "${BLUE}⚙️  Creating configuration file...${NC}"
+cat > "$HOME/.cli-frontend.conf" << EOF
+# CLI Frontend Generator Configuration
+# Quick installation configuration
+
+# General settings
+default_type=component
+create_folder=true
+enable_hooks=true
+
+# Paths configuration (using absolute paths)
+templates_dir=$INSTALL_DIR/templates
+architectures_dir=$INSTALL_DIR/architectures
+output_dir=.
+default_architecture=screaming-architecture
+EOF
+
+echo -e "${GREEN}✅ Configuration created at $HOME/.cli-frontend.conf${NC}"
+
 echo -e "${GREEN}"
 echo -e "🎉 Installation completed successfully!"
 echo -e "======================================"
@@ -152,6 +172,7 @@ echo -e "${BLUE}📍 Installation location: ${INSTALL_DIR}${NC}"
 echo -e "${BLUE}🔧 Binary: ${INSTALL_DIR}/${BINARY_NAME}${NC}"
 echo -e "${BLUE}📄 Templates: ${INSTALL_DIR}/templates${NC}"
 echo -e "${BLUE}🏗️  Architectures: ${INSTALL_DIR}/architectures${NC}"
+echo -e "${BLUE}⚙️  Configuration: $HOME/.cli-frontend.conf${NC}"
 echo -e "${BLUE}${NC}"
 echo -e "${YELLOW}Usage examples:${NC}"
 echo -e "${YELLOW}  cli-frontend MyComponent --type component${NC}"

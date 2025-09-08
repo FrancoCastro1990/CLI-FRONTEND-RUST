@@ -201,8 +201,21 @@ Options:
 | `page` | Page component with routing | `.tsx`, `.module.scss`, `.spec.tsx` |
 | `store` | Redux store slice | `.store.ts`, `.types.ts`, `.thunks.ts`, `.test.ts` |
 | `api` | API service interface | `.api.ts` |
+| `api-service` | **Advanced API service with config** | `.service.ts`, `.test.ts`, `.conf` |
 
 > 🔧 **Extensible**: Add custom templates by creating folders in the `templates/` directory. The CLI automatically discovers new templates without recompilation.
+
+### 🎯 **New: Template Configuration System**
+
+Templates now support advanced configuration through `.conf` files within template directories:
+
+```ini
+# Example: templates/my-template/.conf
+environment=production
+enable_timestamps=true
+var_author=Your Team
+var_api_version=v2
+```
 
 ## ⚙️ Configuration
 
@@ -210,6 +223,21 @@ The CLI searches for configuration files in this order:
 1. `.cli-frontend.conf` in current directory
 2. `~/.cli-frontend.conf` in home directory  
 3. File specified with `--config` option
+
+### 🐧 **Linux Installation Note**
+For proper operation on Linux systems, the configuration file **must use absolute paths**. The installation scripts automatically create the correct configuration:
+
+**User installation** (via `install-quick.sh`):
+```ini
+templates_dir=/home/username/.cli-template/templates
+architectures_dir=/home/username/.cli-template/architectures
+```
+
+**System installation** (via `install.sh` with sudo):
+```ini
+templates_dir=/usr/local/share/cli-frontend/templates
+architectures_dir=/usr/local/share/cli-frontend/architectures
+```
 
 ### Configuration Example
 ```ini
@@ -220,10 +248,10 @@ default_type=component
 create_folder=true
 enable_hooks=true
 
-# Path configuration
-templates_dir=./templates
-output_dir=./src
-architectures_dir=./architectures
+# Path configuration (use absolute paths on Linux)
+templates_dir=/home/franco/.cli-template/templates
+output_dir=.
+architectures_dir=/home/franco/.cli-template/architectures
 
 # Architecture settings
 default_architecture=screaming-architecture
@@ -244,6 +272,7 @@ cli-frontend-rust/
 │   ├── component/           # React component templates
 │   ├── hook/                # Custom hook templates
 │   ├── service/             # Business logic templates
+│   ├── api-service/         # Advanced API service with .conf
 │   └── [custom-templates]/  # User-defined templates
 ├── architectures/           # Software architecture configurations
 │   ├── clean-architecture.json
@@ -251,6 +280,57 @@ cli-frontend-rust/
 │   ├── flux.json
 │   └── [12 total architectures]
 └── docs/                    # Comprehensive documentation
+```
+
+## 🐛 Troubleshooting
+
+### Templates Not Detected
+**Problem**: `Error: Unknown type 'my-template'. Available types: ...`
+
+**Solution**: Ensure your configuration file uses absolute paths:
+```bash
+# Check current configuration
+cat ~/.cli-frontend.conf
+
+# Should show absolute paths like:
+templates_dir=/home/username/.cli-template/templates
+```
+
+**Fix**: Edit `~/.cli-frontend.conf` with absolute paths or reinstall:
+```bash
+# Quick fix
+sed -i "s|templates_dir=.*|templates_dir=$HOME/.cli-template/templates|g" ~/.cli-frontend.conf
+sed -i "s|architectures_dir=.*|architectures_dir=$HOME/.cli-template/architectures|g" ~/.cli-frontend.conf
+
+# Or reinstall
+curl -sSL https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/main/install-quick.sh | bash
+```
+
+### CLI Not Found After Installation
+**Problem**: `command not found: cli-frontend`
+
+**Solutions**:
+```bash
+# Reload shell
+source ~/.bashrc  # or ~/.zshrc
+
+# Check PATH
+echo $PATH | grep -q "$HOME/.cli-template" && echo "In PATH" || echo "Missing from PATH"
+
+# Add to PATH manually
+echo 'export PATH="$PATH:$HOME/.cli-template"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Template Configuration Issues
+**Problem**: Custom variables not working in templates
+
+**Solution**: Ensure template has `.conf` file with proper format:
+```ini
+# templates/my-template/.conf
+var_author=Your Name
+var_version=1.0.0
+enable_timestamps=true
 ```
 
 ### Template System
@@ -303,10 +383,12 @@ cli-frontend-rust/
 - [x] Cross-platform intelligent installers
 - [x] Automated configuration management
 - [x] Professional documentation and guides
+- [x] **Template configuration system** with `.conf` files
+- [x] **Environment-aware variables** (timestamp, UUID, environment)
+- [x] **Advanced Handlebars helpers** for dynamic templating
 
 ### 🚧 In Development (v1.3.0)
 - [ ] **VS Code Extension** - Integrated development experience
-- [ ] **.conf** - .conf in template to add variables and config in custom templates.
 - [ ] **Template Validation** - JSON schema validation for custom templates
 - [ ] **Interactive Mode** - Guided architecture selection wizard
 - [ ] **Template Marketplace** - Community-driven template sharing
@@ -346,6 +428,27 @@ One of the most powerful features is **automatic template discovery**. Create cu
 - `{{kebab_name}}` - kebab-case (my-component)
 - `{{snake_name}}` - snake_case (my_component)
 - `{{upper_name}}` - UPPER_CASE (MY_COMPONENT)
+
+#### **NEW: Environment-Aware Variables**
+- `{{environment}}` - Current environment (development/production)
+- `{{timestamp}}` - Current ISO timestamp
+- `{{date}}` - Current date (YYYY-MM-DD)
+- `{{uuid}}` - Generated UUID v4
+- `{{version}}` - CLI version
+- `{{generated}}` - Always `true`
+
+#### **NEW: Custom Variables (.conf)**
+Define custom variables in your template's `.conf` file:
+```ini
+var_api_version=v1
+var_author=Your Team
+```
+
+Use in templates:
+```typescript
+// API Version: {{api_version}}
+// Author: {{author}}
+```
 
 > 📖 For detailed template creation guide, see [TEMPLATE_GUIDE.md](./TEMPLATE_GUIDE.md)
 

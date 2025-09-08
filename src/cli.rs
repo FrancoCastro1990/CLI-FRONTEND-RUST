@@ -32,9 +32,9 @@ pub struct Args {
     #[arg(short = 'c', long = "config")]
     pub config: Option<PathBuf>,
 
-    /// Show help and available templates
-    #[arg(long = "help")]
-    pub help: bool,
+    /// Show detailed help with templates and architectures  
+    #[arg(long = "list")]
+    pub list: bool,
 }
 
 impl Args {
@@ -128,7 +128,8 @@ impl Args {
             "  -o, --output-dir <DIR>  Output directory for generated files (overrides config)"
         );
         println!("  -c, --config <CONFIG>   Path to custom configuration file");
-        println!("  --help                  Show this help message");
+        println!("  --list                  Show detailed help with templates and architectures");
+        println!("  -h, --help              Show basic help message");
         println!();
 
         if !templates.is_empty() {

@@ -1,0 +1,48 @@
+# CLI Frontend Generator Configuration
+# Example configuration file demonstrating correct absolute paths for Linux
+
+# General settings
+default_type=component
+create_folder=true
+enable_hooks=true
+
+# Paths configuration (CRITICAL: Use absolute paths for reliable operation)
+# For user installation via install-quick.sh:
+templates_dir=/home/user/.cli-template/templates
+architectures_dir=/home/user/.cli-template/architectures
+
+# For system installation via install.sh with sudo:
+# templates_dir=/usr/local/share/cli-frontend/templates
+# architectures_dir=/usr/local/share/cli-frontend/architectures
+
+# Output configuration
+output_dir=.
+default_architecture=screaming-architecture
+
+# Advanced settings
+# These settings control template behavior and can be customized per project
+# create_folder=false    # Set to false to generate files without creating folders
+# default_type=hook      # Change default template type
+# default_architecture=mvc # Change default architecture pattern
+
+# Available template types (automatically detected from templates_dir):
+# - component: React component with TypeScript and SCSS
+# - hook: Custom React hook with tests
+# - service: Business logic service
+# - context: React context with provider
+# - page: Page component with routing
+# - store: Redux store slice with types and thunks
+# - api: Basic API service interface
+# - api-service: Advanced API service with configuration
+# - types: TypeScript type definitions
+
+# Available architectures (automatically detected from architectures_dir):
+# - screaming-architecture (default)
+# - clean-architecture
+# - redux
+# - flux
+# - mvc, mvp, mvvm
+# - component-based
+# - atomic-design
+# - micro-frontends
+# - event-driven

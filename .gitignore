@@ -29,7 +29,6 @@ Thumbs.db
 /test-output/
 
 # Archivos de configuración local
-.cli-frontend.conf
 local-config.conf
 
 # Archivos de distribución

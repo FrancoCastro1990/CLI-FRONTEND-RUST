@@ -5,6 +5,8 @@ use serde_json::json;
 use std::path::{Path, PathBuf};
 use tokio::fs;
 use walkdir::WalkDir;
+use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
 use crate::config::{ArchitectureConfig, Config};
 
@@ -14,6 +16,25 @@ struct SmartNames {
     context_name: String,
     provider_name: String,
     page_name: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct TemplateConfig {
+    pub variables: std::collections::HashMap<String, String>,
+    pub environment: String,
+    pub enable_timestamps: bool,
+    pub enable_uuid: bool,
+}
+
+impl Default for TemplateConfig {
+    fn default() -> Self {
+        Self {
+            variables: std::collections::HashMap::new(),
+            environment: std::env::var("NODE_ENV").unwrap_or_else(|_| "development".to_string()),
+            enable_timestamps: true,
+            enable_uuid: true,
+        }
+    }
 }
 
 pub struct TemplateEngine {
@@ -28,6 +49,55 @@ impl TemplateEngine {
             templates_dir,
             output_dir,
         })
+    }
+
+    /// Load template configuration from .conf file if exists
+    async fn load_template_config(&self, template_type: &str) -> Result<TemplateConfig> {
+        let config_path = self.templates_dir.join(template_type).join(".conf");
+        
+        if !config_path.exists() {
+            return Ok(TemplateConfig::default());
+        }
+
+        let content = fs::read_to_string(&config_path).await
+            .with_context(|| format!("Could not read template config: {}", config_path.display()))?;
+
+        self.parse_template_config(&content)
+    }
+
+    /// Parse template configuration from INI-like format
+    fn parse_template_config(&self, content: &str) -> Result<TemplateConfig> {
+        let mut config = TemplateConfig::default();
+
+        for line in content.lines() {
+            let line = line.trim();
+
+            // Skip comments and empty lines
+            if line.starts_with('#') || line.is_empty() {
+                continue;
+            }
+
+            // Parse key=value pairs
+            if let Some((key, value)) = line.split_once('=') {
+                let key = key.trim();
+                let value = value.trim().trim_matches('"').trim_matches('\'');
+
+                match key {
+                    "environment" => config.environment = value.to_string(),
+                    "enable_timestamps" => config.enable_timestamps = value.parse().unwrap_or(true),
+                    "enable_uuid" => config.enable_uuid = value.parse().unwrap_or(true),
+                    _ => {
+                        // Custom variables
+                        if key.starts_with("var_") {
+                            let var_name = key.strip_prefix("var_").unwrap_or(key);
+                            config.variables.insert(var_name.to_string(), value.to_string());
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(config)
     }
 
     pub fn template_exists(&self, template_type: &str) -> bool {
@@ -302,6 +372,15 @@ impl TemplateEngine {
             ));
         }
 
+        // Load template configuration
+        let template_config = self.load_template_config(template_type).await?;
+
+        println!(
+            "{} Using template config: environment={}",
+            "⚙️".bold(),
+            template_config.environment.blue()
+        );
+
         // Determine output path
         let output_path = if create_folder {
             self.output_dir.join(name)
@@ -318,7 +397,7 @@ impl TemplateEngine {
         })?;
 
         // Process all template files
-        self.process_template_directory(&template_dir, &output_path, name)
+        self.process_template_directory(&template_dir, &output_path, name, &template_config)
             .await?;
 
         // Show generated files
@@ -332,6 +411,7 @@ impl TemplateEngine {
         template_dir: &Path,
         output_path: &Path,
         name: &str,
+        template_config: &TemplateConfig,
     ) -> Result<()> {
         let mut tasks = Vec::new();
 
@@ -340,6 +420,11 @@ impl TemplateEngine {
             let entry = entry.context("Error walking template directory")?;
 
             if entry.file_type().is_file() {
+                // Skip .conf files
+                if entry.file_name() == ".conf" {
+                    continue;
+                }
+
                 let relative_path = entry
                     .path()
                     .strip_prefix(template_dir)
@@ -350,8 +435,9 @@ impl TemplateEngine {
 
                 // Process file asynchronously
                 let name_clone = name.to_string();
+                let config_clone = template_config.clone();
                 let task = tokio::spawn(async move {
-                    Self::process_template_file(&template_file, &output_file, &name_clone).await
+                    Self::process_template_file_with_config(&template_file, &output_file, &name_clone, &config_clone).await
                 });
 
                 tasks.push(task);
@@ -371,6 +457,17 @@ impl TemplateEngine {
         output_file: &Path,
         name: &str,
     ) -> Result<()> {
+        // Use default config for backward compatibility
+        let default_config = TemplateConfig::default();
+        Self::process_template_file_with_config(template_file, output_file, name, &default_config).await
+    }
+
+    async fn process_template_file_with_config(
+        template_file: &Path,
+        output_file: &Path,
+        name: &str,
+        template_config: &TemplateConfig,
+    ) -> Result<()> {
         // Read template content
         let template_content = fs::read_to_string(template_file).await.with_context(|| {
             format!("Could not read template file: {}", template_file.display())
@@ -383,12 +480,21 @@ impl TemplateEngine {
         handlebars.register_helper("kebab_case", Box::new(kebab_case_helper));
         handlebars.register_helper("camel_case", Box::new(camel_case_helper));
         handlebars.register_helper("upper_case", Box::new(upper_case_helper));
+        handlebars.register_helper("timestamp", Box::new(timestamp_helper));
+        handlebars.register_helper("uuid", Box::new(uuid_helper));
+        handlebars.register_helper("env", Box::new(env_helper));
+        handlebars.register_helper("eq", Box::new(eq_helper));
+        handlebars.register_helper("ne", Box::new(ne_helper));
 
         // Smart name processing for different patterns
         let processed_names = Self::process_smart_names(name);
 
-        // Prepare template data
-        let data = json!({
+        // Get current timestamp and UUID
+        let now: DateTime<Utc> = Utc::now();
+        let current_uuid = Uuid::new_v4();
+
+        // Prepare base template data
+        let mut data = json!({
             "name": name,
             "pascal_name": to_pascal_case(name),
             "snake_name": to_snake_case(name),
@@ -400,7 +506,27 @@ impl TemplateEngine {
             "context_name": processed_names.context_name,
             "provider_name": processed_names.provider_name,
             "page_name": processed_names.page_name,
+            // Environment-aware variables
+            "environment": template_config.environment,
+            "timestamp": if template_config.enable_timestamps { now.to_rfc3339() } else { "".to_string() },
+            "timestamp_iso": if template_config.enable_timestamps { now.format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string() } else { "".to_string() },
+            "date": if template_config.enable_timestamps { now.format("%Y-%m-%d").to_string() } else { "".to_string() },
+            "time": if template_config.enable_timestamps { now.format("%H:%M:%S").to_string() } else { "".to_string() },
+            "year": if template_config.enable_timestamps { now.format("%Y").to_string() } else { "".to_string() },
+            "uuid": if template_config.enable_uuid { current_uuid.to_string() } else { "".to_string() },
+            "uuid_simple": if template_config.enable_uuid { current_uuid.simple().to_string() } else { "".to_string() },
+            // Version info
+            "version": env!("CARGO_PKG_VERSION"),
+            "generator_name": "CLI Frontend Generator",
+            "generated": true
         });
+
+        // Add custom variables from template config
+        if let Some(data_map) = data.as_object_mut() {
+            for (key, value) in &template_config.variables {
+                data_map.insert(key.clone(), serde_json::Value::String(value.clone()));
+            }
+        }
 
         // Apply smart replacements
         let processed_content =
@@ -623,6 +749,101 @@ fn upper_case_helper(
             out.write(&value.to_uppercase())?;
         }
     }
+    Ok(())
+}
+
+// Environment and utility helpers
+fn timestamp_helper(
+    h: &Helper,
+    _: &Handlebars,
+    _: &handlebars::Context,
+    _: &mut RenderContext,
+    out: &mut dyn Output,
+) -> HelperResult {
+    let format = h.param(0)
+        .and_then(|v| v.value().as_str())
+        .unwrap_or("ISO");
+
+    let now: DateTime<Utc> = Utc::now();
+    let formatted = match format {
+        "ISO" => now.to_rfc3339(),
+        "date" => now.format("%Y-%m-%d").to_string(),
+        "time" => now.format("%H:%M:%S").to_string(),
+        "datetime" => now.format("%Y-%m-%d %H:%M:%S").to_string(),
+        "unix" => now.timestamp().to_string(),
+        _ => now.to_rfc3339(),
+    };
+
+    out.write(&formatted)?;
+    Ok(())
+}
+
+fn uuid_helper(
+    _h: &Helper,
+    _: &Handlebars,
+    _: &handlebars::Context,
+    _: &mut RenderContext,
+    out: &mut dyn Output,
+) -> HelperResult {
+    let uuid = Uuid::new_v4();
+    out.write(&uuid.to_string())?;
+    Ok(())
+}
+
+fn env_helper(
+    h: &Helper,
+    _: &Handlebars,
+    _: &handlebars::Context,
+    _: &mut RenderContext,
+    out: &mut dyn Output,
+) -> HelperResult {
+    if let Some(param) = h.param(0) {
+        if let Some(var_name) = param.value().as_str() {
+            let value = std::env::var(var_name).unwrap_or_default();
+            out.write(&value)?;
+        }
+    }
+    Ok(())
+}
+
+// Comparison helpers for conditional logic
+fn eq_helper(
+    h: &Helper,
+    _: &Handlebars,
+    _: &handlebars::Context,
+    _: &mut RenderContext,
+    out: &mut dyn Output,
+) -> HelperResult {
+    let param0 = h.param(0).map(|v| v.value());
+    let param1 = h.param(1).map(|v| v.value());
+    
+    let result = match (param0, param1) {
+        (Some(v1), Some(v2)) => v1 == v2,
+        _ => false,
+    };
+    
+    // For Handlebars conditionals, we write the boolean result
+    out.write(&result.to_string())?;
+    Ok(())
+}
+
+fn ne_helper(
+    h: &Helper,
+    _: &Handlebars,
+    _: &handlebars::Context,
+    _: &mut RenderContext,
+    out: &mut dyn Output,
+) -> HelperResult {
+    let param0 = h.param(0).map(|v| v.value());
+    let param1 = h.param(1).map(|v| v.value());
+    
+    let result = match (param0, param1) {
+        (Some(v1), Some(v2)) => v1 != v2,
+        _ => true,
+    };
+    
+    // For Handlebars conditionals, we write the boolean result
+    out.write(&result.to_string())?;
     Ok(())
 }
 

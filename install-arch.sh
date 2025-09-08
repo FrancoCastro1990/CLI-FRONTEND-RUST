@@ -104,12 +104,16 @@ echo -e "${BLUE}📋 Installing binary...${NC}"
 cp "./target/release/cli-frontend" "$BINARY_DIR/$BINARY_NAME"
 chmod +x "$BINARY_DIR/$BINARY_NAME"
 
-# Copy templates
-echo -e "${BLUE}📄 Installing templates...${NC}"
+# Copy templates and architectures
+echo -e "${BLUE}📄 Installing templates and architectures...${NC}"
 if [ -d "$INSTALL_DIR/templates" ]; then
     rm -rf "$INSTALL_DIR/templates"
 fi
+if [ -d "$INSTALL_DIR/architectures" ]; then
+    rm -rf "$INSTALL_DIR/architectures"
+fi
 cp -r "./templates" "$INSTALL_DIR/templates"
+cp -r "./architectures" "$INSTALL_DIR/architectures"
 
 # Create desktop entry for system installation
 if [[ $IS_SYSTEM_INSTALL == true ]]; then
@@ -127,22 +131,44 @@ Categories=Development;
 EOF
 fi
 
-# Create symlink configuration for global templates
-echo -e "${BLUE}🔗 Setting up template configuration...${NC}"
+# Create configuration file with absolute paths
+echo -e "${BLUE}🔗 Setting up configuration...${NC}"
 if [[ $IS_SYSTEM_INSTALL == true ]]; then
-    # System-wide templates are available to all users
-    echo -e "${GREEN}✅ System templates available at: $INSTALL_DIR/templates${NC}"
-else
-    # User-specific installation
-    mkdir -p "$HOME/.config/cli-frontend"
-    cat > "$HOME/.config/cli-frontend/config.toml" << EOF
-[templates]
-directory = "$INSTALL_DIR/templates"
+    # System-wide configuration
+    cat > "/etc/cli-frontend.conf" << EOF
+# CLI Frontend Generator Configuration
+# System-wide installation configuration
 
-[output]
-base_directory = "./src"
-create_directories = true
+# General settings
+default_type=component
+create_folder=true
+enable_hooks=true
+
+# Paths configuration (using absolute paths)
+templates_dir=$INSTALL_DIR/templates
+architectures_dir=$INSTALL_DIR/architectures
+output_dir=.
+default_architecture=screaming-architecture
 EOF
+    echo -e "${GREEN}✅ System configuration created at /etc/cli-frontend.conf${NC}"
+else
+    # User-specific configuration
+    cat > "$HOME/.cli-frontend.conf" << EOF
+# CLI Frontend Generator Configuration
+# User-specific installation configuration
+
+# General settings
+default_type=component
+create_folder=true
+enable_hooks=true
+
+# Paths configuration (using absolute paths)
+templates_dir=$INSTALL_DIR/templates
+architectures_dir=$INSTALL_DIR/architectures
+output_dir=.
+default_architecture=screaming-architecture
+EOF
+    echo -e "${GREEN}✅ User configuration created at $HOME/.cli-frontend.conf${NC}"
 fi
 
 # Add to PATH if not already present (user installation only)
@@ -191,6 +217,8 @@ echo -e "${NC}"
 echo -e "${BLUE}📍 Installation type: $([ $IS_SYSTEM_INSTALL == true ] && echo "System-wide" || echo "User")${NC}"
 echo -e "${BLUE}🔧 Binary: $BINARY_DIR/$BINARY_NAME${NC}"
 echo -e "${BLUE}📄 Templates: $INSTALL_DIR/templates${NC}"
+echo -e "${BLUE}🏗️  Architectures: $INSTALL_DIR/architectures${NC}"
+echo -e "${BLUE}⚙️  Configuration: $([ $IS_SYSTEM_INSTALL == true ] && echo "/etc/cli-frontend.conf" || echo "$HOME/.cli-frontend.conf")${NC}"
 echo -e "${BLUE}${NC}"
 echo -e "${YELLOW}Usage examples:${NC}"
 echo -e "${YELLOW}  cli-frontend MyComponent --type component${NC}"
@@ -206,11 +234,12 @@ if [[ $IS_SYSTEM_INSTALL == true ]]; then
     echo -e "${BLUE}  • Installed system-wide (available for all users)${NC}"
     echo -e "${BLUE}  • Desktop entry created${NC}"
     echo -e "${BLUE}  • Package info: /var/lib/cli-frontend/PKGINFO${NC}"
-    echo -e "${BLUE}  • To uninstall: rm -rf $BINARY_DIR/$BINARY_NAME $INSTALL_DIR /usr/share/applications/cli-frontend.desktop /var/lib/cli-frontend${NC}"
+    echo -e "${BLUE}  • Configuration: /etc/cli-frontend.conf${NC}"
+    echo -e "${BLUE}  • To uninstall: rm -rf $BINARY_DIR/$BINARY_NAME $INSTALL_DIR /usr/share/applications/cli-frontend.desktop /var/lib/cli-frontend /etc/cli-frontend.conf${NC}"
 else
     echo -e "${BLUE}  • Installed for current user only${NC}"
-    echo -e "${BLUE}  • Config file: ~/.config/cli-frontend/config.toml${NC}"
-    echo -e "${BLUE}  • To uninstall: rm -rf $BINARY_DIR/$BINARY_NAME $INSTALL_DIR ~/.config/cli-frontend${NC}"
+    echo -e "${BLUE}  • Configuration: $HOME/.cli-frontend.conf${NC}"
+    echo -e "${BLUE}  • To uninstall: rm -rf $BINARY_DIR/$BINARY_NAME $INSTALL_DIR $HOME/.cli-frontend.conf${NC}"
 fi
 
 # Verify installation

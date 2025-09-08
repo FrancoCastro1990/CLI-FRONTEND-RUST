@@ -79,6 +79,39 @@ The CLI provides a comprehensive variable system for maximum flexibility:
 - `{{provider_name}}` - Provider component naming (`AuthProvider`)
 - `{{page_name}}` - Page component naming (`AuthPage`)
 
+#### **🆕 Environment-Aware Variables (v1.2.3)**
+- `{{environment}}` - Current environment (development/production/staging)
+- `{{timestamp}}` - Current ISO 8601 timestamp (`2024-01-01T12:00:00.000Z`)
+- `{{timestamp_iso}}` - ISO timestamp with milliseconds
+- `{{date}}` - Current date (`2024-01-01`)
+- `{{time}}` - Current time (`12:00:00`)
+- `{{year}}` - Current year (`2024`)
+- `{{uuid}}` - Generated UUID v4 (`550e8400-e29b-41d4-a716-446655440000`)
+- `{{uuid_simple}}` - UUID without hyphens (`550e8400e29b41d4a716446655440000`)
+
+#### **🆕 Generation Metadata Variables**
+- `{{version}}` - CLI Frontend Generator version (`1.2.3`)
+- `{{generator_name}}` - Generator name (`CLI Frontend Generator`)
+- `{{generated}}` - Always `true` for generated files
+
+#### **🆕 Template Configuration Variables**
+Define custom variables in your template's `.conf` file:
+
+```ini
+# Template Configuration (.conf)
+environment=production
+var_api_version=v1
+var_author=Frontend Team
+var_license=MIT
+```
+
+Access in templates:
+```typescript
+// API Version: {{api_version}}
+// Author: {{author}}  
+// License: {{license}}
+```
+
 #### **Advanced Handlebars Variables**
 ```handlebars
 {{#if (eq type "component")}}
@@ -89,6 +122,219 @@ The CLI provides a comprehensive variable system for maximum flexibility:
 // Development-only code
 {{/unless}}
 ```
+
+#### **🆕 Advanced Handlebars Helpers (v1.2.3)**
+```handlebars
+{{timestamp format="ISO"}}        <!-- ISO 8601 format -->
+{{timestamp format="date"}}       <!-- YYYY-MM-DD -->
+{{timestamp format="time"}}       <!-- HH:MM:SS -->
+{{uuid}}                          <!-- Full UUID v4 -->
+{{env "NODE_ENV"}}                <!-- Environment variable -->
+```
+
+## 🆕 Template Configuration System
+
+### Overview
+
+CLI Frontend Generator v1.2.3 introduces a powerful template configuration system that allows templates to define their own variables, environment settings, and behavior through `.conf` files.
+
+### Configuration File Structure
+
+Create a `.conf` file in your template directory:
+
+```
+templates/
+└── my-template/
+    ├── .conf                    # ← Configuration file
+    ├── $FILE_NAME.ts
+    └── $FILE_NAME.test.ts
+```
+
+### Configuration Syntax
+
+The `.conf` file uses INI-like format:
+
+```ini
+# Template Configuration for My Template
+# This file defines variables and settings
+
+# Environment configuration
+environment=production
+enable_timestamps=true
+enable_uuid=true
+
+# Custom variables (prefix with var_)
+var_api_version=v2
+var_author=Frontend Team
+var_license=MIT
+var_description=Advanced template with configuration
+var_base_url=https://api.mycompany.com
+var_timeout=5000
+var_debug_mode=false
+```
+
+### Configuration Options
+
+#### **Core Settings**
+- `environment` - Environment name (development/production/staging)
+- `enable_timestamps` - Include timestamp variables (true/false)
+- `enable_uuid` - Include UUID variables (true/false)
+
+#### **Custom Variables**
+Prefix custom variables with `var_`:
+- `var_api_version` → `{{api_version}}`
+- `var_author` → `{{author}}`
+- `var_license` → `{{license}}`
+- Any `var_xyz` → `{{xyz}}`
+
+### Using Configuration in Templates
+
+```typescript
+/**
+ * {{pascal_name}} Template
+ * {{description}}
+ * 
+ * @generated {{generated}}
+ * @generator {{generator_name}} v{{version}}
+ * @timestamp {{timestamp}}
+ * @author {{author}}
+ * @license {{license}}
+ * @environment {{environment}}
+ */
+
+const API_CONFIG = {
+  baseURL: '{{base_url}}/{{api_version}}',
+  timeout: {{timeout}},
+  debug: {{debug_mode}},
+};
+
+{{#if (eq environment "development")}}
+console.log('Development mode configuration:', API_CONFIG);
+{{/if}}
+
+{{#if enable_timestamps}}
+export const GENERATED_AT = '{{timestamp}}';
+{{/if}}
+
+{{#if enable_uuid}}
+export const TEMPLATE_ID = '{{uuid}}';
+{{/if}}
+```
+
+### Example: Complete Template with Configuration
+
+#### 1. Template Configuration (`.conf`)
+```ini
+# Advanced API Client Template
+environment=production
+enable_timestamps=true
+enable_uuid=true
+
+# API Configuration
+var_api_version=v1
+var_base_url=https://jsonplaceholder.typicode.com
+var_timeout=10000
+var_retry_attempts=3
+
+# Development settings
+var_debug_mode=false
+var_cache_enabled=true
+
+# Metadata
+var_author=API Team
+var_license=MIT
+var_description=Production-ready API client with retry logic
+```
+
+#### 2. Main Template File (`$FILE_NAME.client.ts`)
+```typescript
+/**
+ * {{pascal_name}} API Client
+ * {{description}}
+ * 
+ * @generated {{generated}}
+ * @generator {{generator_name}} v{{version}}
+ * @timestamp {{timestamp}}
+ * @author {{author}}
+ * @license {{license}}
+ * @uuid {{uuid}}
+ */
+
+export interface {{pascal_name}}Config {
+  baseURL: string;
+  timeout: number;
+  retryAttempts: number;
+  debug: boolean;
+  cacheEnabled: boolean;
+}
+
+const DEFAULT_CONFIG: {{pascal_name}}Config = {
+  baseURL: '{{base_url}}/{{api_version}}',
+  timeout: {{timeout}},
+  retryAttempts: {{retry_attempts}},
+  debug: {{debug_mode}},
+  cacheEnabled: {{cache_enabled}},
+};
+
+export class {{pascal_name}}Client {
+  private config: {{pascal_name}}Config;
+
+  constructor(config: Partial<{{pascal_name}}Config> = {}) {
+    this.config = { ...DEFAULT_CONFIG, ...config };
+    
+    {{#if debug_mode}}
+    console.log('[{{pascal_name}}Client] Initialized with config:', this.config);
+    {{/if}}
+  }
+
+  {{#if (eq environment "production")}}
+  // Production-optimized methods
+  {{else}}
+  // Development methods with additional logging
+  {{/if}}
+
+  async getData<T>(endpoint: string): Promise<T> {
+    {{#if debug_mode}}
+    console.log(`[{{pascal_name}}Client] Fetching data from: ${endpoint}`);
+    {{/if}}
+    
+    // Implementation here...
+    
+    {{#if enable_timestamps}}
+    const requestTime = new Date().toISOString();
+    {{/if}}
+    
+    return {} as T;
+  }
+}
+
+{{#if enable_uuid}}
+// Unique client instance ID
+export const CLIENT_ID = '{{uuid_simple}}';
+{{/if}}
+
+{{#if enable_timestamps}}
+// Template generation metadata
+export const GENERATED_AT = '{{timestamp}}';
+export const GENERATED_DATE = '{{date}}';
+{{/if}}
+
+// Environment information
+export const ENVIRONMENT = '{{environment}}';
+export const VERSION = '{{version}}';
+
+// Default export
+export default {{pascal_name}}Client;
+```
+
+### Benefits of Template Configuration
+
+1. **🎯 Customizable Templates** - Each template can have unique behavior
+2. **🔧 Environment Awareness** - Different behavior for dev/prod/staging  
+3. **📝 Rich Variables** - Custom variables beyond basic name transformations
+4. **🚀 Dynamic Content** - Conditional logic based on configuration
+5. **📋 Self-Documenting** - Configuration serves as template documentation
+6. **🔄 Reusable** - Share configurations across team projects
 
 ### Step 3: Production-Ready Example - Redux Store Template
 
