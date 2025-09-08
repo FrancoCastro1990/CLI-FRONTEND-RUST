@@ -1,12 +1,12 @@
 use anyhow::{Context, Result};
+use chrono::{DateTime, Utc};
 use colored::*;
 use handlebars::{Handlebars, Helper, HelperResult, Output, RenderContext};
 use serde_json::json;
 use std::path::{Path, PathBuf};
 use tokio::fs;
-use walkdir::WalkDir;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
+use walkdir::WalkDir;
 
 use crate::config::{ArchitectureConfig, Config};
 
@@ -54,13 +54,14 @@ impl TemplateEngine {
     /// Load template configuration from .conf file if exists
     async fn load_template_config(&self, template_type: &str) -> Result<TemplateConfig> {
         let config_path = self.templates_dir.join(template_type).join(".conf");
-        
+
         if !config_path.exists() {
             return Ok(TemplateConfig::default());
         }
 
-        let content = fs::read_to_string(&config_path).await
-            .with_context(|| format!("Could not read template config: {}", config_path.display()))?;
+        let content = fs::read_to_string(&config_path).await.with_context(|| {
+            format!("Could not read template config: {}", config_path.display())
+        })?;
 
         self.parse_template_config(&content)
     }
@@ -90,7 +91,9 @@ impl TemplateEngine {
                         // Custom variables
                         if key.starts_with("var_") {
                             let var_name = key.strip_prefix("var_").unwrap_or(key);
-                            config.variables.insert(var_name.to_string(), value.to_string());
+                            config
+                                .variables
+                                .insert(var_name.to_string(), value.to_string());
                         }
                     }
                 }
@@ -437,7 +440,13 @@ impl TemplateEngine {
                 let name_clone = name.to_string();
                 let config_clone = template_config.clone();
                 let task = tokio::spawn(async move {
-                    Self::process_template_file_with_config(&template_file, &output_file, &name_clone, &config_clone).await
+                    Self::process_template_file_with_config(
+                        &template_file,
+                        &output_file,
+                        &name_clone,
+                        &config_clone,
+                    )
+                    .await
                 });
 
                 tasks.push(task);
@@ -459,7 +468,8 @@ impl TemplateEngine {
     ) -> Result<()> {
         // Use default config for backward compatibility
         let default_config = TemplateConfig::default();
-        Self::process_template_file_with_config(template_file, output_file, name, &default_config).await
+        Self::process_template_file_with_config(template_file, output_file, name, &default_config)
+            .await
     }
 
     async fn process_template_file_with_config(
@@ -760,9 +770,7 @@ fn timestamp_helper(
     _: &mut RenderContext,
     out: &mut dyn Output,
 ) -> HelperResult {
-    let format = h.param(0)
-        .and_then(|v| v.value().as_str())
-        .unwrap_or("ISO");
+    let format = h.param(0).and_then(|v| v.value().as_str()).unwrap_or("ISO");
 
     let now: DateTime<Utc> = Utc::now();
     let formatted = match format {
@@ -816,12 +824,12 @@ fn eq_helper(
 ) -> HelperResult {
     let param0 = h.param(0).map(|v| v.value());
     let param1 = h.param(1).map(|v| v.value());
-    
+
     let result = match (param0, param1) {
         (Some(v1), Some(v2)) => v1 == v2,
         _ => false,
     };
-    
+
     // For Handlebars conditionals, we write the boolean result
     out.write(&result.to_string())?;
     Ok(())
@@ -836,12 +844,12 @@ fn ne_helper(
 ) -> HelperResult {
     let param0 = h.param(0).map(|v| v.value());
     let param1 = h.param(1).map(|v| v.value());
-    
+
     let result = match (param0, param1) {
         (Some(v1), Some(v2)) => v1 != v2,
         _ => true,
     };
-    
+
     // For Handlebars conditionals, we write the boolean result
     out.write(&result.to_string())?;
     Ok(())
