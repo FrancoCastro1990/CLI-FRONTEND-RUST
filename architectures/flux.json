@@ -1,0 +1,46 @@
+{
+  "name": "Flux Architecture",
+  "description": "Gestión de estado unidireccional centralizado con Actions, Dispatcher y Stores",
+  "benefits": [
+    "Control del estado global",
+    "Predictibilidad",
+    "Flujo de datos unidireccional",
+    "Herramientas de debugging"
+  ],
+  "limitations": [
+    "Puede ser excesivo para apps pequeñas",
+    "Boilerplate y curva de aprendizaje"
+  ],
+  "structure": [
+    {
+      "path": "actions",
+      "template": "service",
+      "filename_pattern": "{name}Actions",
+      "description": "Actions para modificar estado"
+    },
+    {
+      "path": "stores",
+      "template": "store",
+      "filename_pattern": "{name}Store",
+      "description": "Store que mantiene el estado"
+    },
+    {
+      "path": "views",
+      "template": "component",
+      "filename_pattern": "{name}View",
+      "description": "Vista que consume el store"
+    },
+    {
+      "path": "hooks",
+      "template": "hook",
+      "filename_pattern": "use{name}",
+      "description": "Hook para acceder al store"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Tipos para actions y estado"
+    }
+  ]
+}

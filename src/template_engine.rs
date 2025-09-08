@@ -6,6 +6,8 @@ use std::path::{Path, PathBuf};
 use tokio::fs;
 use walkdir::WalkDir;
 
+use crate::config::{ArchitectureConfig, Config};
+
 #[derive(Debug)]
 struct SmartNames {
     hook_name: String,
@@ -52,6 +54,237 @@ impl TemplateEngine {
 
         templates.sort();
         Ok(templates)
+    }
+
+    /// Check if a template type is a feature template
+    #[allow(dead_code)]
+    pub fn is_feature_template(&self, template_type: &str) -> bool {
+        template_type == "feature"
+    }
+
+    /// Generate a feature with specific architecture
+    pub async fn generate_feature(
+        &self,
+        name: &str,
+        architecture: Option<&str>,
+        create_folder: bool,
+        config: &Config,
+    ) -> Result<()> {
+        let architecture_name = architecture.unwrap_or(&config.default_architecture);
+
+        // Load architecture configuration
+        let arch_config = config
+            .load_architecture(architecture_name)
+            .await
+            .with_context(|| format!("Failed to load architecture: {}", architecture_name))?;
+
+        println!(
+            "{} Using {} architecture",
+            "📐".bold(),
+            arch_config.name.bold()
+        );
+
+        // Determine output path
+        let output_path = if create_folder {
+            self.output_dir.join(name)
+        } else {
+            self.output_dir.clone()
+        };
+
+        // Create output directory
+        fs::create_dir_all(&output_path).await.with_context(|| {
+            format!(
+                "Could not create output directory: {}",
+                output_path.display()
+            )
+        })?;
+
+        // Generate each structure defined in the architecture
+        for structure in &arch_config.structure {
+            self.generate_feature_structure(name, structure, &output_path)
+                .await
+                .with_context(|| format!("Failed to generate structure: {}", structure.path))?;
+        }
+
+        // Show generated files
+        self.show_generated_feature_files(&output_path, &arch_config)
+            .await?;
+
+        Ok(())
+    }
+
+    /// Generate a single structure part of a feature
+    async fn generate_feature_structure(
+        &self,
+        name: &str,
+        structure: &crate::config::ArchitectureStructure,
+        base_output_path: &Path,
+    ) -> Result<()> {
+        // Create the specific path for this structure
+        let structure_path = if structure.path.is_empty() {
+            base_output_path.to_path_buf()
+        } else {
+            base_output_path.join(&structure.path)
+        };
+
+        // Create directory if needed
+        if !structure.path.is_empty() {
+            fs::create_dir_all(&structure_path).await.with_context(|| {
+                format!(
+                    "Could not create structure directory: {}",
+                    structure_path.display()
+                )
+            })?;
+        }
+
+        // Get template directory
+        let template_dir = self.templates_dir.join(&structure.template);
+
+        if !template_dir.exists() {
+            return Err(anyhow::anyhow!(
+                "Template '{}' not found for structure '{}'. Expected at: {}",
+                structure.template,
+                structure.path,
+                template_dir.display()
+            ));
+        }
+
+        // Process filename pattern
+        let processed_filename = self.process_filename_pattern(&structure.filename_pattern, name);
+
+        // Process all template files
+        self.process_feature_template_directory(
+            &template_dir,
+            &structure_path,
+            name,
+            &processed_filename,
+        )
+        .await?;
+
+        Ok(())
+    }
+
+    /// Process filename pattern with smart replacements
+    fn process_filename_pattern(&self, pattern: &str, name: &str) -> String {
+        let smart_names = Self::process_smart_names(name);
+
+        let mut result = pattern.to_string();
+
+        // Replace specific patterns
+        result = result.replace("use{name}", &smart_names.hook_name);
+        result = result.replace("{name}Context", &smart_names.context_name);
+        result = result.replace("{name}Provider", &smart_names.provider_name);
+        result = result.replace("{name}Page", &smart_names.page_name);
+
+        // Replace remaining {name}
+        result = result.replace("{name}", name);
+
+        result
+    }
+
+    /// Process template directory for feature generation
+    async fn process_feature_template_directory(
+        &self,
+        template_dir: &Path,
+        output_path: &Path,
+        name: &str,
+        filename_prefix: &str,
+    ) -> Result<()> {
+        let mut tasks = Vec::new();
+        let smart_names = Self::process_smart_names(name);
+
+        // Walk through all files in template directory
+        for entry in WalkDir::new(template_dir) {
+            let entry = entry.context("Error walking template directory")?;
+
+            if entry.file_type().is_file() {
+                let relative_path = entry
+                    .path()
+                    .strip_prefix(template_dir)
+                    .context("Could not get relative path")?;
+
+                let template_file = entry.path().to_path_buf();
+
+                // Process output filename - use the pattern from the original template name
+                let output_filename = if let Some(original_name) = relative_path.file_name() {
+                    let original_str = original_name.to_str().unwrap_or("");
+
+                    // Apply smart filename replacements using the actual filename pattern
+                    Self::apply_smart_filename_replacements(original_str, name, &smart_names)
+                } else {
+                    format!("{}.ts", filename_prefix)
+                };
+
+                let output_file = output_path.join(output_filename);
+
+                // Process file asynchronously
+                let name_clone = name.to_string();
+                let task = tokio::spawn(async move {
+                    Self::process_template_file(&template_file, &output_file, &name_clone).await
+                });
+
+                tasks.push(task);
+            }
+        }
+
+        // Wait for all files to be processed
+        for task in tasks {
+            task.await??;
+        }
+
+        Ok(())
+    }
+
+    /// Show generated feature files with architecture info
+    async fn show_generated_feature_files(
+        &self,
+        output_path: &Path,
+        arch_config: &ArchitectureConfig,
+    ) -> Result<()> {
+        println!("{}", "📁 Feature structure created:".bold());
+        println!("  Architecture: {}", arch_config.name.green());
+        println!("  Description: {}", arch_config.description);
+        println!();
+
+        // Show structure
+        for structure in &arch_config.structure {
+            println!("  📂 {} - {}", structure.path.blue(), structure.description);
+
+            // List files in this structure
+            let structure_path = if structure.path.is_empty() {
+                output_path.to_path_buf()
+            } else {
+                output_path.join(&structure.path)
+            };
+
+            if structure_path.exists() {
+                if let Ok(entries) = std::fs::read_dir(&structure_path) {
+                    for entry in entries.flatten() {
+                        if entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
+                            if let Some(filename) = entry.file_name().to_str() {
+                                println!("     📄 {}", filename.green());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        println!();
+        println!("{}", "Benefits:".bold());
+        for benefit in &arch_config.benefits {
+            println!("  ✅ {}", benefit);
+        }
+
+        if !arch_config.limitations.is_empty() {
+            println!();
+            println!("{}", "Considerations:".bold());
+            for limitation in &arch_config.limitations {
+                println!("  ⚠️  {}", limitation);
+            }
+        }
+
+        Ok(())
     }
 
     pub async fn generate(
@@ -281,14 +514,14 @@ impl TemplateEngine {
     ) -> String {
         let mut result = filename.to_string();
 
-        // Replace specific patterns in filenames
+        // Replace specific patterns in filenames first
         result = result.replace("use$FILE_NAME", &smart_names.hook_name);
         result = result.replace("$FILE_NAMEContext", &smart_names.context_name);
         result = result.replace("$FILE_NAMEProvider", &smart_names.provider_name);
         result = result.replace("$FILE_NAMEPage", &smart_names.page_name);
 
-        // Replace remaining $FILE_NAME
-        result = result.replace("$FILE_NAME", name);
+        // Replace remaining $FILE_NAME with PascalCase name
+        result = result.replace("$FILE_NAME", &to_pascal_case(name));
 
         result
     }
@@ -395,6 +628,16 @@ fn upper_case_helper(
 
 // Utility functions for case conversions
 fn to_pascal_case(s: &str) -> String {
+    // If the string is already in PascalCase format, return as is
+    if s.chars().next().is_some_and(|c| c.is_uppercase())
+        && s.chars().all(|c| c.is_alphanumeric())
+        && !s.contains('_')
+        && !s.contains('-')
+        && !s.contains(' ')
+    {
+        return s.to_string();
+    }
+
     s.split(|c: char| !c.is_alphanumeric())
         .filter(|s| !s.is_empty())
         .map(|word| {

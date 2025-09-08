@@ -1,0 +1,39 @@
+{
+  "name": "MVP (Model-View-Presenter)",
+  "description": "Similar a MVC, pero el Presenter actúa como intermediario entre Vista y Modelo",
+  "benefits": [
+    "Testable",
+    "Desacopla la vista de la lógica de negocio",
+    "Facilita testing unitario"
+  ],
+  "limitations": [
+    "Más boilerplate",
+    "Puede volverse verboso en proyectos grandes"
+  ],
+  "structure": [
+    {
+      "path": "models",
+      "template": "service",
+      "filename_pattern": "{name}Model", 
+      "description": "Modelo de datos"
+    },
+    {
+      "path": "views",
+      "template": "component",
+      "filename_pattern": "{name}View",
+      "description": "Vista pasiva"
+    },
+    {
+      "path": "presenters",
+      "template": "service",
+      "filename_pattern": "{name}Presenter",
+      "description": "Presenter que maneja lógica de presentación"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Interfaces entre capas"
+    }
+  ]
+}

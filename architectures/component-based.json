@@ -1,0 +1,46 @@
+{
+  "name": "Component-Based Architecture", 
+  "description": "La UI se organiza en componentes reutilizables",
+  "benefits": [
+    "Escalable",
+    "Reutilizable",
+    "Fácil de testear y mantener",
+    "Encapsulación clara"
+  ],
+  "limitations": [
+    "Si no hay convenciones, puede volverse desordenada",
+    "Acoplamiento implícito si los props/estado no se manejan bien"
+  ],
+  "structure": [
+    {
+      "path": "components/common",
+      "template": "component",
+      "filename_pattern": "{name}",
+      "description": "Componentes reutilizables"
+    },
+    {
+      "path": "components/containers",
+      "template": "component",
+      "filename_pattern": "{name}Container",
+      "description": "Componentes contenedores con lógica"
+    },
+    {
+      "path": "components/presentation",
+      "template": "component", 
+      "filename_pattern": "{name}Presentation",
+      "description": "Componentes de presentación puros"
+    },
+    {
+      "path": "hooks",
+      "template": "hook",
+      "filename_pattern": "use{name}",
+      "description": "Hooks personalizados"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Props interfaces y tipos"
+    }
+  ]
+}

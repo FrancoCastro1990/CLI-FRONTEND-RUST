@@ -14,6 +14,7 @@ NC='\033[0m' # No Color
 # Installation directories
 INSTALL_DIR="/usr/local/bin"
 TEMPLATES_DIR="/usr/local/share/cli-frontend/templates"
+ARCHITECTURES_DIR="/usr/local/share/cli-frontend/architectures"
 CONFIG_DIR="$HOME/.config/cli-frontend"
 
 echo -e "${BLUE}🚀 CLI Frontend Generator - Installation Script${NC}"
@@ -27,6 +28,7 @@ else
     echo -e "${YELLOW}Running as user - installing to user directory${NC}"
     INSTALL_DIR="$HOME/.local/bin"
     TEMPLATES_DIR="$HOME/.local/share/cli-frontend/templates"
+    ARCHITECTURES_DIR="$HOME/.local/share/cli-frontend/architectures"
     USER_INSTALL=true
 fi
 
@@ -58,11 +60,13 @@ fi
 
 echo -e "${BLUE}📁 Installing to: $INSTALL_DIR${NC}"
 echo -e "${BLUE}📋 Templates to: $TEMPLATES_DIR${NC}"
+echo -e "${BLUE}🏗️  Architectures to: $ARCHITECTURES_DIR${NC}"
 
 # Create directories
 echo -e "${YELLOW}📁 Creating directories...${NC}"
 mkdir -p "$INSTALL_DIR"
 mkdir -p "$TEMPLATES_DIR"
+mkdir -p "$ARCHITECTURES_DIR"
 mkdir -p "$CONFIG_DIR"
 
 # Copy binary
@@ -79,6 +83,15 @@ else
     echo -e "${YELLOW}⚠️  No templates directory found, skipping templates${NC}"
 fi
 
+# Copy architectures
+echo -e "${YELLOW}🏗️  Copying architecture configurations...${NC}"
+if [ -d "./architectures" ]; then
+    cp -r ./architectures/* "$ARCHITECTURES_DIR/"
+    echo -e "${GREEN}✅ Architectures installed to $ARCHITECTURES_DIR${NC}"
+else
+    echo -e "${YELLOW}⚠️  No architectures directory found, skipping architectures${NC}"
+fi
+
 # Create global configuration
 echo -e "${YELLOW}⚙️  Creating configuration...${NC}"
 cat > "$CONFIG_DIR/config.conf" << EOF
@@ -92,6 +105,7 @@ enable_hooks=true
 
 # Paths configuration
 templates_dir=$TEMPLATES_DIR
+architectures_dir=$ARCHITECTURES_DIR
 output_dir=.
 EOF
 
@@ -113,14 +127,17 @@ if command -v cli-frontend >/dev/null 2>&1; then
     echo -e "${BLUE}🎉 CLI Frontend Generator is now installed!${NC}"
     echo ""
     echo -e "${YELLOW}Usage examples:${NC}"
-    echo "  cli-frontend --help                    # Show help and available templates"
-    echo "  cli-frontend Button --type component   # Generate a React component"
-    echo "  cli-frontend useAuth --type hook       # Generate a custom hook"
-    echo "  cli-frontend UserStore --type store    # Generate a Redux store"
-    echo "  cli-frontend TestApi --type api        # Generate an API service"
+    echo "  cli-frontend --help                                    # Show help and available templates"
+    echo "  cli-frontend Button --type component                   # Generate a React component"
+    echo "  cli-frontend useAuth --type hook                       # Generate a custom hook"
+    echo "  cli-frontend UserStore --type store                    # Generate a Redux store"
+    echo "  cli-frontend TestApi --type api                        # Generate an API service"
+    echo "  cli-frontend UserAuth --type feature                   # Generate a complete feature"
+    echo "  cli-frontend UserAuth --type feature --architecture mvc # Generate with MVC architecture"
     echo ""
     echo -e "${YELLOW}Configuration file:${NC} $CONFIG_DIR/config.conf"
     echo -e "${YELLOW}Templates directory:${NC} $TEMPLATES_DIR"
+    echo -e "${YELLOW}Architectures directory:${NC} $ARCHITECTURES_DIR"
     echo ""
     echo -e "${GREEN}You can now run 'cli-frontend --help' from any directory!${NC}"
 else
@@ -133,5 +150,6 @@ echo ""
 echo -e "${BLUE}📚 Documentation:${NC}"
 echo "  - README.md for general usage"
 echo "  - TEMPLATE_GUIDE.md for creating custom templates"
+echo "  - ARCHITECTURES_GUIDE.md for architecture patterns"
 echo ""
 echo -e "${GREEN}🎯 Happy coding!${NC}"

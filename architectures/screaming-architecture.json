@@ -1,0 +1,40 @@
+{
+  "name": "Screaming Architecture",
+  "description": "Organiza código por features/dominios en lugar de capas técnicas",
+  "benefits": [
+    "Muy claro para grandes equipos",
+    "Grita el negocio", 
+    "Fácil escalabilidad",
+    "Estructura que refleja el dominio"
+  ],
+  "limitations": [
+    "Puede generar duplicación si no hay shared modules",
+    "Requiere disciplina para naming y convenciones"
+  ],
+  "structure": [
+    {
+      "path": "components",
+      "template": "component",
+      "filename_pattern": "{name}",
+      "description": "Componente principal del feature"
+    },
+    {
+      "path": "pages",
+      "template": "page", 
+      "filename_pattern": "{name}Page",
+      "description": "Página principal del feature"
+    },
+    {
+      "path": "hooks",
+      "template": "hook",
+      "filename_pattern": "use{name}",
+      "description": "Hook personalizado para el feature"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Definiciones de tipos TypeScript"
+    }
+  ]
+}

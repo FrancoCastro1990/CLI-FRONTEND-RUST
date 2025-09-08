@@ -1,0 +1,52 @@
+{
+  "name": "Atomic Design",
+  "description": "Organiza componentes en átomos, moléculas, organismos y páginas",
+  "benefits": [
+    "Facilita diseño consistente",
+    "Modularización UI clara",
+    "Reutilización sistemática",
+    "Design System natural"
+  ],
+  "limitations": [
+    "No cubre lógica de negocio",
+    "Requiere disciplina para no mezclar niveles"
+  ],
+  "structure": [
+    {
+      "path": "atoms",
+      "template": "component",
+      "filename_pattern": "{name}Atom",
+      "description": "Componentes atómicos básicos (botones, inputs)"
+    },
+    {
+      "path": "molecules", 
+      "template": "component",
+      "filename_pattern": "{name}Molecule",
+      "description": "Combinación simple de átomos"
+    },
+    {
+      "path": "organisms",
+      "template": "component",
+      "filename_pattern": "{name}Organism",
+      "description": "Secciones complejas de UI"
+    },
+    {
+      "path": "templates",
+      "template": "component",
+      "filename_pattern": "{name}Template",
+      "description": "Layout de páginas sin contenido"
+    },
+    {
+      "path": "pages",
+      "template": "page",
+      "filename_pattern": "{name}Page",
+      "description": "Páginas completas con contenido"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Props y tipos de componentes"
+    }
+  ]
+}

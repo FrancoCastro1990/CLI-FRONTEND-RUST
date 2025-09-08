@@ -1,0 +1,59 @@
+{
+  "name": "Clean Architecture",
+  "description": "Separa en capas: dominio, aplicación, infraestructura y UI",
+  "benefits": [
+    "Alta mantenibilidad",
+    "Altamente testeable",
+    "Desacoplada",
+    "Independiente de frameworks"
+  ],
+  "limitations": [
+    "Puede ser demasiado estructurada para apps simples",
+    "Más código inicial",
+    "Curva de aprendizaje"
+  ],
+  "structure": [
+    {
+      "path": "domain/entities",
+      "template": "service",
+      "filename_pattern": "{name}Entity",
+      "description": "Entidades del dominio"
+    },
+    {
+      "path": "domain/repositories",
+      "template": "service", 
+      "filename_pattern": "{name}Repository",
+      "description": "Interfaces de repositorios"
+    },
+    {
+      "path": "application/usecases",
+      "template": "service",
+      "filename_pattern": "{name}UseCase",
+      "description": "Casos de uso de la aplicación"
+    },
+    {
+      "path": "infrastructure/repositories",
+      "template": "service",
+      "filename_pattern": "{name}RepositoryImpl",
+      "description": "Implementación de repositorios"
+    },
+    {
+      "path": "presentation/components",
+      "template": "component",
+      "filename_pattern": "{name}",
+      "description": "Componentes de presentación"
+    },
+    {
+      "path": "presentation/hooks",
+      "template": "hook",
+      "filename_pattern": "use{name}",
+      "description": "Hooks de presentación"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Interfaces y tipos"
+    }
+  ]
+}

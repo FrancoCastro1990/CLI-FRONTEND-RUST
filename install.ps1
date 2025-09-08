@@ -71,6 +71,13 @@ if (Test-Path "$InstallPath\templates") {
 }
 Copy-Item -Path ".\templates" -Destination "$InstallPath\templates" -Recurse -Force
 
+# Copy architectures
+Write-ColorOutput $Blue "🏗️  Copying architecture configurations..."
+if (Test-Path "$InstallPath\architectures") {
+    Remove-Item -Path "$InstallPath\architectures" -Recurse -Force
+}
+Copy-Item -Path ".\architectures" -Destination "$InstallPath\architectures" -Recurse -Force
+
 # Add to PATH if not already present
 $currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
 if ($currentPath -notlike "*$InstallPath*") {
@@ -89,11 +96,14 @@ Write-ColorOutput $Green ""
 Write-ColorOutput $Blue "📍 Installation location: $InstallPath"
 Write-ColorOutput $Blue "🔧 Binary: $InstallPath\cli-frontend.exe"
 Write-ColorOutput $Blue "📄 Templates: $InstallPath\templates"
+Write-ColorOutput $Blue "🏗️  Architectures: $InstallPath\architectures"
 Write-ColorOutput $Blue ""
 Write-ColorOutput $Yellow "Usage examples:"
 Write-ColorOutput $Yellow "  cli-frontend MyComponent --type component"
 Write-ColorOutput $Yellow "  cli-frontend MyHook --type hook"
 Write-ColorOutput $Yellow "  cli-frontend MyService --type service"
+Write-ColorOutput $Yellow "  cli-frontend UserAuth --type feature"
+Write-ColorOutput $Yellow "  cli-frontend UserAuth --type feature --architecture mvc"
 Write-ColorOutput $Yellow ""
 Write-ColorOutput $Blue "For help: cli-frontend --help"
 

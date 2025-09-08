@@ -1,0 +1,45 @@
+{
+  "name": "MVVM (Model-View-ViewModel)",
+  "description": "La Vista se enlaza a un ViewModel que expone los datos y comandos",
+  "benefits": [
+    "Facilita data binding",
+    "Ideal para frameworks reactivos (React, Vue, Angular)",
+    "Separación clara de responsabilidades"
+  ],
+  "limitations": [
+    "Puede generar dependencias implícitas si se abusa del binding",
+    "Más complejo de depurar"
+  ],
+  "structure": [
+    {
+      "path": "models",
+      "template": "service",
+      "filename_pattern": "{name}Model",
+      "description": "Modelo de datos"
+    },
+    {
+      "path": "views",
+      "template": "component", 
+      "filename_pattern": "{name}View",
+      "description": "Vista que se enlaza al ViewModel"
+    },
+    {
+      "path": "viewmodels",
+      "template": "service",
+      "filename_pattern": "{name}ViewModel",
+      "description": "ViewModel que expone datos y comandos"
+    },
+    {
+      "path": "hooks",
+      "template": "hook",
+      "filename_pattern": "use{name}",
+      "description": "Hook para enlace con ViewModel"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Interfaces de binding"
+    }
+  ]
+}

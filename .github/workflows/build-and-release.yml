@@ -169,14 +169,15 @@ jobs:
         curl -L -o "$BINARY_DIR/$BINARY_NAME" "$DOWNLOAD_URL"
         chmod +x "$BINARY_DIR/$BINARY_NAME"
         
-        # Download templates
-        echo -e "${BLUE}📄 Downloading templates...${NC}"
+        # Download templates and architectures
+        echo -e "${BLUE}📄 Downloading templates and architectures...${NC}"
         TEMPLATES_URL="https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/archive/main.zip"
         TEMP_DIR=$(mktemp -d)
         curl -L -o "$TEMP_DIR/templates.zip" "$TEMPLATES_URL"
         cd "$TEMP_DIR"
         unzip -q templates.zip
         cp -r "CLI-FRONTEND-RUST-main/templates" "$INSTALL_DIR/"
+        cp -r "CLI-FRONTEND-RUST-main/architectures" "$INSTALL_DIR/"
         rm -rf "$TEMP_DIR"
         
         # Add to PATH
@@ -200,7 +201,9 @@ jobs:
         echo -e "${GREEN}🎉 Installation completed successfully!${NC}"
         echo -e "${BLUE}📍 Binary: $BINARY_DIR/$BINARY_NAME${NC}"
         echo -e "${BLUE}📄 Templates: $INSTALL_DIR/templates${NC}"
+        echo -e "${BLUE}🏗️  Architectures: $INSTALL_DIR/architectures${NC}"
         echo -e "${YELLOW}Usage: cli-frontend MyComponent --type component${NC}"
+        echo -e "${YELLOW}Feature: cli-frontend UserAuth --type feature --architecture mvc${NC}"
         EOF
         
         # macOS installer
@@ -250,14 +253,15 @@ jobs:
         curl -L -o "$BINARY_DIR/$BINARY_NAME" "$DOWNLOAD_URL"
         chmod +x "$BINARY_DIR/$BINARY_NAME"
         
-        # Download templates
-        echo -e "${BLUE}📄 Downloading templates...${NC}"
+        # Download templates and architectures
+        echo -e "${BLUE}📄 Downloading templates and architectures...${NC}"
         TEMPLATES_URL="https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/archive/main.zip"
         TEMP_DIR=$(mktemp -d)
         curl -L -o "$TEMP_DIR/templates.zip" "$TEMPLATES_URL"
         cd "$TEMP_DIR"
         unzip -q templates.zip
         cp -r "CLI-FRONTEND-RUST-main/templates" "$INSTALL_DIR/"
+        cp -r "CLI-FRONTEND-RUST-main/architectures" "$INSTALL_DIR/"
         rm -rf "$TEMP_DIR"
         
         # Add to PATH
@@ -281,7 +285,9 @@ jobs:
         echo -e "${GREEN}🎉 Installation completed successfully!${NC}"
         echo -e "${BLUE}📍 Binary: $BINARY_DIR/$BINARY_NAME${NC}"
         echo -e "${BLUE}📄 Templates: $INSTALL_DIR/templates${NC}"
+        echo -e "${BLUE}🏗️  Architectures: $INSTALL_DIR/architectures${NC}"
         echo -e "${YELLOW}Usage: cli-frontend MyComponent --type component${NC}"
+        echo -e "${YELLOW}Feature: cli-frontend UserAuth --type feature --architecture mvc${NC}"
         EOF
         
         # Windows PowerShell installer
@@ -342,8 +348,8 @@ jobs:
             exit 1
         }
         
-        # Download templates
-        Write-ColorOutput $Blue "📄 Downloading templates..."
+        # Download templates and architectures
+        Write-ColorOutput $Blue "📄 Downloading templates and architectures..."
         try {
             $TemplatesUrl = "https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/archive/main.zip"
             $TempDir = [System.IO.Path]::GetTempPath()
@@ -361,19 +367,27 @@ jobs:
             $SourceTemplatesPath = Join-Path $ExtractPath "CLI-FRONTEND-RUST-main\templates"
             $DestTemplatesPath = Join-Path $InstallPath "templates"
             
+            $SourceArchitecturesPath = Join-Path $ExtractPath "CLI-FRONTEND-RUST-main\architectures"
+            $DestArchitecturesPath = Join-Path $InstallPath "architectures"
+            
             if (Test-Path $DestTemplatesPath) {
                 Remove-Item $DestTemplatesPath -Recurse -Force
             }
             
+            if (Test-Path $DestArchitecturesPath) {
+                Remove-Item $DestArchitecturesPath -Recurse -Force
+            }
+            
             Copy-Item -Path $SourceTemplatesPath -Destination $DestTemplatesPath -Recurse -Force
+            Copy-Item -Path $SourceArchitecturesPath -Destination $DestArchitecturesPath -Recurse -Force
             
             # Cleanup
             Remove-Item $ZipPath -Force -ErrorAction SilentlyContinue
             Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
             
-            Write-ColorOutput $Green "✅ Templates downloaded successfully"
+            Write-ColorOutput $Green "✅ Templates and architectures downloaded successfully"
         } catch {
-            Write-ColorOutput $Yellow "⚠️  Failed to download templates: $($_.Exception.Message)"
+            Write-ColorOutput $Yellow "⚠️  Failed to download templates and architectures: $($_.Exception.Message)"
         }
         
         # Add to PATH
@@ -387,7 +401,9 @@ jobs:
         Write-ColorOutput $Green "🎉 Installation completed successfully!"
         Write-ColorOutput $Blue "📍 Binary: $InstallPath\cli-frontend.exe"
         Write-ColorOutput $Blue "📄 Templates: $InstallPath\templates"
+        Write-ColorOutput $Blue "🏗️  Architectures: $InstallPath\architectures"
         Write-ColorOutput $Yellow "Usage: cli-frontend MyComponent --type component"
+        Write-ColorOutput $Yellow "Feature: cli-frontend UserAuth --type feature --architecture mvc"
         EOF
         
         # Make installers executable
@@ -453,11 +469,12 @@ jobs:
         
         1. Download the binary for your platform from the assets below
         2. Place it in your PATH
-        3. Download templates from the repository
+        3. Download templates and architectures from the repository
         4. Run: `cli-frontend --help`
         
         ## Usage
         
+        ### Basic Templates
         ```bash
         # Create a React component
         cli-frontend MyComponent --type component
@@ -467,10 +484,33 @@ jobs:
         
         # Create a service
         cli-frontend ApiService --type service
-        
-        # See all available templates
-        cli-frontend --help
         ```
+        
+        ### Feature Generation with Architectures
+        ```bash
+        # Create a complete feature with default structure
+        cli-frontend UserManagement --type feature
+        
+        # Create a feature with specific architecture
+        cli-frontend UserAuth --type feature --architecture mvc
+        cli-frontend Payment --type feature --architecture clean
+        cli-frontend Dashboard --type feature --architecture atomic
+        ```
+        
+        ### Available Architectures
+        - `mvc` - Model-View-Controller
+        - `mvp` - Model-View-Presenter  
+        - `mvvm` - Model-View-ViewModel
+        - `flux` - Flux Architecture
+        - `redux` - Redux Pattern
+        - `clean` - Clean Architecture
+        - `component` - Component-Based
+        - `atomic` - Atomic Design
+        - `micro` - Micro-Frontends
+        - `event` - Event-Driven
+        - `screaming` - Screaming Architecture
+        
+        See all available templates: `cli-frontend --help`
         EOF
 
     - name: Create Release
@@ -502,22 +542,44 @@ jobs:
           iwr -useb https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install-windows.ps1 | iex
           ```
           
+          ## 🆕 New Features
+          - ✅ **Feature Generation**: Create complete folder structures with `--type feature`
+          - ✅ **Architecture Support**: Choose from 11 different software architectures
+          - ✅ **Smart Naming**: Automatic PascalCase, camelCase, and kebab-case conversions
+          - ✅ **Enhanced Templates**: Improved template system with better organization
+          
           ## 📦 What's Included
           - ✅ Pre-compiled binaries for Linux, Windows, macOS (Intel & ARM)
           - ✅ Automatic installers for all platforms
           - ✅ Template library with React components, hooks, services, and more
+          - ✅ 11 configurable software architecture patterns
           - ✅ Smart naming conventions and file generation
           
-          ## 🎯 Usage
+          ## 🎯 Usage Examples
+          
+          ### Basic Templates
           ```bash
-          # Create components, hooks, services, and more
           cli-frontend MyComponent --type component
           cli-frontend useAuth --type hook  
           cli-frontend ApiService --type service
-          
-          # See all available templates
-          cli-frontend --help
           ```
+          
+          ### Feature Generation
+          ```bash
+          # Create a complete feature with default structure
+          cli-frontend UserManagement --type feature
+          
+          # Create with specific architecture
+          cli-frontend UserAuth --type feature --architecture mvc
+          cli-frontend Payment --type feature --architecture clean
+          cli-frontend Dashboard --type feature --architecture atomic
+          ```
+          
+          ### Available Architectures
+          - `mvc`, `mvp`, `mvvm` - Traditional patterns
+          - `flux`, `redux` - State management patterns
+          - `clean`, `component`, `atomic` - Modern architectures
+          - `micro`, `event`, `screaming` - Advanced patterns
           
           ## 📋 Platform Support
           - ✅ Linux x86_64
@@ -525,4 +587,4 @@ jobs:
           - ✅ macOS Intel (x86_64)
           - ✅ macOS Apple Silicon (ARM64)
           
-          See `INSTALL_README.md` for detailed installation instructions.
+          See `INSTALL_README.md` for detailed installation instructions and architecture documentation.

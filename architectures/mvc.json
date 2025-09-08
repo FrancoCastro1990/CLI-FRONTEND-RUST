@@ -1,0 +1,39 @@
+{
+  "name": "MVC (Model-View-Controller)",
+  "description": "Separa la aplicación en Modelo (datos), Vista (UI) y Controlador (lógica de negocio)",
+  "benefits": [
+    "Claridad en separación de responsabilidades",
+    "Fácil de entender para principiantes",
+    "Patrón ampliamente conocido"
+  ],
+  "limitations": [
+    "En apps modernas con mucho estado dinámico puede volverse rígido",
+    "Acoplamiento entre controlador y vista"
+  ],
+  "structure": [
+    {
+      "path": "models",
+      "template": "service", 
+      "filename_pattern": "{name}Model",
+      "description": "Modelo de datos del feature"
+    },
+    {
+      "path": "views",
+      "template": "component",
+      "filename_pattern": "{name}View",
+      "description": "Vista/Componente del feature"
+    },
+    {
+      "path": "controllers",
+      "template": "service",
+      "filename_pattern": "{name}Controller", 
+      "description": "Controlador con lógica de negocio"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Interfaces y tipos"
+    }
+  ]
+}

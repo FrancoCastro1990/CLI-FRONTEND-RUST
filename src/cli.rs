@@ -16,6 +16,10 @@ pub struct Args {
     #[arg(short = 't', long = "type")]
     pub template_type: Option<String>,
 
+    /// Architecture pattern to use for feature templates
+    #[arg(short = 'a', long = "architecture")]
+    pub architecture: Option<String>,
+
     /// Generate files without creating a folder
     #[arg(long = "no-folder")]
     pub no_folder: bool,
@@ -54,13 +58,46 @@ impl Args {
             }
         }
 
+        // Add the special "feature" type which uses architecture configurations
+        templates.push("feature".to_string());
+
         templates.sort();
         templates
+    }
+
+    /// Discovers available architectures from the architectures directory
+    pub fn discover_architectures() -> Vec<String> {
+        let mut architectures = Vec::new();
+        let architectures_dir = PathBuf::from("./architectures");
+
+        if !architectures_dir.exists() {
+            return architectures;
+        }
+
+        if let Ok(entries) = std::fs::read_dir(&architectures_dir) {
+            for entry in entries.flatten() {
+                if entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
+                    if let Some(name) = entry.file_name().to_str() {
+                        if name.ends_with(".json") && !name.starts_with('.') {
+                            let arch_name = name.strip_suffix(".json").unwrap_or(name);
+                            if arch_name != "default" {
+                                // Skip default.json in listing
+                                architectures.push(arch_name.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        architectures.sort();
+        architectures
     }
 
     /// Print help with dynamically discovered templates
     pub fn print_help_with_templates(templates_dir: &PathBuf) {
         let templates = Self::discover_templates(templates_dir);
+        let architectures = Self::discover_architectures();
 
         println!("CLI Frontend Generator");
         println!();
@@ -80,6 +117,13 @@ impl Args {
             );
         }
 
+        if !architectures.is_empty() {
+            println!(
+                "  -a, --architecture <ARCH> Architecture pattern for feature templates [possible values: {}]",
+                architectures.join(", ")
+            );
+        }
+
         println!("  --no-folder             Generate the file without creating a folder");
         println!(
             "  -o, --output-dir <DIR>  Output directory for generated files (overrides config)"
@@ -92,6 +136,14 @@ impl Args {
             println!("Available templates:");
             for template in &templates {
                 println!("  - {}", template);
+            }
+            println!();
+        }
+
+        if !architectures.is_empty() {
+            println!("Available architectures (for feature type):");
+            for arch in &architectures {
+                println!("  - {}", arch);
             }
             println!();
         }
@@ -109,6 +161,11 @@ impl Args {
         if templates.contains(&"store".to_string()) {
             println!("  cli-frontend UserStore --type store");
         }
+
+        // Feature examples with architectures
+        println!("  cli-frontend MyFeature --type feature");
+        println!("  cli-frontend UserAuth --type feature --architecture mvc");
+        println!("  cli-frontend ShoppingCart --type feature --architecture atomic-design");
 
         println!(
             "  cli-frontend Modal --type {} --no-folder",

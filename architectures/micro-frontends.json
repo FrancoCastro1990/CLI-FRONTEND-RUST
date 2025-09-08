@@ -1,0 +1,53 @@
+{
+  "name": "Micro-Frontends",
+  "description": "Cada feature o módulo es un 'mini-frontend' independiente",
+  "benefits": [
+    "Escalabilidad de equipos grandes",
+    "Despliegues independientes",
+    "Tecnologías independientes",
+    "Isolación de fallos"
+  ],
+  "limitations": [
+    "Complejidad de integración",
+    "Duplicación de dependencias",
+    "Más infraestructura"
+  ],
+  "structure": [
+    {
+      "path": "shell",
+      "template": "component",
+      "filename_pattern": "{name}Shell",
+      "description": "Shell container del microfrontend"
+    },
+    {
+      "path": "components",
+      "template": "component",
+      "filename_pattern": "{name}",
+      "description": "Componentes internos del microfrontend"
+    },
+    {
+      "path": "services",
+      "template": "service",
+      "filename_pattern": "{name}Service",
+      "description": "Servicios del microfrontend"
+    },
+    {
+      "path": "hooks",
+      "template": "hook",
+      "filename_pattern": "use{name}",
+      "description": "Hooks del microfrontend"
+    },
+    {
+      "path": "api",
+      "template": "api",
+      "filename_pattern": "{name}Api",
+      "description": "API del microfrontend"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Tipos públicos del microfrontend"
+    }
+  ]
+}

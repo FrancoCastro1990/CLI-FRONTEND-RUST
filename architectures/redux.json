@@ -1,0 +1,52 @@
+{
+  "name": "Redux Architecture",
+  "description": "Gestión de estado predictible con reducers, actions y estado inmutable",
+  "benefits": [
+    "Estado predecible",
+    "Time-travel debugging",
+    "Middleware ecosystem",
+    "DevTools excelentes"
+  ],
+  "limitations": [
+    "Boilerplate extenso",
+    "Curva de aprendizaje pronunciada"
+  ],
+  "structure": [
+    {
+      "path": "store",
+      "template": "store",
+      "filename_pattern": "{name}Store",
+      "description": "Store principal con reducers"
+    },
+    {
+      "path": "actions",
+      "template": "service",
+      "filename_pattern": "{name}Actions",
+      "description": "Action creators"
+    },
+    {
+      "path": "reducers",
+      "template": "service",
+      "filename_pattern": "{name}Reducer",
+      "description": "Reducers para manejar estado"
+    },
+    {
+      "path": "components",
+      "template": "component",
+      "filename_pattern": "{name}",
+      "description": "Componente conectado a Redux"
+    },
+    {
+      "path": "hooks",
+      "template": "hook",
+      "filename_pattern": "use{name}",
+      "description": "Hooks de Redux (useSelector, useDispatch)"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Tipos para estado y actions"
+    }
+  ]
+}

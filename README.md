@@ -1,6 +1,6 @@
 # CLI Frontend Generator 🚀
 
-Un potente generador CLI escrito en Rust para crear componentes React, hooks, servicios, contextos y páginas con soporte completo para TypeScript, SCSS modules y plantillas de testing.
+Un potente generador CLI escrito en Rust para crear componentes React, hooks, servicios, contextos, páginas y **features completos con múltiples arquitecturas de software** con soporte completo para TypeScript, SCSS modules y plantillas de testing.
 
 ## ✨ Características
 
@@ -9,13 +9,16 @@ Un potente generador CLI escrito en Rust para crear componentes React, hooks, se
 - 🔧 **Servicios** para lógica de negocio
 - 🌐 **Contextos** con proveedores automáticos
 - 📄 **Páginas** con estructura completa
-- 🎨 **SCSS Modules** incluidos por defecto
+- �️ **Features completos** con 11 arquitecturas de software configurables
+- 📐 **Patrones arquitectónicos** (MVC, MVP, MVVM, Clean Architecture, Atomic Design y más)
+- �🎨 **SCSS Modules** incluidos por defecto
 - 🧪 **Archivos de testing** (.spec.tsx) automáticos
 - ⚙️ **Configuración personalizable** mediante archivos .conf
 - 📝 **Múltiples convenciones de nomenclatura** (PascalCase, camelCase, snake_case, kebab-case)
 - 🔄 **Sistema de templates** avanzado con Handlebars
-- ✨ **Detección automática de templates** - No requiere recompilación para agregar nuevos templates
+- ✨ **Detección automática de templates y arquitecturas** - No requiere recompilación
 - 🚀 **Templates dinámicos** - El CLI descubre automáticamente carpetas de templates
+- 📚 **Arquitecturas documentadas** con beneficios y limitaciones
 
 ## � Instalación
 
@@ -65,11 +68,12 @@ cargo build --release
 
 ## 🚀 Uso Rápido
 
+### Templates Básicos
 ```bash
-# Ver templates disponibles (funciona desde cualquier directorio)
+# Ver templates y arquitecturas disponibles
 cli-frontend --help
 
-# Generar en el directorio actual
+# Generar componente en el directorio actual
 cli-frontend Button --type component
 
 # Especificar directorio de salida
@@ -81,24 +85,42 @@ cli-frontend useAuth --type hook
 # Generar un servicio
 cli-frontend ApiService --type service
 
-# Generar un contexto
-cli-frontend UserContext --type context
-
-# Generar una página
-cli-frontend HomePage --type page
-
-# Generar un store Redux
-cli-frontend UserStore --type store
-
-# Generar una API service
-cli-frontend UserApi --type api
-
 # Generar sin crear carpeta
 cli-frontend Modal --type component --no-folder
-
-# Usar configuración personalizada
-cli-frontend Login --config ./mi-config.conf
 ```
+
+### 🏗️ Features con Arquitecturas (¡NUEVO!)
+```bash
+# Generar feature con arquitectura por defecto (Screaming Architecture)
+cli-frontend MyAuth --type feature
+
+# Generar feature con arquitectura MVC
+cli-frontend UserManagement --type feature --architecture mvc
+
+# Generar feature con Atomic Design
+cli-frontend ShoppingCart --type feature --architecture atomic-design
+
+# Generar feature con Clean Architecture
+cli-frontend PaymentSystem --type feature --architecture clean-architecture
+
+# Ver todas las arquitecturas disponibles
+cli-frontend --help
+```
+
+### Arquitecturas Disponibles
+- **screaming-architecture** (por defecto) - Organización por features/dominios
+- **mvc** - Model-View-Controller tradicional
+- **mvp** - Model-View-Presenter
+- **mvvm** - Model-View-ViewModel
+- **flux** - Arquitectura Flux unidireccional
+- **redux** - Patrón Redux con reducers
+- **clean-architecture** - Clean Architecture con capas
+- **component-based** - Arquitectura basada en componentes
+- **atomic-design** - Atomic Design (átomos, moléculas, organismos)
+- **micro-frontends** - Arquitectura de micro-frontends
+- **event-driven** - Arquitectura dirigida por eventos
+
+> 📖 Para más detalles sobre cada arquitectura, consulta [ARCHITECTURES_GUIDE.md](./ARCHITECTURES_GUIDE.md)
 
 ## 📋 Comandos Disponibles
 
@@ -106,22 +128,69 @@ cli-frontend Login --config ./mi-config.conf
 cli-frontend [nombre] [OPCIONES]
 
 Argumentos:
-  <nombre>              El nombre del template a generar
+  <nombre>                    El nombre del template o feature a generar
 
 Opciones:
-  -t, --type <TIPO>     El tipo de template a generar (detección automática)
-  --no-folder           Generar archivos sin crear una carpeta
-  -o, --output-dir <DIR> Directorio de salida para archivos generados
-  -c, --config <CONFIG> Ruta a archivo de configuración personalizado
-  --help                Mostrar ayuda y templates disponibles
-  --no-folder           Generar archivos sin crear una carpeta
-  -c, --config <CONFIG> Ruta a archivo de configuración personalizado
-  --help                Mostrar este mensaje de ayuda
+  -t, --type <TIPO>           El tipo de template a generar (detección automática)
+  -a, --architecture <ARCH>   Patrón de arquitectura para features (ej: mvc, atomic-design)
+  --no-folder                 Generar archivos sin crear una carpeta
+  -o, --output-dir <DIR>      Directorio de salida para archivos generados
+  -c, --config <CONFIG>       Ruta a archivo de configuración personalizado
+  --help                      Mostrar ayuda, templates y arquitecturas disponibles
 ```
 
-## 🎯 Templates Disponibles
+## 🎯 Templates y Features Disponibles
 
-> ✨ **Detección Automática**: El CLI detecta automáticamente todos los templates disponibles en tu directorio de templates. No necesitas recompilar para agregar nuevos templates.
+> ✨ **Detección Automática**: El CLI detecta automáticamente todos los templates y arquitecturas disponibles. No necesitas recompilar para agregar nuevos templates.
+
+### 🏗️ Features con Arquitecturas (¡NUEVO!)
+
+El sistema de **Features** permite generar estructuras completas de código siguiendo patrones arquitectónicos específicos. Cada feature genera múltiples archivos organizados según la arquitectura elegida.
+
+**Ejemplo - Feature con Screaming Architecture:**
+```bash
+cli-frontend MyAuth --type feature
+```
+Genera:
+```
+MyAuth/
+├── components/
+│   ├── MyAuth.tsx
+│   ├── MyAuth.spec.tsx
+│   └── MyAuth.module.scss
+├── pages/
+│   ├── MyAuthPage.tsx
+│   ├── MyAuthPage.spec.tsx
+│   └── MyAuthPage.module.scss
+├── hooks/
+│   ├── useMyAuth.ts
+│   └── useMyAuth.test.ts
+└── types.ts
+```
+
+**Ejemplo - Feature con MVC:**
+```bash
+cli-frontend UserManagement --type feature --architecture mvc
+```
+Genera:
+```
+UserManagement/
+├── models/
+│   └── UserManagementModel.ts
+├── views/
+│   ├── UserManagementView.tsx
+│   ├── UserManagementView.spec.tsx
+│   └── UserManagementView.module.scss
+├── controllers/
+│   └── UserManagementController.ts
+└── types.ts
+```
+
+> 📖 **Consulta [ARCHITECTURES_GUIDE.md](./ARCHITECTURES_GUIDE.md)** para ver todas las arquitecturas disponibles, sus beneficios, limitaciones y cuándo usar cada una.
+
+### 📦 Templates Básicos
+
+Los siguientes templates están disponibles para generar elementos individuales:
 
 ### 📦 Component
 Genera un componente React completo con:
@@ -189,41 +258,60 @@ enable_hooks=true
 # Configuración de rutas
 templates_dir=./templates
 output_dir=./src
+architectures_dir=./architectures
+
+# Features
+default_architecture=screaming-architecture
 ```
 
 ## 🏗️ Estructura de Templates
 
 > 🚀 **Templates Dinámicos**: El CLI detecta automáticamente cualquier carpeta en `templates/`. ¡Solo agrega una nueva carpeta y estará disponible inmediatamente!
 
-Los templates se almacenan en el directorio `templates/` y utilizan el sistema de plantillas Handlebars:
+Los templates se almacenan en el directorio `templates/` y las arquitecturas en `architectures/`, ambos utilizan el sistema de plantillas Handlebars:
 
 ```
 templates/
-├── component/
+├── component/           # Template para componentes React
 │   ├── $FILE_NAME.tsx
 │   ├── $FILE_NAME.module.scss
 │   └── $FILE_NAME.spec.tsx
-├── hook/
+├── hook/                # Template para hooks personalizados
 │   ├── use$FILE_NAME.ts
 │   └── use$FILE_NAME.test.ts
-├── service/
+├── service/             # Template para servicios
 │   └── $FILE_NAME.ts
-├── context/
+├── context/             # Template para contextos React
 │   ├── $FILE_NAMEContext.tsx
 │   └── $FILE_NAMEProvider.tsx
-├── page/
+├── page/                # Template para páginas
 │   ├── $FILE_NAMEPage.tsx
 │   ├── $FILE_NAMEPage.module.scss
 │   └── $FILE_NAMEPage.spec.tsx
-├── store/
+├── store/               # Template para stores Redux
 │   ├── $FILE_NAME.store.ts
 │   ├── $FILE_NAME.types.ts
 │   ├── $FILE_NAME.thunks.ts
 │   └── $FILE_NAME.store.test.ts
-├── api/
+├── api/                 # Template para servicios API
 │   └── $FILE_NAME.api.ts
-└── tu-template-personalizado/
-    └── archivo-personalizado.ext
+├── types/               # Template para archivos de tipos TypeScript
+│   └── types.ts
+└── [nuevo-template]/    # ¡Agrega tu propio template aquí!
+
+architectures/           # 🏗️ Configuraciones de arquitecturas JSON
+├── default.json         # Arquitectura por defecto (Screaming)
+├── screaming-architecture.json # Features/dominios first
+├── mvc.json            # Model-View-Controller
+├── mvp.json            # Model-View-Presenter
+├── mvvm.json           # Model-View-ViewModel
+├── flux.json           # Arquitectura Flux unidireccional
+├── redux.json          # Patrón Redux con reducers
+├── clean-architecture.json # Clean Architecture por capas
+├── component-based.json # Arquitectura basada en componentes
+├── atomic-design.json  # Atomic Design (átomos → páginas)
+├── micro-frontends.json # Micro-frontends independientes
+└── event-driven.json   # Arquitectura dirigida por eventos
 ```
 
 > 💡 **Tip**: Para agregar un nuevo template, simplemente crea una carpeta en `templates/` con tus archivos template. ¡El CLI lo detectará automáticamente!
@@ -258,8 +346,8 @@ cli-frontend-rust/
 ├── src/
 │   ├── main.rs              # Punto de entrada principal
 │   ├── cli.rs               # Definición de argumentos CLI con detección dinámica
-│   ├── config.rs            # Manejo de configuración
-│   ├── template_engine.rs   # Motor de templates con Handlebars
+│   ├── config.rs            # Manejo de configuración y arquitecturas
+│   ├── template_engine.rs   # Motor de templates con Handlebars y features
 │   └── error.rs             # Manejo de errores
 ├── templates/               # Templates detectados automáticamente
 │   ├── component/           # Template para componentes React
@@ -269,9 +357,16 @@ cli-frontend-rust/
 │   ├── page/                # Template para páginas
 │   ├── store/               # Template para stores Redux
 │   ├── api/                 # Template para servicios API
+│   ├── types/               # Template para archivos de tipos
 │   └── [nuevo-template]/    # ¡Agrega tu propio template aquí!
+├── architectures/           # 🏗️ Configuraciones de arquitecturas (¡NUEVO!)
+│   ├── default.json         # Arquitectura por defecto
+│   ├── mvc.json            # Model-View-Controller
+│   ├── atomic-design.json  # Atomic Design
+│   └── [más arquitecturas]... # Ver ARCHITECTURES_GUIDE.md
 ├── Cargo.toml              # Configuración de Rust
 ├── README.md               # Documentación principal
+├── ARCHITECTURES_GUIDE.md  # 📖 Guía completa de arquitecturas (¡NUEVO!)
 └── TEMPLATE_GUIDE.md       # Guía para crear templates personalizados
 ```
 
@@ -290,8 +385,11 @@ Las contribuciones son bienvenidas! Por favor:
 - [x] ✅ **Detección dinámica de templates** - Implementado
 - [x] ✅ **Sistema de templates extensible** - Implementado  
 - [x] ✅ **Templates para Redux/API** - Implementado
+- [x] ✅ **Features con arquitecturas configurables** - Implementado
+- [x] ✅ **11 patrones arquitectónicos documentados** - Implementado
 - [ ] Soporte para más frameworks (Vue, Angular)
 - [ ] Validación de templates con schemas
+- [ ] Arquitecturas personalizadas definidas por usuario
 - [ ] Integración con VS Code
 - [ ] Plugin para diferentes editores
 - [ ] Generación de tests automáticos más avanzados
@@ -299,6 +397,7 @@ Las contribuciones son bienvenidas! Por favor:
 - [ ] Documentación automática
 - [ ] Hot reload de templates en desarrollo
 - [ ] Templates con configuración condicional
+- [ ] Wizard interactivo para selección de arquitecturas
 
 ## 📄 Licencia
 

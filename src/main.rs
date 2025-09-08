@@ -42,6 +42,35 @@ async fn main() -> Result<()> {
     // Initialize template engine
     let template_engine = TemplateEngine::new(config.templates_dir.clone(), output_dir)?;
 
+    // Handle feature type specially
+    if template_type == "feature" {
+        let architecture = args
+            .architecture
+            .as_deref()
+            .unwrap_or(&config.default_architecture);
+
+        println!(
+            "{} Generating feature '{}' with {} architecture...",
+            "🚀".bold(),
+            name.bold(),
+            architecture
+        );
+
+        let create_folder = !args.no_folder && config.create_folder;
+        template_engine
+            .generate_feature(&name, Some(architecture), create_folder, &config)
+            .await?;
+
+        println!(
+            "{} Feature '{}' generated successfully with {} architecture!",
+            "✅".green(),
+            name.bold(),
+            architecture
+        );
+
+        return Ok(());
+    }
+
     // Validate template type exists
     if !template_engine.template_exists(&template_type) {
         eprintln!(

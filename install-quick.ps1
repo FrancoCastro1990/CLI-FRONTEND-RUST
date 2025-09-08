@@ -106,20 +106,28 @@ try {
     $SourceTemplatesPath = Join-Path $ExtractPath "CLI-FRONTEND-RUST-main\templates"
     $DestTemplatesPath = Join-Path $InstallPath "templates"
     
+    $SourceArchitecturesPath = Join-Path $ExtractPath "CLI-FRONTEND-RUST-main\architectures"
+    $DestArchitecturesPath = Join-Path $InstallPath "architectures"
+    
     if (Test-Path $DestTemplatesPath) {
         Remove-Item $DestTemplatesPath -Recurse -Force
     }
     
+    if (Test-Path $DestArchitecturesPath) {
+        Remove-Item $DestArchitecturesPath -Recurse -Force
+    }
+    
     Copy-Item -Path $SourceTemplatesPath -Destination $DestTemplatesPath -Recurse -Force
+    Copy-Item -Path $SourceArchitecturesPath -Destination $DestArchitecturesPath -Recurse -Force
     
     # Cleanup
     Remove-Item $ZipPath -Force -ErrorAction SilentlyContinue
     Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
     
-    Write-ColorOutput $Green "✅ Templates downloaded successfully"
+    Write-ColorOutput $Green "✅ Templates and architectures downloaded successfully"
 } catch {
-    Write-ColorOutput $Yellow "⚠️  Failed to download templates: $($_.Exception.Message)"
-    Write-ColorOutput $Yellow "💡 Please manually download templates from GitHub"
+    Write-ColorOutput $Yellow "⚠️  Failed to download templates and architectures: $($_.Exception.Message)"
+    Write-ColorOutput $Yellow "💡 Please manually download templates and architectures from GitHub"
 }
 
 # Add to PATH if not already present
@@ -140,11 +148,14 @@ Write-ColorOutput $Green ""
 Write-ColorOutput $Blue "📍 Installation location: $InstallPath"
 Write-ColorOutput $Blue "🔧 Binary: $InstallPath\$BinaryName"
 Write-ColorOutput $Blue "📄 Templates: $InstallPath\templates"
+Write-ColorOutput $Blue "🏗️  Architectures: $InstallPath\architectures"
 Write-ColorOutput $Blue ""
 Write-ColorOutput $Yellow "Usage examples:"
 Write-ColorOutput $Yellow "  cli-frontend MyComponent --type component"
 Write-ColorOutput $Yellow "  cli-frontend MyHook --type hook"
 Write-ColorOutput $Yellow "  cli-frontend MyService --type service"
+Write-ColorOutput $Yellow "  cli-frontend UserAuth --type feature"
+Write-ColorOutput $Yellow "  cli-frontend UserAuth --type feature --architecture mvc"
 Write-ColorOutput $Yellow ""
 Write-ColorOutput $Blue "For help: cli-frontend --help"
 

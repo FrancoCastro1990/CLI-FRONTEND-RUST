@@ -118,9 +118,10 @@ if command -v unzip >/dev/null 2>&1; then
     cd "$TEMP_DIR"
     unzip -q templates.zip
     cp -r "CLI-FRONTEND-RUST-main/templates" "$INSTALL_DIR/"
+    cp -r "CLI-FRONTEND-RUST-main/architectures" "$INSTALL_DIR/"
     rm -rf "$TEMP_DIR"
 else
-    echo -e "${YELLOW}⚠️  unzip not found. Please manually download templates from GitHub${NC}"
+    echo -e "${YELLOW}⚠️  unzip not found. Please manually download templates and architectures from GitHub${NC}"
 fi
 
 # Add to PATH
@@ -150,11 +151,14 @@ echo -e "${NC}"
 echo -e "${BLUE}📍 Installation location: ${INSTALL_DIR}${NC}"
 echo -e "${BLUE}🔧 Binary: ${INSTALL_DIR}/${BINARY_NAME}${NC}"
 echo -e "${BLUE}📄 Templates: ${INSTALL_DIR}/templates${NC}"
+echo -e "${BLUE}🏗️  Architectures: ${INSTALL_DIR}/architectures${NC}"
 echo -e "${BLUE}${NC}"
 echo -e "${YELLOW}Usage examples:${NC}"
 echo -e "${YELLOW}  cli-frontend MyComponent --type component${NC}"
 echo -e "${YELLOW}  cli-frontend MyHook --type hook${NC}"
 echo -e "${YELLOW}  cli-frontend MyService --type service${NC}"
+echo -e "${YELLOW}  cli-frontend UserAuth --type feature${NC}"
+echo -e "${YELLOW}  cli-frontend UserAuth --type feature --architecture mvc${NC}"
 echo -e "${YELLOW}${NC}"
 echo -e "${BLUE}For help: cli-frontend --help${NC}"
 

@@ -1,0 +1,52 @@
+{
+  "name": "Event-Driven Architecture",
+  "description": "Features se comunican mediante eventos",
+  "benefits": [
+    "Bajo acoplamiento",
+    "Flexible", 
+    "Ideal para apps altamente interactivas",
+    "Escalabilidad horizontal"
+  ],
+  "limitations": [
+    "Difícil de depurar",
+    "Seguimiento de flujo de eventos complejo"
+  ],
+  "structure": [
+    {
+      "path": "events",
+      "template": "service",
+      "filename_pattern": "{name}Events",
+      "description": "Definición de eventos"
+    },
+    {
+      "path": "listeners",
+      "template": "service",
+      "filename_pattern": "{name}Listeners",
+      "description": "Listeners de eventos"
+    },
+    {
+      "path": "publishers",
+      "template": "service", 
+      "filename_pattern": "{name}Publisher",
+      "description": "Publicadores de eventos"
+    },
+    {
+      "path": "components",
+      "template": "component",
+      "filename_pattern": "{name}",
+      "description": "Componentes que consumen eventos"
+    },
+    {
+      "path": "hooks",
+      "template": "hook",
+      "filename_pattern": "use{name}Events",
+      "description": "Hooks para eventos"
+    },
+    {
+      "path": "",
+      "template": "types",
+      "filename_pattern": "types",
+      "description": "Tipos de eventos y payloads"
+    }
+  ]
+}
