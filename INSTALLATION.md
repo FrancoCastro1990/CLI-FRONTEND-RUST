@@ -2,22 +2,45 @@
 
 Esta guía explica cómo instalar el CLI Frontend Generator como herramienta global del sistema.
 
-## 🐧 Linux / macOS
+> 🎉 **Versión 1.2.2** - Instaladores mejorados con configuración automática
 
-### Instalación Automática
+## 🚀 Instalación Automática (Recomendada)
 
+Los instaladores automáticos de la v1.2.2 detectan tu plataforma, descargan/compilan el CLI, y **crean automáticamente la configuración necesaria**.
+
+### Instalación Rápida
+
+**Linux/macOS:**
 ```bash
-# 1. Clona y compila el proyecto
+curl -sSL https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/main/install-quick.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+iwr -useb https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/main/install-quick.ps1 | iex
+```
+
+### Instalación desde Código Fuente
+
+**Linux/macOS:**
+```bash
 git clone https://github.com/FrancoCastro1990/cli-frontend-rust.git
 cd cli-frontend-rust
-cargo build --release
-
-# 2. Ejecuta el script de instalación
 chmod +x install.sh
-sudo ./install.sh  # Para instalación del sistema
-# O sin sudo para instalación de usuario
-./install.sh
+./install.sh  # Compila automáticamente y crea configuración
 ```
+
+**Windows (PowerShell):**
+```powershell
+git clone https://github.com/FrancoCastro1990/cli-frontend-rust.git
+cd cli-frontend-rust
+./install.ps1  # Compila automáticamente y crea configuración
+```
+
+> ✨ **Nuevo en v1.2.2**: Los instaladores crean automáticamente:
+> - Archivo de configuración `.cli-frontend.conf`
+> - Configuración de rutas de templates y arquitecturas
+> - Variables de entorno necesarias
 
 ### Instalación Manual
 

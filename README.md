@@ -1,6 +1,23 @@
-# CLI Frontend Generator 🚀
+# CLI Fr- 🎯 **Generación automática** de componentes React con TypeScript
+- 🪝 **Hooks personalizados** con patrones optimizados
+- 🔧 **Servicios** para lógica de negocio
+- 🌐 **Contextos** con proveedores automáticos
+- 📄 **Páginas** con estructura completa
+- 🏗️ **Features completos** con 11 arquitecturas de software configurables
+- 📐 **Patrones arquitectónicos** (MVC, MVP, MVVM, Clean Architecture, Atomic Design y más)
+- 🎨 **SCSS Modules** incluidos por defecto
+- 🧪 **Archivos de testing** (.spec.tsx) automáticos
+- ⚙️ **Configuración automática** - Los instaladores crean la configuración por ti
+- 📝 **Múltiples convenciones de nomenclatura** (PascalCase, camelCase, snake_case, kebab-case)
+- 🔄 **Sistema de templates** avanzado con Handlebars
+- ✨ **Detección automática de templates y arquitecturas** - No requiere recompilación
+- 🚀 **Templates dinámicos** - El CLI descubre automáticamente carpetas de templates
+- 📚 **Arquitecturas documentadas** con beneficios y limitaciones
+- 💾 **Instaladores inteligentes** - Configuración automática según la plataformar 🚀
 
 Un potente generador CLI escrito en Rust para crear componentes React, hooks, servicios, contextos, páginas y **features completos con múltiples arquitecturas de software** con soporte completo para TypeScript, SCSS modules y plantillas de testing.
+
+> 🎉 **Versión 1.2.2** - Ahora con configuración automática y instaladores mejorados
 
 ## ✨ Características
 
@@ -34,7 +51,9 @@ curl -sSL https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/m
 iwr -useb https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/main/install-quick.ps1 | iex
 ```
 
-> ℹ️ **La instalación rápida descarga automáticamente binarios precompilados. Si no están disponibles para tu plataforma, automáticamente compila desde el código fuente.**
+> ℹ️ **Los instaladores v1.2.2** crean automáticamente la configuración necesaria. Descargan binarios precompilados cuando están disponibles, o compilan desde código fuente automáticamente.
+
+> 🔧 **Configuración automática** - Los instaladores detectan la ubicación de instalación y crean los archivos de configuración automáticamente, ¡no requieres configuración manual!
 
 ### Instalación desde código fuente
 
@@ -53,7 +72,7 @@ cd cli-frontend-rust
 ./install.ps1  # Compila automáticamente si no encuentra el binario
 ```
 
-> 💡 **Los instaladores ahora compilan automáticamente el proyecto si no encuentran el binario precompilado.**
+> 💡 **Los instaladores v1.2.2** compilan automáticamente el proyecto si no encuentran el binario precompilado, y crean la configuración necesaria automáticamente.
 
 ```bash
 # Clona el repositorio
@@ -380,13 +399,15 @@ Las contribuciones son bienvenidas! Por favor:
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-## 📝 Roadmap
+## � Roadmap
 
-- [x] ✅ **Detección dinámica de templates** - Implementado
-- [x] ✅ **Sistema de templates extensible** - Implementado  
-- [x] ✅ **Templates para Redux/API** - Implementado
-- [x] ✅ **Features con arquitecturas configurables** - Implementado
-- [x] ✅ **11 patrones arquitectónicos documentados** - Implementado
+- [x] ✅ **Detección dinámica de templates** - Implementado v1.0.0
+- [x] ✅ **Sistema de templates extensible** - Implementado v1.0.0  
+- [x] ✅ **Templates para Redux/API** - Implementado v1.1.0
+- [x] ✅ **Features con arquitecturas configurables** - Implementado v1.2.0
+- [x] ✅ **11 patrones arquitectónicos documentados** - Implementado v1.2.0
+- [x] ✅ **Configuración automática en instaladores** - Implementado v1.2.2
+- [x] ✅ **Instaladores inteligentes multiplataforma** - Implementado v1.2.2
 - [ ] Soporte para más frameworks (Vue, Angular)
 - [ ] Validación de templates con schemas
 - [ ] Arquitecturas personalizadas definidas por usuario
