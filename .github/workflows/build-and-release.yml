@@ -198,10 +198,35 @@ jobs:
             echo -e "${GREEN}✅ Added to PATH. Please run: source $SHELL_CONFIG${NC}"
         fi
         
+        # Create configuration file with absolute paths
+        echo -e "${BLUE}⚙️  Creating configuration file...${NC}"
+        CONFIG_FILE="$HOME/.cli-frontend.conf"
+        
+        cat > "$CONFIG_FILE" << EOL
+        # CLI Frontend Generator Configuration
+        # Global installation configuration
+        
+        # General settings
+        default_type=component
+        create_folder=true
+        enable_hooks=true
+        
+        # Paths configuration (using absolute paths)
+        templates_dir=$HOME/.cli-template/templates
+        output_dir=.
+        architectures_dir=$HOME/.cli-template/architectures
+        
+        # Feature settings
+        default_architecture=screaming-architecture
+        EOL
+        
+        echo -e "${GREEN}✅ Configuration file created at: $CONFIG_FILE${NC}"
+        
         echo -e "${GREEN}🎉 Installation completed successfully!${NC}"
         echo -e "${BLUE}📍 Binary: $BINARY_DIR/$BINARY_NAME${NC}"
         echo -e "${BLUE}📄 Templates: $INSTALL_DIR/templates${NC}"
         echo -e "${BLUE}🏗️  Architectures: $INSTALL_DIR/architectures${NC}"
+        echo -e "${BLUE}⚙️  Configuration: $CONFIG_FILE${NC}"
         echo -e "${YELLOW}Usage: cli-frontend MyComponent --type component${NC}"
         echo -e "${YELLOW}Feature: cli-frontend UserAuth --type feature --architecture mvc${NC}"
         EOF
@@ -282,10 +307,35 @@ jobs:
             echo -e "${GREEN}✅ Added to PATH. Please run: source $SHELL_CONFIG${NC}"
         fi
         
+        # Create configuration file with absolute paths
+        echo -e "${BLUE}⚙️  Creating configuration file...${NC}"
+        CONFIG_FILE="$HOME/.cli-frontend.conf"
+        
+        cat > "$CONFIG_FILE" << EOL
+        # CLI Frontend Generator Configuration
+        # Global installation configuration
+        
+        # General settings
+        default_type=component
+        create_folder=true
+        enable_hooks=true
+        
+        # Paths configuration (using absolute paths)
+        templates_dir=$HOME/.cli-template/templates
+        output_dir=.
+        architectures_dir=$HOME/.cli-template/architectures
+        
+        # Feature settings
+        default_architecture=screaming-architecture
+        EOL
+        
+        echo -e "${GREEN}✅ Configuration file created at: $CONFIG_FILE${NC}"
+        
         echo -e "${GREEN}🎉 Installation completed successfully!${NC}"
         echo -e "${BLUE}📍 Binary: $BINARY_DIR/$BINARY_NAME${NC}"
         echo -e "${BLUE}📄 Templates: $INSTALL_DIR/templates${NC}"
         echo -e "${BLUE}🏗️  Architectures: $INSTALL_DIR/architectures${NC}"
+        echo -e "${BLUE}⚙️  Configuration: $CONFIG_FILE${NC}"
         echo -e "${YELLOW}Usage: cli-frontend MyComponent --type component${NC}"
         echo -e "${YELLOW}Feature: cli-frontend UserAuth --type feature --architecture mvc${NC}"
         EOF
