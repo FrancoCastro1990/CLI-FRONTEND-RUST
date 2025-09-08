@@ -146,8 +146,9 @@ fi
 
 # Create configuration file with absolute paths
 echo -e "${BLUE}⚙️  Creating configuration file...${NC}"
-ABS_TEMPLATES_DIR="$INSTALL_DIR/templates"
-ABS_ARCHITECTURES_DIR="$INSTALL_DIR/architectures"
+ABS_BASE="$HOME/.cli-template"
+ABS_TEMPLATES_DIR="$ABS_BASE/templates"
+ABS_ARCHITECTURES_DIR="$ABS_BASE/architectures"
 mkdir -p "$ABS_TEMPLATES_DIR"
 mkdir -p "$ABS_ARCHITECTURES_DIR"
 echo -e "${YELLOW}🛠️  Writing config with absolute paths...${NC}"
@@ -162,8 +163,10 @@ enable_hooks=true
 
 # Paths configuration (using absolute paths)
 templates_dir=$ABS_TEMPLATES_DIR
-architectures_dir=$ABS_ARCHITECTURES_DIR
 output_dir=.
+architectures_dir=$ABS_ARCHITECTURES_DIR
+
+# Feature settings
 default_architecture=screaming-architecture
 EOF
 
