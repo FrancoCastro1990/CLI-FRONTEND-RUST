@@ -257,6 +257,18 @@ impl Config {
     }
 
     fn to_ini(&self) -> String {
+        let templates_dir = self
+            .templates_dir
+            .canonicalize()
+            .unwrap_or(self.templates_dir.clone());
+        let output_dir = self
+            .output_dir
+            .canonicalize()
+            .unwrap_or(self.output_dir.clone());
+        let architectures_dir = self
+            .architectures_dir
+            .canonicalize()
+            .unwrap_or(self.architectures_dir.clone());
         format!(
             "# CLI Frontend Generator Configuration\n\
              # This file uses INI-like format for easy configuration\n\
@@ -281,9 +293,9 @@ impl Config {
             self.default_type,
             self.create_folder,
             self.enable_hooks,
-            self.templates_dir.display(),
-            self.output_dir.display(),
-            self.architectures_dir.display(),
+            templates_dir.display(),
+            output_dir.display(),
+            architectures_dir.display(),
             self.default_architecture
         )
     }

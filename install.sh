@@ -94,6 +94,11 @@ fi
 
 # Create global configuration
 echo -e "${YELLOW}⚙️  Creating configuration...${NC}"
+ABS_TEMPLATES_DIR="$TEMPLATES_DIR/templates"
+ABS_ARCHITECTURES_DIR="$TEMPLATES_DIR/architectures"
+mkdir -p "$ABS_TEMPLATES_DIR"
+mkdir -p "$ABS_ARCHITECTURES_DIR"
+echo -e "${YELLOW}🛠️  Writing config with absolute paths...${NC}"
 cat > "$HOME/.cli-frontend.conf" << EOF
 # CLI Frontend Generator Configuration
 # Global installation configuration
@@ -104,8 +109,8 @@ create_folder=true
 enable_hooks=true
 
 # Paths configuration (using absolute paths)
-templates_dir=$TEMPLATES_DIR
-architectures_dir=$ARCHITECTURES_DIR
+templates_dir=$ABS_TEMPLATES_DIR
+architectures_dir=$ABS_ARCHITECTURES_DIR
 output_dir=.
 default_architecture=screaming-architecture
 EOF

@@ -20,7 +20,7 @@ async fn main() -> Result<()> {
     let config = Config::load(&args.config).await?;
 
     if args.list {
-        Args::print_help_with_templates(&config.templates_dir);
+        Args::print_help_with_templates(&config.templates_dir, &config.architectures_dir);
         return Ok(());
     }
 

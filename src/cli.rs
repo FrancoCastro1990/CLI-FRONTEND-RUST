@@ -65,22 +65,18 @@ impl Args {
     }
 
     /// Discovers available architectures from the architectures directory
-    pub fn discover_architectures() -> Vec<String> {
+    pub fn discover_architectures(architectures_dir: &PathBuf) -> Vec<String> {
         let mut architectures = Vec::new();
-        let architectures_dir = PathBuf::from("./architectures");
-
         if !architectures_dir.exists() {
             return architectures;
         }
-
-        if let Ok(entries) = std::fs::read_dir(&architectures_dir) {
+        if let Ok(entries) = std::fs::read_dir(architectures_dir) {
             for entry in entries.flatten() {
                 if entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
                     if let Some(name) = entry.file_name().to_str() {
                         if name.ends_with(".json") && !name.starts_with('.') {
                             let arch_name = name.strip_suffix(".json").unwrap_or(name);
                             if arch_name != "default" {
-                                // Skip default.json in listing
                                 architectures.push(arch_name.to_string());
                             }
                         }
@@ -88,15 +84,14 @@ impl Args {
                 }
             }
         }
-
         architectures.sort();
         architectures
     }
 
     /// Print help with dynamically discovered templates
-    pub fn print_help_with_templates(templates_dir: &PathBuf) {
+    pub fn print_help_with_templates(templates_dir: &PathBuf, architectures_dir: &PathBuf) {
         let templates = Self::discover_templates(templates_dir);
-        let architectures = Self::discover_architectures();
+        let architectures = Self::discover_architectures(architectures_dir);
 
         println!("CLI Frontend Generator");
         println!();
