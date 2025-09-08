@@ -4,7 +4,7 @@
 
 A powerful Rust-based CLI tool that generates production-ready React components, hooks, services, and complete feature structures following established software architecture patterns. Designed for development teams who value consistency, maintainability, and architectural best practices.
 
-[![Version](https://img.shields.io/badge/version-1.2.3-blue.svg)](https://github.com/FrancoCastro1990/cli-frontend-rust/releases)
+[![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)](https://github.com/FrancoCastro1990/cli-frontend-rust/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-stable-orange.svg)](https://rustup.rs)
 
@@ -377,7 +377,7 @@ enable_timestamps=true
 
 ## 🔮 Roadmap
 
-### ✅ Completed (v1.2.3)
+### ✅ Completed (v1.2.4)
 - [x] 12 comprehensive software architecture patterns
 - [x] Dynamic template discovery and auto-detection
 - [x] Cross-platform intelligent installers
