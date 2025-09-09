@@ -1,6 +1,6 @@
 #!/bin/bash
 # CLI Frontend Generator - Installation Script
-# This script installs the CLI tool globally on Linux/macOS systems
+# This script installs the CLI tool on Linux/macOS systems
 
 set -e
 
@@ -9,26 +9,86 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Installation directories
-INSTALL_DIR="/usr/local/bin"
-TEMPLATES_DIR="/usr/local/share/cli-frontend/templates"
-ARCHITECTURES_DIR="/usr/local/share/cli-frontend/architectures"
-CONFIG_DIR="$HOME/.config/cli-frontend"
+# Repository configuration
+REPO_OWNER="FrancoCastro1990"
+REPO_NAME="CLI-FRONTEND-RUST"
 
 echo -e "${BLUE}🚀 CLI Frontend Generator - Installation Script${NC}"
 echo ""
 
-# Check if running as root for system-wide installation
-if [ "$EUID" -eq 0 ]; then
-    echo -e "${GREEN}Running as root - installing system-wide${NC}"
-    USER_INSTALL=false
+# Check if we're compiling from source or downloading precompiled
+if [ -f "Cargo.toml" ]; then
+    echo -e "${BLUE}📦 Compiling from source...${NC}"
+    
+    # Check if cargo is available
+    if ! command -v cargo >/dev/null 2>&1; then
+        echo -e "${RED}❌ Cargo not found. Please install Rust first:${NC}"
+        echo -e "${BLUE}Visit: https://rustup.rs/${NC}"
+        exit 1
+    fi
+    
+    # Build the project
+    echo -e "${BLUE}🔨 Building project with cargo build --release...${NC}"
+    cargo build --release
+    
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ Build completed successfully!${NC}"
+    else
+        echo -e "${RED}❌ Build failed${NC}"
+        exit 1
+    fi
+    
+    # Installation directories
+    if [ "$EUID" -eq 0 ]; then
+        INSTALL_DIR="/usr/local/bin"
+        TEMPLATES_DIR="/usr/local/share/cli-frontend"
+    else
+        INSTALL_DIR="$HOME/.local/bin"
+        TEMPLATES_DIR="$HOME/.cli-template"
+    fi
+    
+    # Create directories
+    mkdir -p "$INSTALL_DIR"
+    mkdir -p "$TEMPLATES_DIR"
+    
+    # Copy binary
+    cp target/release/cli-frontend "$INSTALL_DIR/"
+    chmod +x "$INSTALL_DIR/cli-frontend"
+    
+    # Copy templates and architectures
+    if [ -d "templates" ]; then
+        cp -r templates "$TEMPLATES_DIR/"
+    fi
+    
+    if [ -d "architectures" ]; then
+        cp -r architectures "$TEMPLATES_DIR/"
+    fi
+    
+    echo -e "${GREEN}✅ Installation from source completed!${NC}"
+    echo -e "${BLUE}📍 Binary: $INSTALL_DIR/cli-frontend${NC}"
+    echo -e "${BLUE}📄 Templates: $TEMPLATES_DIR/templates${NC}"
+    echo -e "${BLUE}🏗️  Architectures: $TEMPLATES_DIR/architectures${NC}"
+    
 else
-    echo -e "${YELLOW}Running as user - installing to user directory${NC}"
-    INSTALL_DIR="$HOME/.local/bin"
-    TEMPLATES_DIR="$HOME/.local/share/cli-frontend/templates"
-    ARCHITECTURES_DIR="$HOME/.local/share/cli-frontend/architectures"
+    echo -e "${BLUE}📥 Downloading precompiled version...${NC}"
+    
+    # Detect OS for platform-specific installer
+    OS=""
+    case "$(uname -s)" in
+        Linux*)     OS="linux";;
+        Darwin*)    OS="macos";;
+        *)          echo -e "${RED}❌ Unsupported OS: $(uname -s)${NC}"; exit 1;;
+    esac
+    
+    # Download and execute platform-specific installer
+    if [ "$OS" = "linux" ]; then
+        curl -sSL "https://github.com/$REPO_OWNER/$REPO_NAME/releases/latest/download/install-linux.sh" | bash
+    elif [ "$OS" = "macos" ]; then
+        curl -sSL "https://github.com/$REPO_OWNER/$REPO_NAME/releases/latest/download/install-macos.sh" | bash
+    fi
+fi
     USER_INSTALL=true
 fi
 

@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # CLI Frontend Generator - Quick Install Script
 # Downloads precompiled binary from GitHub releases
 
@@ -10,16 +9,14 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # Configuration
 REPO_OWNER="FrancoCastro1990"
 REPO_NAME="CLI-FRONTEND-RUST"
-BINARY_NAME="cli-frontend"
 
 # Detect OS and Architecture
 OS=""
-ARCH=""
 case "$(uname -s)" in
     Linux*)     OS="linux";;
     Darwin*)    OS="macos";;
@@ -28,26 +25,24 @@ case "$(uname -s)" in
     *)          echo -e "${RED}❌ Unsupported operating system: $(uname -s)${NC}"; exit 1;;
 esac
 
-echo -e "${BLUE}🚀 Detected OS: ${OS}${NC}"
+echo -e "${BLUE}🚀 CLI Frontend Generator - Quick Installer${NC}"
+echo -e "${BLUE}Detected OS: ${OS}${NC}"
 
-case "$(uname -m)" in
-    x86_64*)    ARCH="x86_64";;
-    aarch64*)   ARCH="aarch64";;
-    arm64*)     ARCH="aarch64";;
-    *)          ARCH="x86_64"; echo -e "${YELLOW}⚠️  Unknown architecture, defaulting to x86_64${NC}";;
-esac
-
-if [ "$OS" = "windows" ]; then
-    BINARY_NAME="cli-frontend.exe"
+# Redirect to platform-specific installer
+if [ "$OS" = "linux" ]; then
+    echo -e "${BLUE}📥 Downloading Linux installer...${NC}"
+    curl -sSL "https://github.com/$REPO_OWNER/$REPO_NAME/releases/latest/download/install-linux.sh" | bash
+elif [ "$OS" = "macos" ]; then
+    echo -e "${BLUE}📥 Downloading macOS installer...${NC}"
+    curl -sSL "https://github.com/$REPO_OWNER/$REPO_NAME/releases/latest/download/install-macos.sh" | bash
+elif [ "$OS" = "windows" ]; then
+    echo -e "${RED}❌ For Windows, please use PowerShell:${NC}"
+    echo -e "${YELLOW}iwr -useb https://github.com/$REPO_OWNER/$REPO_NAME/releases/latest/download/install-windows.ps1 | iex${NC}"
+    exit 1
+else
+    echo -e "${RED}❌ Unsupported operating system: $OS${NC}"
+    exit 1
 fi
-
-ASSET_NAME="${BINARY_NAME}-${OS}-${ARCH}"
-if [ "$OS" = "windows" ]; then
-    ASSET_NAME="${BINARY_NAME}-${OS}-${ARCH}.exe"
-fi
-
-echo -e "${BLUE}� CLI Frontend Generator - Linux Installer${NC}"
-echo -e "${BLUE}=============================================${NC}"
 
 # Installation directories
 INSTALL_DIR="$HOME/.local/bin"
