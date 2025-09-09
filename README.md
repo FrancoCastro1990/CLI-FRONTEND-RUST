@@ -1,14 +1,31 @@
 # CLI Frontend Generator 🚀
 
-**Professional code generation for scalable frontend architectures**
+**Professional code generation for scalable frontend architectu## 🚀 Usage Examples
+
+### 🧙‍♂️ Interactive Wizard Mode (NEW!)
+```bash
+# Simply run without arguments to start the interactive wizard
+cli-frontend
+
+# The wizard will guide you through:
+# 1. Select what to generate (Template or Feature)
+# 2. Choose specific template or architecture
+# 3. Enter name with validation
+# 4. Configure options (folder creation, output directory)
+# 5. Review and confirm
+```
+
+> 💡 **Pro tip**: Press `ESC` at any time to cancel the wizard gracefully
+
+### Quick Start - Individual Components**
 
 A powerful Rust-based CLI tool that generates production-ready React components, hooks, services, and complete feature structures following established software architecture patterns. Designed for development teams who value consistency, maintainability, and architectural best practices.
 
-[![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)](https://github.com/FrancoCastro1990/cli-frontend-rust/releases)
+[![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](https://github.com/FrancoCastro1990/cli-frontend-rust/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-stable-orange.svg)](https://rustup.rs)
 
-> 🎉 **Version 1.2.3** - Enhanced with 12 software architectures, automated configuration, and intelligent cross-platform installers
+> 🎉 **Version 1.3.0** - NEW: Interactive Wizard Mode! Enhanced with 12 software architectures, guided UI experience, and intelligent cross-platform installers
 
 ## 🎯 Why CLI Frontend Generator?
 
@@ -49,6 +66,7 @@ Generate complete features following proven architectural patterns:
 - **React Best Practices** - Hooks, functional components, modern patterns
 
 ### 🔧 **Developer Experience Excellence**
+- **🧙‍♂️ Interactive Wizard Mode** - Guided experience when no arguments provided
 - **Zero configuration** - Intelligent installers handle setup automatically
 - **Template extensibility** - Create custom templates without CLI recompilation
 - **Multiple naming conventions** - PascalCase, camelCase, snake_case, kebab-case
@@ -175,6 +193,13 @@ PaymentSystem/
 
 ## 📋 Command Reference
 
+### Interactive Wizard Mode
+```bash
+# Start interactive wizard (no arguments)
+cli-frontend
+```
+
+### Direct Command Mode
 ```bash
 cli-frontend [name] [OPTIONS]
 
@@ -187,8 +212,11 @@ Options:
   --no-folder                 Generate files without creating a parent folder
   -o, --output-dir <DIR>      Output directory for generated files
   -c, --config <CONFIG>       Path to custom configuration file
+  --list                      List all available templates and architectures
   --help                      Display help, available templates and architectures
 ```
+
+> 📖 **Detailed Wizard Guide**: See [WIZARD_GUIDE.md](./WIZARD_GUIDE.md) for comprehensive documentation on using the interactive wizard.
 
 ### Available Templates
 
@@ -415,7 +443,7 @@ enable_timestamps=true
 
 ## 🔮 Roadmap
 
-### ✅ Completed (v1.2.4)
+### ✅ Completed (v1.3.0)
 - [x] 12 comprehensive software architecture patterns
 - [x] Dynamic template discovery and auto-detection
 - [x] Cross-platform intelligent installers
@@ -424,11 +452,13 @@ enable_timestamps=true
 - [x] **Template configuration system** with `.conf` files
 - [x] **Environment-aware variables** (timestamp, UUID, environment)
 - [x] **Advanced Handlebars helpers** for dynamic templating
+- [x] **🧙‍♂️ Interactive Wizard Mode** - Guided architecture selection with validation
+- [x] **Graceful cancellation** - ESC key support with friendly messages
 
-### 🚧 In Development (v1.3.0)
+### 🚧 In Development (v1.4.0)
 - [ ] **VS Code Extension** - Integrated development experience
 - [ ] **Template Validation** - JSON schema validation for custom templates
-- [ ] **Interactive Mode** - Guided architecture selection wizard
+- [ ] **Wizard Enhancements** - Template preview and advanced customization
 - [ ] **Template Marketplace** - Community-driven template sharing
 
 ### 🌟 Planned Features (v2.0.0)
@@ -534,6 +564,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📚 Additional Resources
 
+- **[🧙‍♂️ Wizard Guide](./WIZARD_GUIDE.md)** - Complete guide to using the interactive wizard mode
 - **[Architecture Guide](./ARCHITECTURES_GUIDE.md)** - Comprehensive documentation for all 12 software architectures
 - **[Template Guide](./TEMPLATE_GUIDE.md)** - Learn how to create custom templates
 - **[Installation Guide](./INSTALLATION.md)** - Detailed installation instructions for all platforms

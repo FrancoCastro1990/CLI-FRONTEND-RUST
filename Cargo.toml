@@ -1,6 +1,6 @@
 [package]
 name = "cli-frontend"
-version = "1.2.12"
+version = "1.3.0"
 edition = "2021"
 authors = ["Franco Castro <franco.castro.villanueva.90@gmail.com>"]
 description = "A powerful CLI tool for generating React components, hooks, services, and more"
@@ -25,6 +25,7 @@ colored = "2.0"
 serde_json = "1.0"
 uuid = { version = "1.6", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
+inquire = "0.6"
 
 [profile.release]
 strip = true

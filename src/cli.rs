@@ -101,7 +101,7 @@ impl Args {
                 println!("  • {}", template);
             }
         }
-        
+
         println!();
         println!("🏗️  Available Architectures:");
         if architectures.is_empty() {
@@ -111,7 +111,7 @@ impl Args {
                 println!("  • {}", arch);
             }
         }
-        
+
         println!();
         println!("💡 Usage: cli-frontend <name> --type <template> [--architecture <arch>]");
     }

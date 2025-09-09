@@ -1,6 +1,7 @@
 mod cli;
 mod config;
 mod template_engine;
+mod wizard;
 
 #[cfg(test)]
 mod tests;
@@ -24,17 +25,26 @@ async fn main() -> Result<()> {
         return Ok(());
     }
 
-    // Validate arguments
-    let name = args
+    // Check if we should run wizard (no name and no template type provided)
+    let final_args = if args.name.is_none() && args.template_type.is_none() {
+        // Run interactive wizard
+        let wizard_config = wizard::run_wizard(&config).await?;
+        Args::from(wizard_config)
+    } else {
+        args
+    };
+
+    // Validate arguments (either from CLI or wizard)
+    let name = final_args
         .name
         .ok_or_else(|| anyhow::anyhow!("No name was provided."))?;
-    let template_type = match args.template_type {
+    let template_type = match final_args.template_type {
         Some(t) => t,
         None => config.default_type.clone(),
     };
 
     // Determine output directory (CLI arg overrides config)
-    let output_dir = match args.output_dir {
+    let output_dir = match final_args.output_dir {
         Some(dir) => dir,
         None => config.output_dir.clone(),
     };
@@ -44,7 +54,7 @@ async fn main() -> Result<()> {
 
     // Handle feature type specially
     if template_type == "feature" {
-        let architecture = args
+        let architecture = final_args
             .architecture
             .as_deref()
             .unwrap_or(&config.default_architecture);
@@ -56,7 +66,7 @@ async fn main() -> Result<()> {
             architecture
         );
 
-        let create_folder = !args.no_folder && config.create_folder;
+        let create_folder = !final_args.no_folder && config.create_folder;
         template_engine
             .generate_feature(&name, Some(architecture), create_folder, &config)
             .await?;
@@ -92,7 +102,7 @@ async fn main() -> Result<()> {
     );
 
     // Generate template
-    let create_folder = !args.no_folder && config.create_folder;
+    let create_folder = !final_args.no_folder && config.create_folder;
     template_engine
         .generate(&name, &template_type, create_folder)
         .await?;
