@@ -88,84 +88,31 @@ impl Args {
         architectures
     }
 
-    /// Print help with dynamically discovered templates
-    pub fn print_help_with_templates(templates_dir: &PathBuf, architectures_dir: &PathBuf) {
+    /// Print simple list of available templates and architectures
+    pub fn print_simple_list(templates_dir: &PathBuf, architectures_dir: &PathBuf) {
         let templates = Self::discover_templates(templates_dir);
         let architectures = Self::discover_architectures(architectures_dir);
 
-        println!("CLI Frontend Generator");
-        println!();
-        println!("Usage: cli-frontend [name] [OPTIONS]");
-        println!();
-        println!("Arguments:");
-        println!("  <name>        The name of the template to generate");
-        println!();
-        println!("Options:");
-
+        println!("📋 Available Templates:");
         if templates.is_empty() {
-            println!("  -t, --type <TYPE>        The type of template to generate");
+            println!("  No templates found");
         } else {
-            println!(
-                "  -t, --type <TYPE>        The type of template to generate [possible values: {}]",
-                templates.join(", ")
-            );
-        }
-
-        if !architectures.is_empty() {
-            println!(
-                "  -a, --architecture <ARCH> Architecture pattern for feature templates [possible values: {}]",
-                architectures.join(", ")
-            );
-        }
-
-        println!("  --no-folder             Generate the file without creating a folder");
-        println!(
-            "  -o, --output-dir <DIR>  Output directory for generated files (overrides config)"
-        );
-        println!("  -c, --config <CONFIG>   Path to custom configuration file");
-        println!("  --list                  Show detailed help with templates and architectures");
-        println!("  -h, --help              Show basic help message");
-        println!();
-
-        if !templates.is_empty() {
-            println!("Available templates:");
             for template in &templates {
-                println!("  - {}", template);
+                println!("  • {}", template);
             }
-            println!();
         }
-
-        if !architectures.is_empty() {
-            println!("Available architectures (for feature type):");
+        
+        println!();
+        println!("🏗️  Available Architectures:");
+        if architectures.is_empty() {
+            println!("  No architectures found");
+        } else {
             for arch in &architectures {
-                println!("  - {}", arch);
+                println!("  • {}", arch);
             }
-            println!();
         }
-
-        println!("Examples:");
-        if templates.contains(&"component".to_string()) {
-            println!("  cli-frontend Button --type component");
-        }
-        if templates.contains(&"hook".to_string()) {
-            println!("  cli-frontend useAuth --type hook");
-        }
-        if templates.contains(&"service".to_string()) {
-            println!("  cli-frontend ApiService --type service");
-        }
-        if templates.contains(&"store".to_string()) {
-            println!("  cli-frontend UserStore --type store");
-        }
-
-        // Feature examples with architectures
-        println!("  cli-frontend MyFeature --type feature");
-        println!("  cli-frontend UserAuth --type feature --architecture mvc");
-        println!("  cli-frontend ShoppingCart --type feature --architecture atomic-design");
-
-        println!(
-            "  cli-frontend Modal --type {} --no-folder",
-            templates.first().unwrap_or(&"component".to_string())
-        );
-        println!("  cli-frontend MyTemplate --config ./my-config.conf");
+        
+        println!();
+        println!("💡 Usage: cli-frontend <name> --type <template> [--architecture <arch>]");
     }
 }
