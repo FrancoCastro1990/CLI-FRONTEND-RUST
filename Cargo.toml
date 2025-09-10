@@ -27,9 +27,23 @@ uuid = { version = "1.6", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 inquire = "0.6"
 
+[dev-dependencies]
+tempfile = "3.8"
+
 [profile.release]
 strip = true
 opt-level = "z"
 lto = true
 codegen-units = 1
 panic = "abort"
+
+# Lint configuration for better code quality
+[lints.rust]
+unsafe_code = "forbid"
+unused_imports = "deny"
+dead_code = "warn"
+
+[lints.clippy]
+all = "deny"
+pedantic = "warn"
+nursery = "warn"

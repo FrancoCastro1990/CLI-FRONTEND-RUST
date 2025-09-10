@@ -1,3 +1,4 @@
+use crate::file_system::FileSystem;
 use clap::Parser;
 use std::path::PathBuf;
 
@@ -40,52 +41,14 @@ pub struct Args {
 impl Args {
     /// Discovers available templates from the templates directory
     pub fn discover_templates(templates_dir: &PathBuf) -> Vec<String> {
-        let mut templates = Vec::new();
-
-        if !templates_dir.exists() {
-            return templates;
-        }
-
-        if let Ok(entries) = std::fs::read_dir(templates_dir) {
-            for entry in entries.flatten() {
-                if entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false) {
-                    if let Some(name) = entry.file_name().to_str() {
-                        if !name.starts_with('.') && name != "architectures" {
-                            templates.push(name.to_string());
-                        }
-                    }
-                }
-            }
-        }
-
-        // Add the special "feature" type which uses architecture configurations
-        templates.push("feature".to_string());
-        templates.sort();
-        templates
+        let file_system = FileSystem::new();
+        file_system.discover_templates(templates_dir).unwrap_or_default()
     }
 
     /// Discovers available architectures from the architectures directory
     pub fn discover_architectures(architectures_dir: &PathBuf) -> Vec<String> {
-        let mut architectures = Vec::new();
-        if !architectures_dir.exists() {
-            return architectures;
-        }
-        if let Ok(entries) = std::fs::read_dir(architectures_dir) {
-            for entry in entries.flatten() {
-                if entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
-                    if let Some(name) = entry.file_name().to_str() {
-                        if name.ends_with(".json") && !name.starts_with('.') {
-                            let arch_name = name.strip_suffix(".json").unwrap_or(name);
-                            if arch_name != "default" {
-                                architectures.push(arch_name.to_string());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        architectures.sort();
-        architectures
+        let file_system = FileSystem::new();
+        file_system.discover_architectures(architectures_dir).unwrap_or_default()
     }
 
     /// Print simple list of available templates and architectures

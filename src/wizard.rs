@@ -5,6 +5,7 @@ use std::path::PathBuf;
 
 use crate::cli::Args;
 use crate::config::Config;
+use crate::file_system::FileSystem;
 
 /// Configuration captured from the interactive wizard
 #[derive(Debug, Clone)]
@@ -103,8 +104,9 @@ fn prompt_generation_type() -> std::result::Result<GenerationType, InquireError>
 
 /// Run wizard flow for template generation
 fn run_template_wizard(config: &Config) -> Result<WizardConfig> {
-    // Get available templates
-    let templates = Args::discover_templates(&config.templates_dir);
+    // Get available templates using file system
+    let file_system = FileSystem::new();
+    let templates = file_system.discover_templates(&config.templates_dir)?;
 
     if templates.is_empty() {
         return Err(anyhow::anyhow!("No templates found in templates directory"));
@@ -119,24 +121,17 @@ fn run_template_wizard(config: &Config) -> Result<WizardConfig> {
     let name = prompt_name_with_suggestions(&template_type)?;
     let (create_folder, output_dir) = prompt_additional_options(config)?;
 
-    Ok(WizardConfig {
-        name,
-        template_type,
-        architecture: None,
-        create_folder,
-        output_dir,
-    })
+    Ok(WizardConfig { name, template_type, architecture: None, create_folder, output_dir })
 }
 
 /// Run wizard flow for feature generation
 fn run_feature_wizard(config: &Config) -> Result<WizardConfig> {
-    // Get available architectures
-    let architectures = Args::discover_architectures(&config.architectures_dir);
+    // Get available architectures using file system
+    let file_system = FileSystem::new();
+    let architectures = file_system.discover_architectures(&config.architectures_dir)?;
 
     if architectures.is_empty() {
-        return Err(anyhow::anyhow!(
-            "No architectures found in architectures directory"
-        ));
+        return Err(anyhow::anyhow!("No architectures found in architectures directory"));
     }
 
     let architecture =
@@ -165,9 +160,7 @@ fn prompt_name_with_suggestions(template_type: &str) -> Result<String> {
                 if input.trim().is_empty() {
                     Ok(Validation::Invalid("Name cannot be empty".into()))
                 } else if input.trim().len() < 2 {
-                    Ok(Validation::Invalid(
-                        "Name must be at least 2 characters long".into(),
-                    ))
+                    Ok(Validation::Invalid("Name must be at least 2 characters long".into()))
                 } else if !is_valid_name(input.trim()) {
                     Ok(Validation::Invalid(
                         "Name should contain only letters, numbers, and underscores".into(),
@@ -187,15 +180,11 @@ fn prompt_additional_options(config: &Config) -> Result<(bool, Option<PathBuf>)>
     println!("\n{}", "Additional Options:".bold());
 
     let create_folder = handle_prompt_result(
-        Confirm::new("Create in new folder?")
-            .with_default(config.create_folder)
-            .prompt(),
+        Confirm::new("Create in new folder?").with_default(config.create_folder).prompt(),
     )?;
 
     let use_custom_dir = handle_prompt_result(
-        Confirm::new("Use custom output directory?")
-            .with_default(false)
-            .prompt(),
+        Confirm::new("Use custom output directory?").with_default(false).prompt(),
     )?;
 
     let output_dir = if use_custom_dir {
@@ -242,11 +231,7 @@ fn display_summary(config: &WizardConfig) {
         println!("  {} {}", "Architecture:".bold(), arch);
     }
 
-    println!(
-        "  {} {}",
-        "Create folder:".bold(),
-        if config.create_folder { "Yes" } else { "No" }
-    );
+    println!("  {} {}", "Create folder:".bold(), if config.create_folder { "Yes" } else { "No" });
 
     if let Some(dir) = &config.output_dir {
         println!("  {} {}", "Output directory:".bold(), dir.display());

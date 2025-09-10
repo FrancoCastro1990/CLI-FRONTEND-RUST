@@ -1,6 +1,9 @@
 mod cli;
 mod config;
+mod file_system;
+mod naming;
 mod template_engine;
+mod types;
 mod wizard;
 
 #[cfg(test)]
@@ -35,9 +38,7 @@ async fn main() -> Result<()> {
     };
 
     // Validate arguments (either from CLI or wizard)
-    let name = final_args
-        .name
-        .ok_or_else(|| anyhow::anyhow!("No name was provided."))?;
+    let name = final_args.name.ok_or_else(|| anyhow::anyhow!("No name was provided."))?;
     let template_type = match final_args.template_type {
         Some(t) => t,
         None => config.default_type.clone(),
@@ -54,10 +55,8 @@ async fn main() -> Result<()> {
 
     // Handle feature type specially
     if template_type == "feature" {
-        let architecture = final_args
-            .architecture
-            .as_deref()
-            .unwrap_or(&config.default_architecture);
+        let architecture =
+            final_args.architecture.as_deref().unwrap_or(&config.default_architecture);
 
         println!(
             "{} Generating feature '{}' with {} architecture...",
@@ -67,9 +66,7 @@ async fn main() -> Result<()> {
         );
 
         let create_folder = !final_args.no_folder && config.create_folder;
-        template_engine
-            .generate_feature(&name, Some(architecture), create_folder, &config)
-            .await?;
+        template_engine.generate_feature(&name, Some(architecture), create_folder, &config).await?;
 
         println!(
             "{} Feature '{}' generated successfully with {} architecture!",
@@ -83,36 +80,20 @@ async fn main() -> Result<()> {
 
     // Validate template type exists
     if !template_engine.template_exists(&template_type) {
-        eprintln!(
-            "{} Unknown type '{}'. Available types:",
-            "Error:".red(),
-            template_type
-        );
+        eprintln!("{} Unknown type '{}'. Available types:", "Error:".red(), template_type);
         for available in template_engine.list_templates()? {
             eprintln!("  - {}", available);
         }
         std::process::exit(1);
     }
 
-    println!(
-        "{} Generating {} '{}'...",
-        "🚀".bold(),
-        template_type,
-        name.bold()
-    );
+    println!("{} Generating {} '{}'...", "🚀".bold(), template_type, name.bold());
 
     // Generate template
     let create_folder = !final_args.no_folder && config.create_folder;
-    template_engine
-        .generate(&name, &template_type, create_folder)
-        .await?;
+    template_engine.generate(&name, &template_type, create_folder).await?;
 
-    println!(
-        "{} {} '{}' generated successfully!",
-        "✅".green(),
-        template_type,
-        name.bold()
-    );
+    println!("{} {} '{}' generated successfully!", "✅".green(), template_type, name.bold());
 
     Ok(())
 }

@@ -1,7 +1,13 @@
+//! # Integration Tests Module
+//!
+//! This module contains integration tests for the CLI Frontend Generator.
+//! Tests are organized to cover the main functionality and edge cases.
+
 #[cfg(test)]
 mod tests {
     use std::fs;
-    use std::path::{Path, PathBuf};
+    use std::path::Path;
+    use tempfile::TempDir;
 
     #[test]
     fn test_basic_functionality() {
@@ -14,10 +20,7 @@ mod tests {
         let templates_dir = Path::new("./templates");
         // El test pasa si el directorio existe o si estamos en un entorno donde no se espera que exista
         if templates_dir.exists() {
-            assert!(
-                templates_dir.is_dir(),
-                "Templates path should be a directory"
-            );
+            assert!(templates_dir.is_dir(), "Templates path should be a directory");
 
             // Verificar que hay al menos algunos subdirectorios
             if let Ok(entries) = fs::read_dir(templates_dir) {
@@ -45,43 +48,57 @@ mod tests {
     }
 
     #[test]
-    fn test_discover_templates_function() {
-        use crate::cli::Args;
+    fn test_file_system_discover_templates() {
+        use crate::file_system::FileSystem;
 
-        // Test de la función discover_templates con un directorio que puede o no existir
-        let templates_dir = PathBuf::from("./templates");
-        let templates = Args::discover_templates(&templates_dir);
+        let temp_dir = TempDir::new().unwrap();
+        let templates_dir = temp_dir.path();
 
-        // Si el directorio existe, debe retornar una lista (puede estar vacía)
-        // Si no existe, también debe retornar una lista vacía
-        // Este test simplemente verifica que la función no panic
+        // Create some template directories
+        std::fs::create_dir_all(templates_dir.join("component")).unwrap();
+        std::fs::create_dir_all(templates_dir.join("hook")).unwrap();
+        std::fs::create_dir_all(templates_dir.join(".hidden")).unwrap(); // Should be ignored
 
-        // Si hay templates, verificar que no hay duplicados
-        if !templates.is_empty() {
-            let mut sorted = templates.clone();
-            sorted.sort();
-            sorted.dedup();
-            assert_eq!(
-                templates.len(),
-                sorted.len(),
-                "Should not have duplicate templates"
-            );
-        }
+        let file_system = FileSystem::new();
+        let templates = file_system.discover_templates(templates_dir).unwrap();
+
+        assert_eq!(templates.len(), 2);
+        assert!(templates.contains(&"component".to_string()));
+        assert!(templates.contains(&"hook".to_string()));
+        assert!(!templates.contains(&".hidden".to_string()));
     }
 
     #[test]
     fn test_string_transformations() {
-        // Test de transformaciones básicas que podríamos usar
+        use crate::naming::SmartNaming;
+
+        let naming = SmartNaming::new();
         let test_name = "TestComponent";
 
         // Pascal case (ya está)
-        assert_eq!(test_name, "TestComponent");
+        assert_eq!(naming.to_pascal_case(test_name), "TestComponent");
 
-        // Lower case
-        assert_eq!(test_name.to_lowercase(), "testcomponent");
+        // Camel case
+        assert_eq!(naming.to_camel_case(test_name), "testComponent");
 
-        // Upper case
-        assert_eq!(test_name.to_uppercase(), "TESTCOMPONENT");
+        // Snake case
+        assert_eq!(naming.to_snake_case(test_name), "test_component");
+
+        // Kebab case
+        assert_eq!(naming.to_kebab_case(test_name), "test-component");
+    }
+
+    #[test]
+    fn test_smart_name_processing() {
+        use crate::naming::SmartNaming;
+
+        let naming = SmartNaming::new();
+        let processed = naming.process_smart_names("user");
+
+        assert_eq!(processed.hook_name, "useUser");
+        assert_eq!(processed.context_name, "UserContext");
+        assert_eq!(processed.provider_name, "UserProvider");
+        assert_eq!(processed.page_name, "UserPage");
     }
 
     #[test]
@@ -92,10 +109,7 @@ mod tests {
         let templates_dir = Config::find_templates_directory();
 
         // Debe retornar un PathBuf válido
-        assert!(
-            templates_dir.as_os_str().len() > 0,
-            "Should return a valid path"
-        );
+        assert!(templates_dir.as_os_str().len() > 0, "Should return a valid path");
     }
 
     #[test]
@@ -107,9 +121,7 @@ mod tests {
         let mut handlebars = Handlebars::new();
 
         let template = "Hello {{name}}!";
-        handlebars
-            .register_template_string("test", template)
-            .unwrap();
+        handlebars.register_template_string("test", template).unwrap();
 
         let data = json!({
             "name": "World"
@@ -117,5 +129,60 @@ mod tests {
 
         let result = handlebars.render("test", &data).unwrap();
         assert_eq!(result, "Hello World!");
+    }
+
+    #[test]
+    fn test_template_data_builder() {
+        use crate::template_engine::data_builder::TemplateDataBuilder;
+        use std::collections::HashMap;
+
+        let mut variables = HashMap::new();
+        variables.insert("author".to_string(), "John Doe".to_string());
+
+        let data = TemplateDataBuilder::new()
+            .with_name("userProfile")
+            .with_environment("test")
+            .with_variables(variables)
+            .build()
+            .unwrap();
+
+        assert_eq!(data["name"], "userProfile");
+        assert_eq!(data["pascal_name"], "UserProfile");
+        assert_eq!(data["environment"], "test");
+        assert_eq!(data["hook_name"], "useUserProfile");
+        assert_eq!(data["author"], "John Doe");
+    }
+
+    #[tokio::test]
+    async fn test_template_engine_creation() {
+        use crate::template_engine::TemplateEngine;
+
+        let temp_dir = TempDir::new().unwrap();
+        let templates_dir = temp_dir.path().join("templates");
+        let output_dir = temp_dir.path().join("output");
+
+        let engine = TemplateEngine::new(templates_dir, output_dir);
+        assert!(engine.is_ok());
+    }
+
+    #[test]
+    fn test_handlebars_helpers() {
+        use crate::template_engine::helpers::*;
+        use handlebars::Handlebars;
+        use serde_json::json;
+
+        let mut handlebars = Handlebars::new();
+        register_all_helpers(&mut handlebars);
+
+        // Test pascal case helper
+        let template = "{{pascal_case name}}";
+        let data = json!({"name": "user_profile"});
+        let result = handlebars.render_template(template, &data).unwrap();
+        assert_eq!(result, "UserProfile");
+
+        // Test timestamp helper
+        let template = "{{timestamp \"date\"}}";
+        let result = handlebars.render_template(template, &json!({})).unwrap();
+        assert_eq!(result.len(), 10); // YYYY-MM-DD format
     }
 }

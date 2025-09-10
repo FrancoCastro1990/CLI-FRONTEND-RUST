@@ -90,9 +90,7 @@ impl Config {
         }
 
         // Fallback to home directory or current directory
-        dirs::home_dir()
-            .unwrap_or_else(|| PathBuf::from("."))
-            .join(".cli-template")
+        dirs::home_dir().unwrap_or_else(|| PathBuf::from(".")).join(".cli-template")
     }
 
     /// Find architectures directory in order of preference
@@ -171,9 +169,9 @@ impl Config {
                     None => {
                         let home_dir = dirs::home_dir().context("Could not find home directory")?;
                         home_dir.join(".cli-frontend.conf")
-                    }
+                    },
                 }
-            }
+            },
         };
 
         if !config_file.exists() {
@@ -235,7 +233,7 @@ impl Config {
                             PathBuf::from(value)
                         };
                         config.templates_dir = path;
-                    }
+                    },
                     "output_dir" => config.output_dir = PathBuf::from(value),
                     "architectures_dir" => {
                         let path = if value.starts_with('~') {
@@ -246,9 +244,9 @@ impl Config {
                             PathBuf::from(value)
                         };
                         config.architectures_dir = path;
-                    }
+                    },
                     "default_architecture" => config.default_architecture = value.to_string(),
-                    _ => {} // Ignore unknown keys
+                    _ => {}, // Ignore unknown keys
                 }
             }
         }
@@ -257,18 +255,10 @@ impl Config {
     }
 
     fn to_ini(&self) -> String {
-        let templates_dir = self
-            .templates_dir
-            .canonicalize()
-            .unwrap_or(self.templates_dir.clone());
-        let output_dir = self
-            .output_dir
-            .canonicalize()
-            .unwrap_or(self.output_dir.clone());
-        let architectures_dir = self
-            .architectures_dir
-            .canonicalize()
-            .unwrap_or(self.architectures_dir.clone());
+        let templates_dir = self.templates_dir.canonicalize().unwrap_or(self.templates_dir.clone());
+        let output_dir = self.output_dir.canonicalize().unwrap_or(self.output_dir.clone());
+        let architectures_dir =
+            self.architectures_dir.canonicalize().unwrap_or(self.architectures_dir.clone());
         format!(
             "# CLI Frontend Generator Configuration\n\
              # This file uses INI-like format for easy configuration\n\
@@ -315,10 +305,7 @@ impl Config {
             let default_path = self.architectures_dir.join("default.json");
             if default_path.exists() {
                 let content = fs::read_to_string(&default_path).await.with_context(|| {
-                    format!(
-                        "Could not read default architecture file: {:?}",
-                        default_path
-                    )
+                    format!("Could not read default architecture file: {:?}", default_path)
                 })?;
                 return Self::parse_architecture_json(&content);
             } else {
@@ -332,9 +319,7 @@ impl Config {
 
         let content = fs::read_to_string(&architecture_path)
             .await
-            .with_context(|| {
-                format!("Could not read architecture file: {:?}", architecture_path)
-            })?;
+            .with_context(|| format!("Could not read architecture file: {architecture_path:?}"))?;
 
         Self::parse_architecture_json(&content)
     }
@@ -357,7 +342,11 @@ impl Config {
             let entry = entry?;
             if entry.file_type()?.is_file() {
                 if let Some(name) = entry.file_name().to_str() {
-                    if name.ends_with(".json") && !name.starts_with('.') {
+                    if std::path::Path::new(name)
+                        .extension()
+                        .is_some_and(|ext| ext.eq_ignore_ascii_case("json"))
+                        && !name.starts_with('.')
+                    {
                         let arch_name = name.strip_suffix(".json").unwrap_or(name);
                         if arch_name != "default" {
                             // Skip default.json in listing

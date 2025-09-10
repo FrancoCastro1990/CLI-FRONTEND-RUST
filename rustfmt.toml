@@ -1,0 +1,35 @@
+# Rust formatting configuration
+# This file ensures consistent code formatting across the project
+
+# Line width configuration
+max_width = 100
+tab_spaces = 4
+
+# Import organization
+imports_granularity = "Crate"
+imports_layout = "Mixed"
+group_imports = "StdExternalCrate"
+
+# Code style
+use_small_heuristics = "Max"
+newline_style = "Unix"
+edition = "2021"
+
+# Function formatting
+fn_args_layout = "Tall"
+brace_style = "SameLineWhere"
+
+# Comment formatting  
+wrap_comments = true
+comment_width = 80
+
+# String formatting
+format_strings = true
+
+# Control flow formatting
+control_brace_style = "AlwaysSameLine"
+match_block_trailing_comma = true
+
+# Macro formatting
+format_macro_matchers = true
+format_macro_bodies = true
