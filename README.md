@@ -57,7 +57,7 @@ Generate complete features following proven architectural patterns:
 - **Atomic Design** - Systematic component hierarchy
 - **Event-Driven** - Loosely coupled reactive systems
 - **MVC/MVP/MVVM** - Traditional presentation patterns
-- [**+ 5 more architectures**](./ARCHITECTURES_GUIDE.md) with detailed documentation
+- [**+ 5 more architectures**](./docs/ARCHITECTURES_GUIDE.md) with detailed documentation
 
 ### 🎯 **Production-Ready Code Generation**
 - **TypeScript-first** - Full type safety and IntelliSense support
@@ -85,12 +85,12 @@ Generate complete features following proven architectural patterns:
 
 **Linux/macOS:**
 ```bash
-curl -sSL https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/main/install-quick.sh | bash
+curl -sSL https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install.sh | bash
 ```
 
 **Windows (PowerShell as Administrator):**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/main/install-quick.ps1 | iex
+iwr -useb https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install-windows.ps1 | iex
 ```
 
 > ✅ **Smart Installers**: Automatically download precompiled binaries or compile from source. Create configuration files and add CLI to system PATH.
@@ -168,7 +168,7 @@ cli-frontend --help
 | **Event-Driven** | Real-time applications with loose coupling | Events → Publishers → Listeners → Components |
 | **MVC/MVP/MVVM** | Traditional applications with clear separation | Models → Views → Controllers/Presenters |
 
-> 📖 **Comprehensive Guide**: See [ARCHITECTURES_GUIDE.md](./ARCHITECTURES_GUIDE.md) for detailed documentation, benefits, limitations, and usage scenarios for each architecture.
+> 📖 **Comprehensive Guide**: See [ARCHITECTURES_GUIDE.md](./docs/ARCHITECTURES_GUIDE.md) for detailed documentation, benefits, limitations, and usage scenarios for each architecture.
 
 ### Example: Clean Architecture Feature
 ```bash
@@ -216,7 +216,7 @@ Options:
   --help                      Display help, available templates and architectures
 ```
 
-> 📖 **Detailed Wizard Guide**: See [WIZARD_GUIDE.md](./WIZARD_GUIDE.md) for comprehensive documentation on using the interactive wizard.
+> 📖 **Detailed Wizard Guide**: See [WIZARD_GUIDE.md](./docs/WIZARD_GUIDE.md) for comprehensive documentation on using the interactive wizard.
 
 ### Available Templates
 
@@ -261,13 +261,7 @@ templates_dir=/home/username/.cli-template/templates
 architectures_dir=/home/username/.cli-template/architectures
 ```
 
-**System installation** (via `install.sh` with sudo):
-```ini
-templates_dir=/usr/local/share/cli-frontend/templates
-architectures_dir=/usr/local/share/cli-frontend/architectures
-```
-
-### Configuration Example
+### Configuration Example (cli-frontend.conf)
 ```ini
 # CLI Frontend Generator Configuration
 
@@ -369,7 +363,7 @@ sed -i "s|templates_dir=.*|templates_dir=$HOME/.cli-template/templates|g" ~/.cli
 sed -i "s|architectures_dir=.*|architectures_dir=$HOME/.cli-template/architectures|g" ~/.cli-frontend.conf
 
 # Or reinstall
-curl -sSL https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/main/install-quick.sh | bash
+curl -sSL https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install.sh | bash
 ```
 
 ### CLI Not Found After Installation
@@ -378,15 +372,8 @@ curl -sSL https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/m
 **Solutions**:
 ```bash
 # Reload shell
-source ~/.bashrc  # or ~/.zshrc
+source ~/.zshrc # or ~/.bashrc  
 
-# Check PATH
-echo $PATH | grep -q "$HOME/.cli-template" && echo "In PATH" || echo "Missing from PATH"
-
-# Add to PATH manually
-echo 'export PATH="$PATH:$HOME/.cli-template"' >> ~/.bashrc
-source ~/.bashrc
-```
 
 ### Template Configuration Issues
 **Problem**: Custom variables not working in templates
@@ -441,28 +428,6 @@ enable_timestamps=true
 - **Binary Size**: ~8MB optimized release binary
 - **Cold Start**: < 100ms from command execution to completion
 
-## 🔮 Roadmap
-
-### ✅ Completed (v1.3.0)
-- [x] 12 comprehensive software architecture patterns
-- [x] Dynamic template discovery and auto-detection
-- [x] Cross-platform intelligent installers
-- [x] Automated configuration management
-- [x] Professional documentation and guides
-- [x] **Template configuration system** with `.conf` files
-- [x] **Environment-aware variables** (timestamp, UUID, environment)
-- [x] **Advanced Handlebars helpers** for dynamic templating
-- [x] **🧙‍♂️ Interactive Wizard Mode** - Guided architecture selection with validation
-- [x] **Graceful cancellation** - ESC key support with friendly messages
-
-### 🚧 In Development (v1.4.0)
-- [ ] **VS Code Extension** - Integrated development experience
-- [ ] **Template Validation** - JSON schema validation for custom templates
-- [ ] **Wizard Enhancements** - Template preview and advanced customization
-- [ ] **Template Marketplace** - Community-driven template sharing
-
-### 🌟 Planned Features (v2.0.0)
-- [ ] **Multi-framework Support** - Vue.js and Angular templates
 
 
 ## 🎨 Creating Custom Templates
@@ -518,7 +483,7 @@ Use in templates:
 // Author: {{author}}
 ```
 
-> 📖 For detailed template creation guide, see [TEMPLATE_GUIDE.md](./TEMPLATE_GUIDE.md)
+> 📖 For detailed template creation guide, see [TEMPLATE_GUIDE.md](./docs/TEMPLATE_GUIDE.md)
 
 ## 🤝 Contributing
 
@@ -564,11 +529,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📚 Additional Resources
 
-- **[🧙‍♂️ Wizard Guide](./WIZARD_GUIDE.md)** - Complete guide to using the interactive wizard mode
-- **[Architecture Guide](./ARCHITECTURES_GUIDE.md)** - Comprehensive documentation for all 12 software architectures
-- **[Template Guide](./TEMPLATE_GUIDE.md)** - Learn how to create custom templates
-- **[Installation Guide](./INSTALLATION.md)** - Detailed installation instructions for all platforms
-- **[GitHub Actions Setup](./GITHUB_ACTIONS_SETUP.md)** - CI/CD integration examples
+- **[🧙‍♂️ Wizard Guide](./docs/WIZARD_GUIDE.md)** - Complete guide to using the interactive wizard mode
+- **[Architecture Guide](./docs/ARCHITECTURES_GUIDE.md)** - Comprehensive documentation for all 12 software architectures
+- **[Template Guide](./docs/TEMPLATE_GUIDE.md)** - Learn how to create custom templates
+- **[Installation Guide](./docs/INSTALLATION.md)** - Detailed installation instructions for all platforms
+- **[GitHub Actions Setup](./docs/GITHUB_ACTIONS_SETUP.md)** - CI/CD integration examples
 
 ---
 

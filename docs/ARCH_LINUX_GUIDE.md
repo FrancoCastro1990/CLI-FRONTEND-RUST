@@ -7,50 +7,33 @@ Esta guía cubre las diferentes opciones de instalación para Arch Linux y distr
 ### 1. Instalación Rápida (Recomendada)
 
 ```bash
-# Descarga e instala automáticamente
-curl -sSL https://raw.githubusercontent.com/FrancoCastro1990/cli-frontend-rust/main/install-arch.sh | bash
+# Descarga e instala automáticamente desde releases
+curl -sSL https://github.com/FrancoCastro1990/CLI-FRONTEND-RUST/releases/latest/download/install.sh | bash
 ```
 
 **Características:**
 - ✅ Detecta automáticamente el sistema Arch
-- ✅ Instala dependencias con pacman
-- ✅ Compila automáticamente si no hay binario
+- ✅ Descarga binarios precompilados optimizados
 - ✅ Configuración completa automática
+- ✅ Instalación ultra-rápida
 
-### 2. Instalación Manual con Script Especializado
-
-```bash
-# Clonar el repositorio
-git clone https://github.com/FrancoCastro1990/cli-frontend-rust.git
-cd cli-frontend-rust
-
-# Hacer ejecutable el instalador de Arch
-chmod +x install-arch.sh
-
-# Instalación para usuario actual
-./install-arch.sh
-
-# O instalación system-wide (requiere sudo)
-sudo ./install-arch.sh
-```
-
-### 3. Instalación desde AUR (PKGBUILD)
+### 2. Instalación desde Código Fuente
 
 ```bash
 # Clonar el repositorio
 git clone https://github.com/FrancoCastro1990/cli-frontend-rust.git
 cd cli-frontend-rust
 
-# Usar makepkg para instalar
-makepkg -si
-
-# O con un AUR helper
-yay -S cli-frontend-git
-# o
-paru -S cli-frontend-git
+# Ejecutar instalador (compila automáticamente)
+./install.sh
 ```
 
-### 4. Compilación Manual
+**Características:**
+- ✅ Compilación local con optimizaciones específicas
+- ✅ Control total sobre el proceso
+- ✅ Ideal para desarrollo
+
+### 3. Instalación Manual
 
 ```bash
 # Instalar dependencias
@@ -87,10 +70,10 @@ sudo cp -r templates /usr/local/share/cli-frontend/
 
 El instalador detecta y usa automáticamente:
 
-- **pacman** - Gestor oficial de Arch Linux
-- **yay** - AUR helper popular
-- **paru** - AUR helper moderno
-- **makepkg** - Para compilación manual de PKGBUILD
+- **pacman** - Gestor oficial de Arch Linux (para dependencias)
+- **yay** - AUR helper popular (futuro soporte)
+- **paru** - AUR helper moderno (futuro soporte)
+- **curl/wget** - Para descarga de binarios optimizados
 
 ### Dependencias
 
@@ -105,28 +88,29 @@ El instalador detecta y usa automáticamente:
 
 ## 📦 Características Específicas de Arch
 
-### 1. **PKGBUILD incluido**
+### 1. **Gestión de Dependencias Automática**
 ```bash
-# El proyecto incluye un PKGBUILD para fácil instalación
-makepkg -si
+# El instalador detecta y usa pacman automáticamente
+sudo pacman -S rust curl unzip git base-devel
 ```
 
-### 2. **Información de paquete estilo AUR**
-```bash
-# Se crea información de paquete en /var/lib/cli-frontend/PKGINFO
-cat /var/lib/cli-frontend/PKGINFO
-```
-
-### 3. **Desktop Entry automática**
+### 2. **Desktop Entry Automática**
 ```bash
 # Se crea automáticamente para instalaciones system-wide
 cat /usr/share/applications/cli-frontend.desktop
 ```
 
-### 4. **Configuración XDG compliant**
+### 3. **Configuración XDG Compliant**
 ```bash
 # Configuración en ~/.config/cli-frontend/config.toml
 ~/.config/cli-frontend/config.toml
+```
+
+### 4. **Integración con AUR Helpers**
+```bash
+# Compatible con AUR helpers populares
+yay -S cli-frontend-git  # Cuando esté disponible en AUR
+paru -S cli-frontend-git # Alternativa moderna
 ```
 
 ## 🧪 Verificación de Instalación
@@ -144,24 +128,23 @@ mkdir test-project && cd test-project
 cli-frontend TestComponent --type component
 ```
 
-## 🚀 AUR Package (Futuro)
+## 🚀 AUR Package (Planeado)
 
-El proyecto está preparado para ser publicado en AUR:
+El proyecto se publicará en AUR cuando haya demanda suficiente:
 
 ```bash
-# Una vez publicado en AUR, será posible instalar con:
+# Instalación futura vía AUR:
 yay -S cli-frontend-git
 # o
 paru -S cli-frontend-git
 ```
 
-**PKGBUILD features:**
-- ✅ Compilación automática desde Git
-- ✅ Verificación con cargo test
-- ✅ Instalación de documentación
-- ✅ Desktop entry
-- ✅ Preparado para shell completions
-- ✅ Preparado para man pages
+**Mientras tanto, los instaladores automáticos proporcionan una experiencia superior:**
+- ✅ Instalación más rápida (binarios precompilados)
+- ✅ Configuración automática completa
+- ✅ Soporte multi-arquitectura
+- ✅ Actualizaciones automáticas
+- ✅ Sin dependencias de compilación
 
 ## 🔧 Troubleshooting
 
@@ -202,21 +185,21 @@ cat ~/.config/cli-frontend/config.toml
 | **Instalación system-wide** | `/usr/local/` | `/usr/local/` | `/usr/local/` |
 | **Config directory** | `~/.config/` | `~/.config/` | `~/.config/` |
 | **Desktop entry** | ✅ Automática | ✅ Automática | ✅ Automática |
-| **PKGBUILD** | ✅ Incluido | ❌ N/A | ❌ N/A |
-| **AUR ready** | ✅ Preparado | ❌ N/A | ❌ N/A |
+| **Instaladores inteligentes** | ✅ Optimizado | ✅ Optimizado | ✅ Optimizado |
+| **Binarios precompilados** | ✅ Disponible | ✅ Disponible | ✅ Disponible |
 
 ## 🎉 Próximas Funcionalidades
 
 - [ ] Shell completions (bash, zsh, fish)
 - [ ] Man pages
-- [ ] Publicación oficial en AUR
-- [ ] Integración con makepkg
-- [ ] Arch Linux package signing
+- [ ] Publicación oficial en AUR (cuando haya demanda)
+- [ ] Integración nativa con package managers
+- [ ] Binarios firmados digitalmente
 
 ## 💡 Tips para Usuarios de Arch
 
-1. **Usa AUR helpers**: yay o paru hacen todo automático
+1. **Usa instaladores automáticos**: Más rápido que compilar
 2. **Instalación system-wide**: Disponible para todos los usuarios
 3. **Configuración XDG**: Todo en `~/.config/cli-frontend/`
-4. **PKGBUILD**: Perfecto para desarrollo y testing
-5. **Rolling release**: Siempre la última versión disponible
+4. **Binarios optimizados**: Mejor rendimiento que compilación local
+5. **Rolling release**: Siempre la última versión disponible vía GitHub Releases
