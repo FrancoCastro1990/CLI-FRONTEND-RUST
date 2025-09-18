@@ -123,6 +123,12 @@ cli-frontend useAuth --type hook
 # Generate an API service
 cli-frontend UserAPI --type api
 
+# Generate a Higher-Order Component
+cli-frontend withAuth --type hoc
+
+# Generate an Error Boundary
+cli-frontend AppErrorBoundary --type error-boundary
+
 # Generate without folder creation
 cli-frontend Modal --type component --no-folder
 ```
@@ -230,6 +236,8 @@ Options:
 | `store` | Redux store slice | `.store.ts`, `.types.ts`, `.thunks.ts`, `.test.ts` |
 | `api` | API service interface | `.api.ts` |
 | `api-service` | **Advanced API service with config** | `.service.ts`, `.test.ts`, `.conf` |
+| `hoc` | **Higher-Order Component with generics** | `.hoc.tsx`, `.hoc.spec.tsx` |
+| `error-boundary` | **Error Boundary for error handling** | `.boundary.tsx`, `.boundary.spec.tsx` |
 
 > 🔧 **Extensible**: Add custom templates by creating folders in the `templates/` directory. The CLI automatically discovers new templates without recompilation.
 

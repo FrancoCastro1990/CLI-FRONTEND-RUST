@@ -8,6 +8,8 @@ Cargo.lock
 *.swp
 *.swo
 *~
+# IA
+/.claude/
 
 # Archivos del sistema operativo
 .DS_Store
