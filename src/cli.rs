@@ -108,7 +108,10 @@ impl Args {
             if let Some((key, value)) = var_arg.split_once('=') {
                 vars.insert(key.trim().to_string(), value.trim().to_string());
             } else {
-                eprintln!("Warning: Invalid --var format '{}', expected KEY=VALUE", var_arg);
+                eprintln!(
+                    "Warning: Invalid --var format '{}', expected KEY=VALUE",
+                    var_arg
+                );
             }
         }
 

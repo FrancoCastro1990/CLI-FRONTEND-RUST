@@ -27,10 +27,8 @@ async fn main() -> Result<()> {
 
     // Handle --describe flag
     if let Some(template_name) = &args.describe {
-        let template_engine = TemplateEngine::new(
-            config.templates_dir.clone(),
-            config.output_dir.clone()
-        )?;
+        let template_engine =
+            TemplateEngine::new(config.templates_dir.clone(), config.output_dir.clone())?;
 
         template_engine.describe_template(template_name).await?;
         return Ok(());

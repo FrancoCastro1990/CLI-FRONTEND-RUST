@@ -32,8 +32,7 @@ pub struct TemplateConfig {
     pub options_metadata: std::collections::HashMap<String, VariableOption>,
 }
 
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct TemplateMetadata {
     pub name: String,
     pub description: String,
@@ -49,7 +48,6 @@ pub struct VariableOption {
     /// Description of the variable
     pub description: String,
 }
-
 
 impl Default for TemplateConfig {
     fn default() -> Self {
@@ -151,7 +149,8 @@ impl TemplateEngine {
                                 .collect();
 
                             // Get or create option metadata entry
-                            let option = config.options_metadata
+                            let option = config
+                                .options_metadata
                                 .entry(var_name.to_string())
                                 .or_insert_with(|| VariableOption {
                                     var_type: String::new(),
@@ -160,13 +159,13 @@ impl TemplateEngine {
                                 });
 
                             option.possible_values = possible_values;
-
                         } else if key.ends_with("_type") {
                             // Extract variable name: "with_tests_type" -> "with_tests"
                             let var_name = key.strip_suffix("_type").unwrap_or(key);
 
                             // Get or create option metadata entry
-                            let option = config.options_metadata
+                            let option = config
+                                .options_metadata
                                 .entry(var_name.to_string())
                                 .or_insert_with(|| VariableOption {
                                     var_type: String::new(),
@@ -175,13 +174,13 @@ impl TemplateEngine {
                                 });
 
                             option.var_type = value.to_string();
-
                         } else if key.ends_with("_description") {
                             // Extract variable name: "style_description" -> "style"
                             let var_name = key.strip_suffix("_description").unwrap_or(key);
 
                             // Get or create option metadata entry
-                            let option = config.options_metadata
+                            let option = config
+                                .options_metadata
                                 .entry(var_name.to_string())
                                 .or_insert_with(|| VariableOption {
                                     var_type: String::new(),
@@ -190,7 +189,6 @@ impl TemplateEngine {
                                 });
 
                             option.description = value.to_string();
-
                         } else {
                             // This is the actual variable default value
                             config.variables.insert(key.to_string(), value.to_string());
@@ -252,9 +250,9 @@ impl TemplateEngine {
                 // e.g., "var_with_tests" → check variables["with_tests"]
                 if variables.contains_key(var_part) {
                     // Boolean check: variable exists, check if it's truthy
-                    variables.get(var_part).is_some_and(|v| {
-                        matches!(v.to_lowercase().as_str(), "true" | "yes" | "1")
-                    })
+                    variables
+                        .get(var_part)
+                        .is_some_and(|v| matches!(v.to_lowercase().as_str(), "true" | "yes" | "1"))
                 } else if let Some(underscore_pos) = var_part.find('_') {
                     // Value comparison: var_style_scss → check if style == "scss"
                     // Handle hyphenated values: var_style_styled_components → check if style == "styled-components"
@@ -263,7 +261,9 @@ impl TemplateEngine {
                     // Convert underscores back to hyphens for value matching
                     let expected_value = expected_value_raw.replace('_', "-");
 
-                    variables.get(var_name).is_some_and(|v| v == &expected_value || v == expected_value_raw)
+                    variables
+                        .get(var_name)
+                        .is_some_and(|v| v == &expected_value || v == expected_value_raw)
                 } else {
                     // Variable doesn't exist and no underscore found
                     false
@@ -317,10 +317,7 @@ impl TemplateEngine {
             // Case 2: Boolean variable (e.g., with_tests_type=boolean)
             if option_meta.var_type == "boolean" {
                 if let Some(value) = variables.get(var_name) {
-                    let is_true = matches!(
-                        value.to_lowercase().as_str(),
-                        "true" | "yes" | "1"
-                    );
+                    let is_true = matches!(value.to_lowercase().as_str(), "true" | "yes" | "1");
                     let helper_name = format!("{}_bool", var_name);
 
                     data_map.insert(helper_name, serde_json::Value::Bool(is_true));
@@ -674,10 +671,7 @@ impl TemplateEngine {
                     .context("Could not get relative path")?;
 
                 // Get the filename as a string for filter matching
-                let filename = relative_path
-                    .to_str()
-                    .unwrap_or("")
-                    .replace('\\', "/"); // Normalize path separators
+                let filename = relative_path.to_str().unwrap_or("").replace('\\', "/"); // Normalize path separators
 
                 // Check if this file should be generated based on filters
                 let should_generate = if !template_config.file_filters.is_empty() {
@@ -973,7 +967,11 @@ impl TemplateEngine {
         let config = self.load_template_config(template_type).await?;
 
         // Print header
-        println!("\n{} {}", "📋 Template:".bold(), template_type.cyan().bold());
+        println!(
+            "\n{} {}",
+            "📋 Template:".bold(),
+            template_type.cyan().bold()
+        );
         println!("{}", "=".repeat(50).cyan());
         println!();
 
@@ -1007,7 +1005,11 @@ impl TemplateEngine {
                 // Print type/options
                 if !metadata.possible_values.is_empty() {
                     println!();
-                    println!("    {}: {}", "Options".bold(), metadata.possible_values.join(", "));
+                    println!(
+                        "    {}: {}",
+                        "Options".bold(),
+                        metadata.possible_values.join(", ")
+                    );
                 } else if metadata.var_type == "boolean" {
                     println!();
                     println!("    {}: boolean", "Type".bold());
@@ -1069,7 +1071,12 @@ impl TemplateEngine {
             // Print default files
             default_files.sort();
             for file in default_files {
-                println!("  {} {} {}", "○".yellow(), file.bold(), "(default)".dimmed());
+                println!(
+                    "  {} {} {}",
+                    "○".yellow(),
+                    file.bold(),
+                    "(default)".dimmed()
+                );
             }
 
             // Print conditional files with their conditions
@@ -1093,7 +1100,11 @@ impl TemplateEngine {
 
         // Example 1: Basic usage
         println!("  {} Basic (with defaults)", "#".dimmed());
-        println!("  {} ComponentName --type {}", "cli-frontend".cyan(), template_type);
+        println!(
+            "  {} ComponentName --type {}",
+            "cli-frontend".cyan(),
+            template_type
+        );
         println!();
 
         // Example 2-4: Based on available variables
@@ -1113,12 +1124,7 @@ impl TemplateEngine {
                     "true"
                 };
 
-                println!(
-                    "  {} With {}={}",
-                    "#".dimmed(),
-                    var_name,
-                    value
-                );
+                println!("  {} With {}={}", "#".dimmed(), var_name, value);
                 println!(
                     "  {} ComponentName --type {} --var {}={}",
                     "cli-frontend".cyan(),
@@ -1145,12 +1151,7 @@ impl TemplateEngine {
                     .find(|v| Some(v.as_str()) != current_value)
                     .unwrap_or(&metadata.possible_values[0]);
 
-                println!(
-                    "  {} With {}={}",
-                    "#".dimmed(),
-                    var_name,
-                    example_value
-                );
+                println!("  {} With {}={}", "#".dimmed(), var_name, example_value);
                 println!(
                     "  {} ComponentName --type {} --var {}={}",
                     "cli-frontend".cyan(),
@@ -1166,7 +1167,11 @@ impl TemplateEngine {
         // Example with multiple variables (full featured)
         if config.options_metadata.len() >= 2 {
             println!("  {} Full featured", "#".dimmed());
-            print!("  {} ComponentName --type {}", "cli-frontend".cyan(), template_type);
+            print!(
+                "  {} ComponentName --type {}",
+                "cli-frontend".cyan(),
+                template_type
+            );
 
             let mut var_examples = Vec::new();
             for (var_name, metadata) in config.options_metadata.iter().take(3) {
