@@ -1,4 +1,5 @@
 use clap::Parser;
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
@@ -32,9 +33,14 @@ pub struct Args {
     #[arg(short = 'c', long = "config")]
     pub config: Option<PathBuf>,
 
-    /// Show detailed help with templates and architectures  
+    /// Show detailed help with templates and architectures
     #[arg(long = "list")]
     pub list: bool,
+
+    /// Template variables in KEY=VALUE format (can be used multiple times)
+    /// Example: --var style=scss --var with_tests=false
+    #[arg(long = "var", value_name = "KEY=VALUE")]
+    pub vars: Vec<String>,
 }
 
 impl Args {
@@ -86,6 +92,22 @@ impl Args {
         }
         architectures.sort();
         architectures
+    }
+
+    /// Parse --var arguments into a HashMap
+    /// Example: ["style=scss", "with_tests=false"] -> {"style": "scss", "with_tests": "false"}
+    pub fn parse_vars(&self) -> HashMap<String, String> {
+        let mut vars = HashMap::new();
+
+        for var_arg in &self.vars {
+            if let Some((key, value)) = var_arg.split_once('=') {
+                vars.insert(key.trim().to_string(), value.trim().to_string());
+            } else {
+                eprintln!("Warning: Invalid --var format '{}', expected KEY=VALUE", var_arg);
+            }
+        }
+
+        vars
     }
 
     /// Print simple list of available templates and architectures

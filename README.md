@@ -114,8 +114,17 @@ cli-frontend --help
 
 ### Quick Start - Individual Components
 ```bash
-# Generate a React component
+# Generate a React component with default settings
 cli-frontend Button --type component
+
+# Generate component with SCSS styles
+cli-frontend Button --type component --var style=scss
+
+# Generate component with styled-components and tests
+cli-frontend Modal --type component --var style=styled-components --var with_tests=true
+
+# Generate component without tests
+cli-frontend Header --type component --var with_tests=false
 
 # Generate a custom hook
 cli-frontend useAuth --type hook
@@ -215,6 +224,7 @@ Arguments:
 Options:
   -t, --type <TYPE>           Template type to generate (auto-detection available)
   -a, --architecture <ARCH>   Architecture pattern for features (mvc, clean-architecture, etc.)
+  --var <KEY=VALUE>           Template variables (can be used multiple times)
   --no-folder                 Generate files without creating a parent folder
   -o, --output-dir <DIR>      Output directory for generated files
   -c, --config <CONFIG>       Path to custom configuration file
@@ -241,17 +251,75 @@ Options:
 
 > 🔧 **Extensible**: Add custom templates by creating folders in the `templates/` directory. The CLI automatically discovers new templates without recompilation.
 
-### 🎯 **New: Template Configuration System**
+### 🎯 **Template Configuration & Dynamic Variables**
 
-Templates now support advanced configuration through `.conf` files within template directories:
+Templates support advanced configuration through `.conf` files and runtime variables via the `--var` flag.
+
+#### Using the `--var` Flag
+
+Pass runtime variables to customize template generation:
+
+```bash
+# Generate component with SCSS styling
+cli-frontend Button --type component --var style=scss
+
+# Generate component with styled-components and tests
+cli-frontend Modal --type component --var style=styled-components --var with_tests=true
+
+# Generate component without tests and stories
+cli-frontend Header --type component --var with_tests=false --var with_stories=false
+
+# Multiple variables for custom templates
+cli-frontend Dashboard --type my-template --var theme=dark --var layout=grid --var with_api=true
+```
+
+**Key Features:**
+- **Conditional File Generation**: Only generate files when conditions match
+- **Dynamic Template Content**: Templates adapt based on variable values
+- **Boolean Helpers**: Automatic generation of `var_is_value` helpers for conditionals
+- **CLI Override**: CLI variables override `.conf` defaults
+
+#### Template `.conf` File Format
+
+Configure template behavior and define variables in `.conf` files:
 
 ```ini
-# Example: templates/my-template/.conf
-environment=production
-enable_timestamps=true
-var_author=Your Team
-var_api_version=v2
+# templates/component/.conf
+
+[metadata]
+name=React Component
+description=Functional component with TypeScript
+
+[options]
+# Styling approach
+style=scss
+style_description=Styling approach for the component
+style_options=scss,styled-components,css,none
+
+# Testing
+with_tests=true
+with_tests_description=Include unit tests
+with_tests_type=boolean
+
+# Storybook
+with_stories=false
+with_stories_description=Generate Storybook stories
+with_stories_type=boolean
+
+[files]
+$FILE_NAME.tsx=always
+$FILE_NAME.spec.tsx=var_with_tests
+$FILE_NAME.module.scss=var_style_scss
+$FILE_NAME.styled.ts=var_style_styled_components
+$FILE_NAME.stories.tsx=var_with_stories
 ```
+
+**Sections:**
+- `[metadata]`: Template information
+- `[options]`: Variable definitions with metadata (`_options`, `_type`, `_description`)
+- `[files]`: Conditional file generation rules (`always`, `default`, `var_X`, `var_X_value`)
+
+> 📖 **Complete Guide**: See [TEMPLATE_GUIDE.md](./docs/TEMPLATE_GUIDE.md) for comprehensive `.conf` format documentation and template development guide.
 
 ## ⚙️ Configuration
 
@@ -478,20 +546,55 @@ One of the most powerful features is **automatic template discovery**. Create cu
 - `{{version}}` - CLI version
 - `{{generated}}` - Always `true`
 
-#### **NEW: Custom Variables (.conf)**
-Define custom variables in your template's `.conf` file:
+#### **NEW: Template Variables & Conditional Generation**
+
+Templates support powerful variable systems with both static `.conf` configuration and dynamic `--var` CLI flags:
+
+**1. Define variables in `.conf`:**
 ```ini
-var_api_version=v1
-var_author=Your Team
+[options]
+style=scss
+style_options=scss,styled-components,css,none
+with_tests=true
+with_tests_type=boolean
+
+[files]
+$FILE_NAME.tsx=always
+$FILE_NAME.spec.tsx=var_with_tests
+$FILE_NAME.module.scss=var_style_scss
 ```
 
-Use in templates:
+**2. Use variables in templates with auto-generated boolean helpers:**
 ```typescript
-// API Version: {{api_version}}
-// Author: {{author}}
+import React from "react";
+{{#if style_is_scss}}
+import styles from "./{{kebab_name}}.module.scss";
+{{/if}}
+{{#if style_is_styled_components}}
+import { Styled{{pascal_name}} } from "./{{kebab_name}}.styled";
+{{/if}}
+
+export const {{pascal_name}}: React.FC = () => {
+  {{#if style_is_scss}}
+  return <div className={styles.{{camel_name}}}>Component</div>;
+  {{else}}
+  return <div>Component</div>;
+  {{/if}}
+};
 ```
 
-> 📖 For detailed template creation guide, see [TEMPLATE_GUIDE.md](./docs/TEMPLATE_GUIDE.md)
+**3. Override at runtime:**
+```bash
+cli-frontend Button --type component --var style=styled-components --var with_tests=false
+```
+
+**Key Features:**
+- **Automatic Boolean Helpers**: `style=scss` generates `style_is_scss`, `style_is_css`, etc.
+- **Conditional Files**: Files generate only when conditions match
+- **No Code Changes**: Add new templates with new variables without modifying Rust code
+- **Type Safety**: `_type=boolean` for boolean variables, `_options` for enums
+
+> 📖 For detailed template creation guide with `.conf` format specification, see [TEMPLATE_GUIDE.md](./docs/TEMPLATE_GUIDE.md)
 
 ## 🤝 Contributing
 

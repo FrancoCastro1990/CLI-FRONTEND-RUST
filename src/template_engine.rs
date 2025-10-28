@@ -24,6 +24,38 @@ pub struct TemplateConfig {
     pub environment: String,
     pub enable_timestamps: bool,
     pub enable_uuid: bool,
+    /// Maps filename pattern to condition (e.g., "$FILE_NAME.spec.tsx" -> "var_with_tests")
+    pub file_filters: std::collections::HashMap<String, String>,
+    /// Template metadata
+    pub metadata: TemplateMetadata,
+    /// Metadata about each variable option (for dynamic boolean helper generation)
+    pub options_metadata: std::collections::HashMap<String, VariableOption>,
+}
+
+#[derive(Debug, Clone)]
+pub struct TemplateMetadata {
+    pub name: String,
+    pub description: String,
+}
+
+/// Metadata about a variable option from the .conf file
+#[derive(Debug, Clone)]
+pub struct VariableOption {
+    /// Type of variable: "boolean", "string", "enum", etc.
+    pub var_type: String,
+    /// Possible values (from {var}_options in .conf)
+    pub possible_values: Vec<String>,
+    /// Description of the variable
+    pub description: String,
+}
+
+impl Default for TemplateMetadata {
+    fn default() -> Self {
+        Self {
+            name: String::new(),
+            description: String::new(),
+        }
+    }
 }
 
 impl Default for TemplateConfig {
@@ -33,6 +65,9 @@ impl Default for TemplateConfig {
             environment: std::env::var("NODE_ENV").unwrap_or_else(|_| "development".to_string()),
             enable_timestamps: true,
             enable_uuid: true,
+            file_filters: std::collections::HashMap::new(),
+            metadata: TemplateMetadata::default(),
+            options_metadata: std::collections::HashMap::new(),
         }
     }
 }
@@ -63,12 +98,15 @@ impl TemplateEngine {
             format!("Could not read template config: {}", config_path.display())
         })?;
 
-        self.parse_template_config(&content)
+        let config = self.parse_template_config(&content)?;
+
+        Ok(config)
     }
 
-    /// Parse template configuration from INI-like format
+    /// Parse template configuration from INI-like format with sections
     fn parse_template_config(&self, content: &str) -> Result<TemplateConfig> {
         let mut config = TemplateConfig::default();
+        let mut current_section = String::new();
 
         for line in content.lines() {
             let line = line.trim();
@@ -78,22 +116,116 @@ impl TemplateEngine {
                 continue;
             }
 
+            // Check for section headers [section_name]
+            if line.starts_with('[') && line.ends_with(']') {
+                current_section = line[1..line.len() - 1].to_string();
+                continue;
+            }
+
             // Parse key=value pairs
             if let Some((key, value)) = line.split_once('=') {
                 let key = key.trim();
+                // Remove inline comments (everything after # not inside quotes)
+                let value = if let Some(comment_pos) = value.find('#') {
+                    &value[..comment_pos]
+                } else {
+                    value
+                };
                 let value = value.trim().trim_matches('"').trim_matches('\'');
 
-                match key {
-                    "environment" => config.environment = value.to_string(),
-                    "enable_timestamps" => config.enable_timestamps = value.parse().unwrap_or(true),
-                    "enable_uuid" => config.enable_uuid = value.parse().unwrap_or(true),
+                match current_section.as_str() {
+                    "metadata" => {
+                        // Parse metadata section
+                        match key {
+                            "name" => config.metadata.name = value.to_string(),
+                            "description" => config.metadata.description = value.to_string(),
+                            _ => {}
+                        }
+                    }
+                    "options" => {
+                        // Parse options section - these become default variable values
+                        // AND capture metadata for dynamic boolean helper generation
+
+                        if key.ends_with("_options") {
+                            // Extract variable name: "style_options" -> "style"
+                            let var_name = key.strip_suffix("_options").unwrap_or(key);
+
+                            // Parse comma-separated list of possible values
+                            let possible_values: Vec<String> = value
+                                .split(',')
+                                .map(|v| v.trim().to_string())
+                                .filter(|v| !v.is_empty())
+                                .collect();
+
+                            // Get or create option metadata entry
+                            let option = config.options_metadata
+                                .entry(var_name.to_string())
+                                .or_insert_with(|| VariableOption {
+                                    var_type: String::new(),
+                                    possible_values: Vec::new(),
+                                    description: String::new(),
+                                });
+
+                            option.possible_values = possible_values;
+
+                        } else if key.ends_with("_type") {
+                            // Extract variable name: "with_tests_type" -> "with_tests"
+                            let var_name = key.strip_suffix("_type").unwrap_or(key);
+
+                            // Get or create option metadata entry
+                            let option = config.options_metadata
+                                .entry(var_name.to_string())
+                                .or_insert_with(|| VariableOption {
+                                    var_type: String::new(),
+                                    possible_values: Vec::new(),
+                                    description: String::new(),
+                                });
+
+                            option.var_type = value.to_string();
+
+                        } else if key.ends_with("_description") {
+                            // Extract variable name: "style_description" -> "style"
+                            let var_name = key.strip_suffix("_description").unwrap_or(key);
+
+                            // Get or create option metadata entry
+                            let option = config.options_metadata
+                                .entry(var_name.to_string())
+                                .or_insert_with(|| VariableOption {
+                                    var_type: String::new(),
+                                    possible_values: Vec::new(),
+                                    description: String::new(),
+                                });
+
+                            option.description = value.to_string();
+
+                        } else {
+                            // This is the actual variable default value
+                            config.variables.insert(key.to_string(), value.to_string());
+                        }
+                    }
+                    "files" => {
+                        // Parse files section - file pattern -> condition mapping
+                        config
+                            .file_filters
+                            .insert(key.to_string(), value.to_string());
+                    }
                     _ => {
-                        // Custom variables
-                        if key.starts_with("var_") {
-                            let var_name = key.strip_prefix("var_").unwrap_or(key);
-                            config
-                                .variables
-                                .insert(var_name.to_string(), value.to_string());
+                        // Legacy format or root-level config
+                        match key {
+                            "environment" => config.environment = value.to_string(),
+                            "enable_timestamps" => {
+                                config.enable_timestamps = value.parse().unwrap_or(true)
+                            }
+                            "enable_uuid" => config.enable_uuid = value.parse().unwrap_or(true),
+                            _ => {
+                                // Custom variables (legacy var_ prefix)
+                                if key.starts_with("var_") {
+                                    let var_name = key.strip_prefix("var_").unwrap_or(key);
+                                    config
+                                        .variables
+                                        .insert(var_name.to_string(), value.to_string());
+                                }
+                            }
                         }
                     }
                 }
@@ -101,6 +233,107 @@ impl TemplateEngine {
         }
 
         Ok(config)
+    }
+
+    /// Evaluate file condition to determine if a file should be generated
+    ///
+    /// Supported conditions:
+    /// - "always" or "default" → always generate
+    /// - "var_X" → generate if variable X is truthy (true, yes, 1)
+    /// - "var_X_value" → generate if variable X equals "value"
+    ///
+    /// Examples:
+    /// - "var_with_tests" → generate if with_tests=true
+    /// - "var_style_scss" → generate if style=scss
+    fn evaluate_file_condition(
+        condition: &str,
+        variables: &std::collections::HashMap<String, String>,
+    ) -> bool {
+        match condition.trim() {
+            "always" | "default" => true,
+            cond if cond.starts_with("var_") => {
+                // Extract variable name and optional value check
+                let var_part = cond.strip_prefix("var_").unwrap_or(cond);
+
+                // First, check if this variable name exists as-is (for boolean checks)
+                // e.g., "var_with_tests" → check variables["with_tests"]
+                if variables.contains_key(var_part) {
+                    // Boolean check: variable exists, check if it's truthy
+                    variables.get(var_part).map_or(false, |v| {
+                        matches!(v.to_lowercase().as_str(), "true" | "yes" | "1")
+                    })
+                } else if let Some(underscore_pos) = var_part.find('_') {
+                    // Value comparison: var_style_scss → check if style == "scss"
+                    // Handle hyphenated values: var_style_styled_components → check if style == "styled-components"
+                    let var_name = &var_part[..underscore_pos];
+                    let expected_value_raw = &var_part[underscore_pos + 1..];
+                    // Convert underscores back to hyphens for value matching
+                    let expected_value = expected_value_raw.replace('_', "-");
+
+                    variables.get(var_name).map_or(false, |v| v == &expected_value || v == expected_value_raw)
+                } else {
+                    // Variable doesn't exist and no underscore found
+                    false
+                }
+            }
+            _ => {
+                // Unknown condition, default to false for safety
+                eprintln!(
+                    "Warning: Unknown file condition '{}', skipping file",
+                    condition
+                );
+                false
+            }
+        }
+    }
+
+    /// Generate boolean helper variables dynamically based on options metadata
+    ///
+    /// For each variable with `_options` in .conf, creates `{var}_is_{value}` boolean helpers.
+    /// For each variable with `type=boolean` in .conf, creates `{var}_bool` boolean helper.
+    ///
+    /// Example:
+    /// ```
+    /// style=scss with style_options=scss,styled-components,css,none
+    /// → generates: style_is_scss=true, style_is_styled_components=false, etc.
+    ///
+    /// with_tests=true with with_tests_type=boolean
+    /// → generates: with_tests_bool=true
+    /// ```
+    fn generate_boolean_helpers(
+        variables: &std::collections::HashMap<String, String>,
+        options_metadata: &std::collections::HashMap<String, VariableOption>,
+        data_map: &mut serde_json::Map<String, serde_json::Value>,
+    ) {
+        for (var_name, option_meta) in options_metadata {
+            // Case 1: Variable with enumerated values (e.g., style_options=scss,css,none)
+            if !option_meta.possible_values.is_empty() {
+                if let Some(current_value) = variables.get(var_name) {
+                    for possible_value in &option_meta.possible_values {
+                        // Generate helper name: style_is_scss, style_is_styled_components, etc.
+                        // Replace hyphens with underscores in the value part for valid variable names
+                        let sanitized_value = possible_value.replace('-', "_");
+                        let helper_name = format!("{}_is_{}", var_name, sanitized_value);
+                        let is_match = current_value == possible_value;
+
+                        data_map.insert(helper_name, serde_json::Value::Bool(is_match));
+                    }
+                }
+            }
+
+            // Case 2: Boolean variable (e.g., with_tests_type=boolean)
+            if option_meta.var_type == "boolean" {
+                if let Some(value) = variables.get(var_name) {
+                    let is_true = matches!(
+                        value.to_lowercase().as_str(),
+                        "true" | "yes" | "1"
+                    );
+                    let helper_name = format!("{}_bool", var_name);
+
+                    data_map.insert(helper_name, serde_json::Value::Bool(is_true));
+                }
+            }
+        }
     }
 
     pub fn template_exists(&self, template_type: &str) -> bool {
@@ -365,6 +598,7 @@ impl TemplateEngine {
         name: &str,
         template_type: &str,
         create_folder: bool,
+        cli_vars: std::collections::HashMap<String, String>,
     ) -> Result<()> {
         let template_dir = self.templates_dir.join(template_type);
 
@@ -376,13 +610,26 @@ impl TemplateEngine {
         }
 
         // Load template configuration
-        let template_config = self.load_template_config(template_type).await?;
+        let mut template_config = self.load_template_config(template_type).await?;
+
+        // Merge CLI variables with template defaults (CLI variables override defaults)
+        for (key, value) in cli_vars {
+            template_config.variables.insert(key, value);
+        }
 
         println!(
             "{} Using template config: environment={}",
             "⚙️".bold(),
             template_config.environment.blue()
         );
+
+        // Show active variables if any were customized
+        if !template_config.variables.is_empty() {
+            println!("{} Active variables:", "🔧".bold());
+            for (key, value) in &template_config.variables {
+                println!("  {} = {}", key.cyan(), value.green());
+            }
+        }
 
         // Determine output path
         let output_path = if create_folder {
@@ -432,6 +679,30 @@ impl TemplateEngine {
                     .path()
                     .strip_prefix(template_dir)
                     .context("Could not get relative path")?;
+
+                // Get the filename as a string for filter matching
+                let filename = relative_path
+                    .to_str()
+                    .unwrap_or("")
+                    .replace('\\', "/"); // Normalize path separators
+
+                // Check if this file should be generated based on filters
+                let should_generate = if !template_config.file_filters.is_empty() {
+                    // If file_filters exist, check if there's a condition for this file
+                    if let Some(condition) = template_config.file_filters.get(&filename) {
+                        Self::evaluate_file_condition(condition, &template_config.variables)
+                    } else {
+                        // No explicit filter for this file, default to true
+                        true
+                    }
+                } else {
+                    // No file_filters defined, generate all files
+                    true
+                };
+
+                if !should_generate {
+                    continue;
+                }
 
                 let template_file = entry.path().to_path_buf();
                 let output_file = output_path.join(relative_path);
@@ -536,6 +807,15 @@ impl TemplateEngine {
             for (key, value) in &template_config.variables {
                 data_map.insert(key.clone(), serde_json::Value::String(value.clone()));
             }
+
+            // DYNAMIC: Generate boolean helper variables automatically based on .conf metadata
+            // This replaces all hardcoded style_is_*, with_tests_bool logic
+            // Now any new template with new options will work automatically!
+            Self::generate_boolean_helpers(
+                &template_config.variables,
+                &template_config.options_metadata,
+                data_map,
+            );
         }
 
         // Apply smart replacements

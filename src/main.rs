@@ -34,6 +34,9 @@ async fn main() -> Result<()> {
         args
     };
 
+    // Parse CLI variables first (before moving fields from final_args)
+    let cli_vars = final_args.parse_vars();
+
     // Validate arguments (either from CLI or wizard)
     let name = final_args
         .name
@@ -104,7 +107,7 @@ async fn main() -> Result<()> {
     // Generate template
     let create_folder = !final_args.no_folder && config.create_folder;
     template_engine
-        .generate(&name, &template_type, create_folder)
+        .generate(&name, &template_type, create_folder, cli_vars)
         .await?;
 
     println!(

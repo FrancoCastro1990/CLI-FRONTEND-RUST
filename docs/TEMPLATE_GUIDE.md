@@ -132,68 +132,731 @@ Access in templates:
 {{env "NODE_ENV"}}                <!-- Environment variable -->
 ```
 
-## 🆕 Template Configuration System
+## 🆕 Template Configuration System (`.conf` Files)
 
 ### Overview
 
-CLI Frontend Generator v1.2.3 introduces a powerful template configuration system that allows templates to define their own variables, environment settings, and behavior through `.conf` files.
+CLI Frontend Generator provides a sophisticated template configuration system through `.conf` files that enables:
+
+1. **Conditional File Generation** - Generate files only when specific conditions are met
+2. **Dynamic Template Variables** - Define variables with metadata for intelligent processing
+3. **Runtime Customization** - Override defaults using the `--var` CLI flag
+4. **Automatic Boolean Helpers** - Auto-generated conditional helpers for Handlebars templates
+5. **Zero Code Changes** - Add new templates with custom variables without modifying Rust code
 
 ### Configuration File Structure
 
-Create a `.conf` file in your template directory:
+The `.conf` file must be placed in the template's root directory:
 
 ```
 templates/
-└── my-template/
-    ├── .conf                    # ← Configuration file
-    ├── $FILE_NAME.ts
-    └── $FILE_NAME.test.ts
+└── component/
+    ├── .conf                           # ← Configuration file
+    ├── $FILE_NAME.tsx                  # Main component
+    ├── $FILE_NAME.spec.tsx             # Tests (conditional)
+    ├── $FILE_NAME.module.scss          # SCSS styles (conditional)
+    ├── $FILE_NAME.styled.ts            # Styled-components (conditional)
+    └── $FILE_NAME.stories.tsx          # Storybook (conditional)
 ```
 
-### Configuration Syntax
+### Complete `.conf` Format Specification
 
-The `.conf` file uses INI-like format:
+The `.conf` file uses an INI-like format with three primary sections:
 
 ```ini
-# Template Configuration for My Template
-# This file defines variables and settings
+# templates/component/.conf
 
+# ============================================================================
+# [metadata] - Template Information
+# ============================================================================
+[metadata]
+name=React Component
+description=Functional component with TypeScript
+author=Frontend Team
+version=1.0.0
+
+# ============================================================================
+# [options] - Variable Definitions with Metadata
+# ============================================================================
+[options]
 # Environment configuration
-environment=production
+environment=development
 enable_timestamps=true
-enable_uuid=true
+enable_uuid=false
 
-# Custom variables (prefix with var_)
-var_api_version=v2
-var_author=Frontend Team
-var_license=MIT
-var_description=Advanced template with configuration
-var_base_url=https://api.mycompany.com
-var_timeout=5000
-var_debug_mode=false
+# ----------------------------------------------------------------------
+# Styling Options (Enumerated Type)
+# ----------------------------------------------------------------------
+style=scss
+style_description=Styling approach for the component
+style_options=scss,styled-components,css,none
+
+# When style_options is defined:
+# - Automatically generates: style_is_scss, style_is_styled_components, style_is_css, style_is_none
+# - These boolean helpers are available in templates for conditionals
+# - Only ONE helper will be true based on the current value
+
+# ----------------------------------------------------------------------
+# Testing (Boolean Type)
+# ----------------------------------------------------------------------
+with_tests=true
+with_tests_description=Include unit tests for the component
+with_tests_type=boolean
+
+# When with_tests_type=boolean:
+# - Automatically generates: with_tests_bool (true/false)
+# - Accepts values: true, false, yes, no, 1, 0 (case-insensitive)
+
+# ----------------------------------------------------------------------
+# Storybook Stories (Boolean Type)
+# ----------------------------------------------------------------------
+with_stories=false
+with_stories_description=Generate Storybook stories
+with_stories_type=boolean
+
+# ============================================================================
+# [files] - Conditional File Generation Rules
+# ============================================================================
+[files]
+# Syntax: filename=condition
+#
+# Available conditions:
+# - always              : Always generate this file
+# - default             : Generate if variable is not explicitly set to false
+# - var_X               : Generate if variable X is truthy (true, yes, 1)
+# - var_X_value         : Generate if variable X equals "value"
+#
+# Examples:
+$FILE_NAME.tsx=always
+$FILE_NAME.spec.tsx=var_with_tests
+$FILE_NAME.module.scss=var_style_scss
+$FILE_NAME.styled.ts=var_style_styled_components
+$FILE_NAME.css=var_style_css
+$FILE_NAME.stories.tsx=var_with_stories
+index.ts=default
 ```
 
-### Configuration Options
+### Section 1: `[metadata]` - Template Information
 
-#### **Core Settings**
-- `environment` - Environment name (development/production/staging)
-- `enable_timestamps` - Include timestamp variables (true/false)
-- `enable_uuid` - Include UUID variables (true/false)
+The `[metadata]` section contains descriptive information about the template:
 
-#### **Custom Variables**
-Prefix custom variables with `var_`:
-- `var_api_version` → `{{api_version}}`
-- `var_author` → `{{author}}`
-- `var_license` → `{{license}}`
-- Any `var_xyz` → `{{xyz}}`
+```ini
+[metadata]
+name=React Component               # Display name
+description=Functional component   # Brief description
+author=Frontend Team               # Author/Team
+version=1.0.0                      # Template version
+```
 
-### Using Configuration in Templates
+**Usage:**
+- Informational only - not used in template processing
+- Helpful for documentation and template discovery
+- Optional section
+
+### Section 2: `[options]` - Variable Definitions
+
+The `[options]` section defines all template variables and their behavior. This is the most powerful section.
+
+#### Variable Types
+
+##### **1. Enumerated Variables (with `_options`)**
+
+Define a variable with a fixed set of possible values:
+
+```ini
+[options]
+style=scss
+style_description=Styling approach for the component
+style_options=scss,styled-components,css,none
+```
+
+**Behavior:**
+- **Default Value**: `style=scss` (used when `--var style=...` is not provided)
+- **Possible Values**: `scss`, `styled-components`, `css`, `none`
+- **Auto-Generated Boolean Helpers**:
+  - `style_is_scss` → `true` if `style=scss`, else `false`
+  - `style_is_styled_components` → `true` if `style=styled-components`, else `false`
+  - `style_is_css` → `true` if `style=css`, else `false`
+  - `style_is_none` → `true` if `style=none`, else `false`
+
+**Template Usage:**
+```handlebars
+{{#if style_is_scss}}
+import styles from "./{{kebab_name}}.module.scss";
+{{/if}}
+
+{{#if style_is_styled_components}}
+import { Styled{{pascal_name}} } from "./{{kebab_name}}.styled";
+{{/if}}
+```
+
+##### **2. Boolean Variables (with `_type=boolean`)**
+
+Define a true/false variable:
+
+```ini
+[options]
+with_tests=true
+with_tests_description=Include unit tests
+with_tests_type=boolean
+```
+
+**Behavior:**
+- **Default Value**: `with_tests=true`
+- **Accepted Values**: `true`, `false`, `yes`, `no`, `1`, `0` (case-insensitive)
+- **Auto-Generated Boolean Helper**:
+  - `with_tests_bool` → `true` or `false`
+
+**Template Usage:**
+```handlebars
+{{#if with_tests_bool}}
+import { render, screen } from '@testing-library/react';
+{{/if}}
+```
+
+##### **3. String Variables (no metadata)**
+
+Simple string variables without special metadata:
+
+```ini
+[options]
+author=Frontend Team
+api_version=v1
+```
+
+**Behavior:**
+- Available in templates as `{{author}}`, `{{api_version}}`
+- No boolean helpers generated
+- Direct string substitution only
+
+#### Variable Metadata Suffixes
+
+| Suffix | Purpose | Example | Effect |
+|--------|---------|---------|--------|
+| `_options` | Define possible values (enum) | `style_options=scss,css,none` | Generates `var_is_value` boolean helpers |
+| `_type` | Define variable type | `with_tests_type=boolean` | Generates `var_bool` boolean helper |
+| `_description` | Document the variable | `style_description=Styling approach` | Documentation only |
+
+### Section 3: `[files]` - Conditional File Generation
+
+The `[files]` section controls which files are generated based on variable values.
+
+#### Conditional Syntax
+
+```ini
+[files]
+filename=condition
+```
+
+#### Available Conditions
+
+| Condition | Behavior | Example | When Generated |
+|-----------|----------|---------|----------------|
+| `always` | Always generate | `$FILE_NAME.tsx=always` | Every time |
+| `default` | Generate by default | `index.ts=default` | Unless explicitly excluded |
+| `var_X` | Generate if X is truthy | `$FILE_NAME.spec.tsx=var_with_tests` | When `with_tests=true` |
+| `var_X_value` | Generate if X equals value | `$FILE_NAME.module.scss=var_style_scss` | When `style=scss` |
+
+#### Condition Examples
+
+```ini
+[files]
+# Always generate main component file
+$FILE_NAME.tsx=always
+
+# Generate test file only if with_tests=true
+$FILE_NAME.spec.tsx=var_with_tests
+
+# Generate SCSS file only if style=scss
+$FILE_NAME.module.scss=var_style_scss
+
+# Generate styled-components file only if style=styled-components
+$FILE_NAME.styled.ts=var_style_styled_components
+
+# Generate CSS file only if style=css
+$FILE_NAME.css=var_style_css
+
+# Generate stories only if with_stories=true
+$FILE_NAME.stories.tsx=var_with_stories
+
+# Generate barrel export by default
+index.ts=default
+```
+
+### Dynamic Boolean Helper Generation
+
+The system automatically generates boolean helper variables based on metadata:
+
+#### For Enumerated Variables (`_options`)
+
+Given:
+```ini
+style=scss
+style_options=scss,styled-components,css,none
+```
+
+When `style=scss`, generates:
+```
+style_is_scss = true
+style_is_styled_components = false
+style_is_css = false
+style_is_none = false
+```
+
+When `style=styled-components`, generates:
+```
+style_is_scss = false
+style_is_styled_components = true
+style_is_css = false
+style_is_none = false
+```
+
+#### For Boolean Variables (`_type=boolean`)
+
+Given:
+```ini
+with_tests=true
+with_tests_type=boolean
+```
+
+Generates:
+```
+with_tests_bool = true
+```
+
+### Complete End-to-End Example
+
+Let's create a comprehensive example showing the entire workflow from `.conf` definition to CLI usage.
+
+#### Step 1: Create Template Structure
+
+```bash
+mkdir -p templates/advanced-component
+cd templates/advanced-component
+```
+
+#### Step 2: Define `.conf` Configuration
+
+```ini
+# templates/advanced-component/.conf
+
+[metadata]
+name=Advanced React Component
+description=Production-ready React component with multiple styling options
+author=Frontend Team
+version=1.0.0
+
+[options]
+# Styling system (enumerated)
+style=scss
+style_description=Choose your styling approach
+style_options=scss,styled-components,css,tailwind,none
+
+# TypeScript strictness (enumerated)
+typescript_mode=strict
+typescript_mode_description=TypeScript compilation mode
+typescript_mode_options=strict,loose,none
+
+# Testing framework (boolean)
+with_tests=true
+with_tests_description=Include unit tests with Testing Library
+with_tests_type=boolean
+
+# Storybook integration (boolean)
+with_stories=false
+with_stories_description=Generate Storybook stories
+with_stories_type=boolean
+
+# Props documentation (boolean)
+with_prop_types=false
+with_prop_types_description=Include prop-types for runtime validation
+with_prop_types_type=boolean
+
+# Additional metadata
+author=Frontend Team
+component_category=UI
+
+[files]
+$FILE_NAME.tsx=always
+$FILE_NAME.module.scss=var_style_scss
+$FILE_NAME.styled.ts=var_style_styled_components
+$FILE_NAME.css=var_style_css
+$FILE_NAME.tailwind.ts=var_style_tailwind
+$FILE_NAME.spec.tsx=var_with_tests
+$FILE_NAME.stories.tsx=var_with_stories
+$FILE_NAME.types.ts=var_typescript_mode_strict
+index.ts=default
+README.md=default
+```
+
+#### Step 3: Create Main Template File
+
+```typescript
+// templates/advanced-component/$FILE_NAME.tsx
+
+import React from 'react';
+{{#if style_is_scss}}
+import styles from './{{kebab_name}}.module.scss';
+{{/if}}
+{{#if style_is_styled_components}}
+import { Styled{{pascal_name}} } from './{{kebab_name}}.styled';
+{{/if}}
+{{#if style_is_css}}
+import './{{kebab_name}}.css';
+{{/if}}
+{{#if style_is_tailwind}}
+import { {{camel_name}}Styles } from './{{kebab_name}}.tailwind';
+{{/if}}
+{{#if with_prop_types_bool}}
+import PropTypes from 'prop-types';
+{{/if}}
+{{#if typescript_mode_is_strict}}
+import type { {{pascal_name}}Props } from './{{kebab_name}}.types';
+{{else}}
+/**
+ * Props for {{pascal_name}} component
+ * Author: {{author}}
+ * Category: {{component_category}}
+ */
+interface {{pascal_name}}Props {
+  className?: string;
+  children?: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
+  onClick?: () => void;
+}
+{{/if}}
+
+/**
+ * {{pascal_name}} Component
+ *
+ * @description {{description}}
+ * @author {{author}}
+ * @category {{component_category}}
+ *
+ * Styling: {{style}}
+ * TypeScript Mode: {{typescript_mode}}
+ */
+export const {{pascal_name}}: React.FC<{{pascal_name}}Props> = ({
+  className = '',
+  children,
+  variant = 'primary',
+  size = 'md',
+  disabled = false,
+  onClick,
+  ...props
+}) => {
+  {{#if style_is_scss}}
+  const componentClass = `${styles.{{camel_name}}} ${styles[`{{camel_name}}--${variant}`]} ${styles[`{{camel_name}}--${size}`]} ${className}`.trim();
+  {{else}}{{#if style_is_tailwind}}
+  const componentClass = `${{{camel_name}}Styles.base} ${{{camel_name}}Styles[variant]} ${{{camel_name}}Styles[size]} ${className}`.trim();
+  {{else}}
+  const componentClass = `{{kebab_name}} {{kebab_name}}--${variant} {{kebab_name}}--${size} ${className}`.trim();
+  {{/if}}{{/if}}
+
+  {{#if style_is_styled_components}}
+  return (
+    <Styled{{pascal_name}}
+      variant={variant}
+      size={size}
+      disabled={disabled}
+      onClick={onClick}
+      className={className}
+      {...props}
+    >
+      {children}
+    </Styled{{pascal_name}}>
+  );
+  {{else}}
+  return (
+    <div
+      className={componentClass}
+      onClick={!disabled ? onClick : undefined}
+      aria-disabled={disabled}
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      {...props}
+    >
+      {children || <span>{{pascal_name}} Component</span>}
+    </div>
+  );
+  {{/if}}
+};
+
+{{#if with_prop_types_bool}}
+{{pascal_name}}.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
+  variant: PropTypes.oneOf(['primary', 'secondary', 'outline']),
+  size: PropTypes.oneOf(['sm', 'md', 'lg']),
+  disabled: PropTypes.bool,
+  onClick: PropTypes.func,
+};
+{{/if}}
+
+{{pascal_name}}.displayName = '{{pascal_name}}';
+
+export default {{pascal_name}};
+```
+
+#### Step 4: Create Conditional Template Files
+
+**SCSS Styles** (`$FILE_NAME.module.scss`):
+```scss
+// Only generated when style=scss
+
+.{{camel_name}} {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &--primary {
+    background-color: #007bff;
+    color: white;
+  }
+
+  &--secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  &--outline {
+    background-color: transparent;
+    border: 2px solid #007bff;
+    color: #007bff;
+  }
+
+  &--sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+  &--md { padding: 0.5rem 1rem; font-size: 1rem; }
+  &--lg { padding: 0.75rem 1.5rem; font-size: 1.125rem; }
+
+  &:hover:not([aria-disabled="true"]) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+```
+
+**Test File** (`$FILE_NAME.spec.tsx`):
+```typescript
+// Only generated when with_tests=true
+
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { {{pascal_name}} } from './{{kebab_name}}';
+
+describe('{{pascal_name}}', () => {
+  it('renders without crashing', () => {
+    render(<{{pascal_name}}>Test<{{pascal_name}} />);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies variant styles correctly', () => {
+    const { container } = render(<{{pascal_name}} variant="primary">Button</{{pascal_name}}>);
+    expect(container.firstChild).toHaveClass('{{kebab_name}}--primary');
+  });
+
+  it('handles click events', () => {
+    const handleClick = jest.fn();
+    render(<{{pascal_name}} onClick={handleClick}>Click Me</{{pascal_name}}>);
+
+    fireEvent.click(screen.getByText('Click Me'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('respects disabled state', () => {
+    const handleClick = jest.fn();
+    render(<{{pascal_name}} disabled onClick={handleClick}>Disabled</{{pascal_name}}>);
+
+    fireEvent.click(screen.getByText('Disabled'));
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+});
+```
+
+**Strict Types** (`$FILE_NAME.types.ts`):
+```typescript
+// Only generated when typescript_mode=strict
+
+import { ReactNode, MouseEvent } from 'react';
+
+/**
+ * Variant types for {{pascal_name}}
+ */
+export type {{pascal_name}}Variant = 'primary' | 'secondary' | 'outline';
+
+/**
+ * Size types for {{pascal_name}}
+ */
+export type {{pascal_name}}Size = 'sm' | 'md' | 'lg';
+
+/**
+ * Props interface for {{pascal_name}} component
+ *
+ * @interface {{pascal_name}}Props
+ */
+export interface {{pascal_name}}Props {
+  /** Additional CSS class names */
+  className?: string;
+
+  /** Child elements to render */
+  children?: ReactNode;
+
+  /** Visual variant of the component */
+  variant?: {{pascal_name}}Variant;
+
+  /** Size of the component */
+  size?: {{pascal_name}}Size;
+
+  /** Disabled state */
+  disabled?: boolean;
+
+  /** Click event handler */
+  onClick?: (event: MouseEvent<HTMLDivElement>) => void;
+
+  /** ARIA label for accessibility */
+  'aria-label'?: string;
+
+  /** Test ID for testing */
+  'data-testid'?: string;
+}
+```
+
+#### Step 5: CLI Usage Examples
+
+**Example 1: Generate with SCSS and tests (default)**
+```bash
+cli-frontend Button --type advanced-component
+# Uses defaults: style=scss, with_tests=true
+# Generates: Button.tsx, Button.module.scss, Button.spec.tsx, index.ts, README.md
+```
+
+**Example 2: Generate with styled-components, no tests**
+```bash
+cli-frontend Modal --type advanced-component --var style=styled-components --var with_tests=false
+# Overrides: style=styled-components, with_tests=false
+# Generates: Modal.tsx, Modal.styled.ts, index.ts, README.md
+```
+
+**Example 3: Generate with Tailwind, strict TypeScript, with stories**
+```bash
+cli-frontend Card --type advanced-component \
+  --var style=tailwind \
+  --var typescript_mode=strict \
+  --var with_stories=true \
+  --var with_tests=true
+# Generates: Card.tsx, Card.tailwind.ts, Card.types.ts, Card.spec.tsx, Card.stories.tsx, index.ts, README.md
+```
+
+**Example 4: Minimal component with no styling**
+```bash
+cli-frontend Wrapper --type advanced-component \
+  --var style=none \
+  --var with_tests=false \
+  --var with_stories=false
+# Generates: Wrapper.tsx, index.ts, README.md
+```
+
+### System Architecture & How It Works
+
+#### Internal Processing Flow
+
+```
+1. CLI Argument Parsing
+   ├─ Parse --var flags into HashMap<String, String>
+   └─ Example: --var style=scss --var with_tests=true
+              → { "style": "scss", "with_tests": "true" }
+
+2. .conf File Parsing
+   ├─ Read templates/advanced-component/.conf
+   ├─ Parse [metadata] section
+   ├─ Parse [options] section
+   │  ├─ Extract variable defaults
+   │  ├─ Extract metadata (_options, _type, _description)
+   │  └─ Build VariableOption structs
+   └─ Parse [files] section
+      └─ Build conditional file map
+
+3. Variable Merging
+   ├─ Start with .conf defaults
+   ├─ Override with CLI --var values
+   └─ Final variables: { "style": "scss", "with_tests": "true", "author": "Frontend Team", ... }
+
+4. Boolean Helper Generation (AUTOMATIC)
+   ├─ For enumerated variables (style_options=scss,styled-components,css,none):
+   │  ├─ Generate: style_is_scss = true
+   │  ├─ Generate: style_is_styled_components = false
+   │  ├─ Generate: style_is_css = false
+   │  └─ Generate: style_is_none = false
+   │
+   └─ For boolean variables (with_tests_type=boolean):
+      └─ Generate: with_tests_bool = true
+
+5. File Filtering
+   ├─ For each file in [files] section:
+   │  ├─ $FILE_NAME.tsx=always → INCLUDE
+   │  ├─ $FILE_NAME.spec.tsx=var_with_tests → CHECK: with_tests="true" → INCLUDE
+   │  ├─ $FILE_NAME.module.scss=var_style_scss → CHECK: style="scss" → INCLUDE
+   │  └─ $FILE_NAME.styled.ts=var_style_styled_components → CHECK: style≠"styled-components" → EXCLUDE
+   └─ Final file list: Button.tsx, Button.module.scss, Button.spec.tsx, index.ts, README.md
+
+6. Template Rendering
+   ├─ For each included file:
+   │  ├─ Load template content
+   │  ├─ Create Handlebars data context with:
+   │  │  ├─ Name variables: {{pascal_name}}, {{camel_name}}, etc.
+   │  │  ├─ User variables: {{style}}, {{with_tests}}, {{author}}, etc.
+   │  │  └─ Boolean helpers: {{style_is_scss}}, {{with_tests_bool}}, etc.
+   │  ├─ Render template with Handlebars
+   │  └─ Write to output file
+   └─ Complete!
+```
+
+#### Key Implementation Details
+
+**Location**: `src/template_engine.rs`
+
+**Critical Functions**:
+
+1. **`parse_template_config()`** (Lines 85-205)
+   - Parses `.conf` file
+   - Extracts metadata suffixes (`_options`, `_type`, `_description`)
+   - Builds `TemplateConfig` with `options_metadata: HashMap<String, VariableOption>`
+
+2. **`generate_boolean_helpers()`** (Lines 290-337)
+   - Takes variables and options_metadata
+   - Generates boolean helpers dynamically
+   - **NO HARDCODING** - works for ANY variable in ANY template
+
+3. **`evaluate_file_condition()`** (Lines 339-385)
+   - Evaluates [files] conditions
+   - Handles `always`, `default`, `var_X`, `var_X_value` patterns
+   - Returns true/false for file inclusion
+
+4. **`process_template_directory()`** (Lines 453-587)
+   - Processes each template file
+   - Filters files based on conditions
+   - Renders templates with full context
+
+### Benefits of This System
+
+1. **✅ Zero Code Changes**: Add new templates with ANY variables without modifying Rust
+2. **✅ Type Safety**: Boolean helpers prevent string comparison errors
+3. **✅ Scalability**: Works for 1 variable or 100 variables
+4. **✅ Maintainability**: All logic in `.conf` files, not scattered in code
+5. **✅ Flexibility**: CLI overrides allow per-generation customization
+6. **✅ Documentation**: `.conf` files serve as template documentation
+
+### Using Configuration in Templates (Legacy Section)
 
 ```typescript
 /**
  * {{pascal_name}} Template
  * {{description}}
- * 
+ *
  * @generated {{generated}}
  * @generator {{generator_name}} v{{version}}
  * @timestamp {{timestamp}}
