@@ -41,6 +41,11 @@ pub struct Args {
     /// Example: --var style=scss --var with_tests=false
     #[arg(long = "var", value_name = "KEY=VALUE")]
     pub vars: Vec<String>,
+
+    /// Show detailed information about a template including variables and file generation rules
+    /// Example: --describe component
+    #[arg(long = "describe", value_name = "TEMPLATE")]
+    pub describe: Option<String>,
 }
 
 impl Args {

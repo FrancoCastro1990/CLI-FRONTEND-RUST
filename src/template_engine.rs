@@ -964,6 +964,283 @@ impl TemplateEngine {
 
         Ok(())
     }
+
+    /// Display detailed information about a template including variables and file generation rules
+    pub async fn describe_template(&self, template_type: &str) -> Result<()> {
+        // Check if template exists
+        if !self.template_exists(template_type) {
+            anyhow::bail!(
+                "Template '{}' not found.\n\nRun {} to see available templates.",
+                template_type.red(),
+                "cli-frontend --list".cyan()
+            );
+        }
+
+        // Load template configuration
+        let config = self.load_template_config(template_type).await?;
+
+        // Print header
+        println!("\n{} {}", "📋 Template:".bold(), template_type.cyan().bold());
+        println!("{}", "=".repeat(50).cyan());
+        println!();
+
+        // Print description
+        if !config.metadata.description.is_empty() {
+            println!("{}", "Description:".bold());
+            println!("  {}", config.metadata.description);
+            println!();
+        }
+
+        // Print template variables
+        if !config.options_metadata.is_empty() || !config.variables.is_empty() {
+            println!("{}", "Template Variables (use --var):".bold().green());
+            println!();
+
+            // First, print variables with metadata (those with _options or _type)
+            let mut sorted_metadata: Vec<_> = config.options_metadata.iter().collect();
+            sorted_metadata.sort_by_key(|(name, _)| *name);
+
+            for (var_name, metadata) in sorted_metadata {
+                // Get default value
+                let default_value = config
+                    .variables
+                    .get(var_name)
+                    .map(|s| s.as_str())
+                    .unwrap_or("");
+
+                // Print variable name
+                print!("  {} ", format!("--var {}=<value>", var_name).yellow());
+
+                // Print type/options
+                if !metadata.possible_values.is_empty() {
+                    println!();
+                    println!("    {}: {}", "Options".bold(), metadata.possible_values.join(", "));
+                } else if metadata.var_type == "boolean" {
+                    println!();
+                    println!("    {}: {}", "Type".bold(), "boolean");
+                }
+
+                // Print default
+                if !default_value.is_empty() {
+                    println!("    {}: {}", "Default".bold(), default_value.green());
+                }
+
+                // Print description
+                if !metadata.description.is_empty() {
+                    println!("    {}: {}", "Description".bold(), metadata.description);
+                }
+
+                println!();
+            }
+
+            // Then, print simple variables (those without metadata)
+            let mut simple_vars: Vec<_> = config
+                .variables
+                .iter()
+                .filter(|(name, _)| !config.options_metadata.contains_key(*name))
+                .collect();
+            simple_vars.sort_by_key(|(name, _)| *name);
+
+            for (var_name, value) in simple_vars {
+                println!("  {} ", format!("--var {}=<string>", var_name).yellow());
+                println!("    {}: {}", "Default".bold(), value.green());
+                println!();
+            }
+        }
+
+        // Print files generated
+        if !config.file_filters.is_empty() {
+            println!("{}", "Files Generated:".bold().cyan());
+
+            // Group files by condition type
+            let mut always_files = Vec::new();
+            let mut conditional_files = Vec::new();
+            let mut default_files = Vec::new();
+
+            for (filename, condition) in &config.file_filters {
+                let display_name = filename.replace("$FILE_NAME", "ComponentName");
+
+                match condition.as_str() {
+                    "always" => always_files.push(display_name),
+                    "default" => default_files.push(display_name),
+                    _ => conditional_files.push((display_name, condition.clone())),
+                }
+            }
+
+            // Print always-generated files
+            always_files.sort();
+            for file in always_files {
+                println!("  {} {} {}", "✓".green(), file.bold(), "(always)".dimmed());
+            }
+
+            // Print default files
+            default_files.sort();
+            for file in default_files {
+                println!("  {} {} {}", "○".yellow(), file.bold(), "(default)".dimmed());
+            }
+
+            // Print conditional files with their conditions
+            conditional_files.sort_by(|a, b| a.0.cmp(&b.0));
+            for (file, condition) in conditional_files {
+                let condition_display = self.format_condition(&condition);
+                println!(
+                    "  {} {} {}",
+                    "○".yellow(),
+                    file.bold(),
+                    condition_display.dimmed()
+                );
+            }
+
+            println!();
+        }
+
+        // Print usage examples
+        println!("{}", "Usage Examples:".bold().magenta());
+        println!();
+
+        // Example 1: Basic usage
+        println!("  {} {}", "#".dimmed(), "Basic (with defaults)");
+        println!("  {} ComponentName --type {}", "cli-frontend".cyan(), template_type);
+        println!();
+
+        // Example 2-4: Based on available variables
+        let mut example_count = 0;
+        let max_examples = 3;
+
+        // Example with boolean variable
+        for (var_name, metadata) in &config.options_metadata {
+            if example_count >= max_examples {
+                break;
+            }
+
+            if metadata.var_type == "boolean" {
+                let value = if config.variables.get(var_name).map(|s| s.as_str()) == Some("true") {
+                    "false"
+                } else {
+                    "true"
+                };
+
+                println!(
+                    "  {} With {}={}",
+                    "#".dimmed(),
+                    var_name,
+                    value
+                );
+                println!(
+                    "  {} ComponentName --type {} --var {}={}",
+                    "cli-frontend".cyan(),
+                    template_type,
+                    var_name,
+                    value
+                );
+                println!();
+                example_count += 1;
+            }
+        }
+
+        // Example with enum variable
+        for (var_name, metadata) in &config.options_metadata {
+            if example_count >= max_examples {
+                break;
+            }
+
+            if !metadata.possible_values.is_empty() && metadata.possible_values.len() > 1 {
+                let current_value = config.variables.get(var_name).map(|s| s.as_str());
+                let example_value = metadata
+                    .possible_values
+                    .iter()
+                    .find(|v| Some(v.as_str()) != current_value)
+                    .unwrap_or(&metadata.possible_values[0]);
+
+                println!(
+                    "  {} With {}={}",
+                    "#".dimmed(),
+                    var_name,
+                    example_value
+                );
+                println!(
+                    "  {} ComponentName --type {} --var {}={}",
+                    "cli-frontend".cyan(),
+                    template_type,
+                    var_name,
+                    example_value
+                );
+                println!();
+                example_count += 1;
+            }
+        }
+
+        // Example with multiple variables (full featured)
+        if config.options_metadata.len() >= 2 {
+            println!("  {} {}", "#".dimmed(), "Full featured");
+            print!("  {} ComponentName --type {}", "cli-frontend".cyan(), template_type);
+
+            let mut var_examples = Vec::new();
+            for (var_name, metadata) in config.options_metadata.iter().take(3) {
+                if !metadata.possible_values.is_empty() {
+                    var_examples.push(format!(
+                        "--var {}={}",
+                        var_name,
+                        metadata.possible_values.first().unwrap()
+                    ));
+                } else if metadata.var_type == "boolean" {
+                    var_examples.push(format!("--var {}=true", var_name));
+                }
+            }
+
+            for example in var_examples {
+                print!(" {}", example);
+            }
+            println!();
+            println!();
+        }
+
+        println!();
+
+        Ok(())
+    }
+
+    /// Format a file condition for display
+    fn format_condition(&self, condition: &str) -> String {
+        if condition.starts_with("var_") {
+            let without_prefix = condition.strip_prefix("var_").unwrap();
+
+            // Try to match against known variables with metadata
+            // This handles cases like var_with_tests (boolean) vs var_style_scss (enum with value)
+
+            // Check if this is a simple boolean variable (exists in options_metadata)
+            // We need to load the config to check this properly, but for now we'll use a heuristic:
+            // If the entire remaining string is a known pattern, treat as boolean
+
+            // For now, use a simple heuristic:
+            // - If it contains common separators like 'styled_components', group them properly
+            // - Otherwise, split by last underscore
+
+            // Better approach: match known multi-word values
+            if without_prefix.ends_with("_styled_components") {
+                let var_name = without_prefix.strip_suffix("_styled_components").unwrap();
+                format!("(--var {}=styled-components)", var_name)
+            } else if without_prefix.ends_with("_tests") {
+                // This is likely with_tests (boolean)
+                format!("(--var {}=true)", without_prefix)
+            } else if without_prefix.ends_with("_stories") {
+                // This is likely with_stories (boolean)
+                format!("(--var {}=true)", without_prefix)
+            } else {
+                // Default: split by last underscore
+                let parts: Vec<&str> = without_prefix.split('_').collect();
+                if parts.len() == 1 {
+                    format!("(--var {}=true)", parts[0])
+                } else {
+                    let var_name = parts[..parts.len() - 1].join("_");
+                    let value = parts[parts.len() - 1];
+                    format!("(--var {}={})", var_name, value)
+                }
+            }
+        } else {
+            format!("({})", condition)
+        }
+    }
 }
 
 // Helper functions for naming conventions

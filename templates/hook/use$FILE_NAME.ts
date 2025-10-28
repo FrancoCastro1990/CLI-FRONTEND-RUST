@@ -2,6 +2,11 @@ import { useState } from 'react';
 
 /**
  * Custom hook: use$FILE_NAME
+ * @author {{author}}
+ * @generated {{date}}
+ *
+ * Generated with tests: {{with_tests}}
+ *
  * TODO: Add description of what this hook does
  */
 export const use$FILE_NAME = () => {
@@ -11,8 +16,8 @@ export const use$FILE_NAME = () => {
   // Add your custom hook logic here
   // Example: data fetching, state management, side effects, etc.
 
-  return { 
-    state, 
+  return {
+    state,
     setState,
     // Add more return values as needed
   };

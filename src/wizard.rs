@@ -59,6 +59,7 @@ impl From<WizardConfig> for Args {
             config: None,
             list: false,
             vars: Vec::new(), // Wizard doesn't support vars yet (could be added as future enhancement)
+            describe: None,
         }
     }
 }

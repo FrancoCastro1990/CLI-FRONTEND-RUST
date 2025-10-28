@@ -25,6 +25,17 @@ async fn main() -> Result<()> {
         return Ok(());
     }
 
+    // Handle --describe flag
+    if let Some(template_name) = &args.describe {
+        let template_engine = TemplateEngine::new(
+            config.templates_dir.clone(),
+            config.output_dir.clone()
+        )?;
+
+        template_engine.describe_template(template_name).await?;
+        return Ok(());
+    }
+
     // Check if we should run wizard (no name and no template type provided)
     let final_args = if args.name.is_none() && args.template_type.is_none() {
         // Run interactive wizard

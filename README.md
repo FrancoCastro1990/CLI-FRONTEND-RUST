@@ -67,6 +67,7 @@ Generate complete features following proven architectural patterns:
 
 ### 🔧 **Developer Experience Excellence**
 - **🧙‍♂️ Interactive Wizard Mode** - Guided experience when no arguments provided
+- **🔍 Template Discovery** - `--describe` command shows detailed template information
 - **Zero configuration** - Intelligent installers handle setup automatically
 - **Template extensibility** - Create custom templates without CLI recompilation
 - **Multiple naming conventions** - PascalCase, camelCase, snake_case, kebab-case
@@ -169,6 +170,59 @@ cli-frontend Dashboard --type feature --config ./team-config.conf
 cli-frontend --help
 ```
 
+### Template Discovery & Exploration
+```bash
+# List all available templates and architectures
+cli-frontend --list
+
+# Explore a template before using it
+cli-frontend --describe component
+
+# See what variables are available for hooks
+cli-frontend --describe hook
+
+# Check API service template options
+cli-frontend --describe api-service
+```
+
+**Example `--describe` Output:**
+```
+📋 Template: component
+==================================================
+
+Description:
+  Functional component with TypeScript
+
+Template Variables (use --var):
+
+  --var style=<value>
+    Options: scss, styled-components, css, none
+    Default: scss
+    Description: Styling approach for the component
+
+  --var with_tests=<value>
+    Type: boolean
+    Default: true
+    Description: Include unit tests for the component
+
+Files Generated:
+  ✓ ComponentName.tsx (always)
+  ○ ComponentName.module.scss (--var style=scss)
+  ○ ComponentName.spec.tsx (--var with_tests=true)
+  ○ ComponentName.styled.ts (--var style=styled-components)
+
+Usage Examples:
+
+  # Basic (with defaults)
+  cli-frontend ComponentName --type component
+
+  # With styled-components
+  cli-frontend ComponentName --type component --var style=styled-components
+
+  # Without tests
+  cli-frontend ComponentName --type component --var with_tests=false
+```
+
 ## 🏗️ Software Architecture Patterns
 
 **Generate complete features following proven architectural patterns:**
@@ -229,10 +283,32 @@ Options:
   -o, --output-dir <DIR>      Output directory for generated files
   -c, --config <CONFIG>       Path to custom configuration file
   --list                      List all available templates and architectures
+  --describe <TEMPLATE>       Show detailed information about a template
   --help                      Display help, available templates and architectures
 ```
 
 > 📖 **Detailed Wizard Guide**: See [WIZARD_GUIDE.md](./docs/WIZARD_GUIDE.md) for comprehensive documentation on using the interactive wizard.
+
+### 🔍 Exploring Templates
+
+Before generating code, you can explore template details including available variables, file generation rules, and usage examples:
+
+```bash
+# Show detailed information about a template
+cli-frontend --describe component
+
+# Explore hook template
+cli-frontend --describe hook
+
+# View all templates
+cli-frontend --list
+```
+
+**What `--describe` shows:**
+- 📄 Template description and metadata
+- ⚙️ Available variables with types and default values
+- 📁 Files that will be generated (conditional and always)
+- 💡 Usage examples with different configurations
 
 ### Available Templates
 
