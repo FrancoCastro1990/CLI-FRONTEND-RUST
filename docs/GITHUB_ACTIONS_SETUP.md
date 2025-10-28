@@ -97,8 +97,8 @@ El sistema genera automáticamente los siguientes instaladores en cada release:
 
 ```bash
 # 1. Crear un tag de versión
-git tag v1.3.0
-git push origin v1.3.0
+git tag v1.4.0
+git push origin v1.4.0
 
 # 2. El sistema automáticamente:
 #    - Compila binarios para todas las plataformas
