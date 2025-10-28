@@ -33,6 +33,7 @@ pub struct TemplateConfig {
 }
 
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct TemplateMetadata {
     pub name: String,
     pub description: String,
@@ -49,14 +50,6 @@ pub struct VariableOption {
     pub description: String,
 }
 
-impl Default for TemplateMetadata {
-    fn default() -> Self {
-        Self {
-            name: String::new(),
-            description: String::new(),
-        }
-    }
-}
 
 impl Default for TemplateConfig {
     fn default() -> Self {
@@ -259,7 +252,7 @@ impl TemplateEngine {
                 // e.g., "var_with_tests" → check variables["with_tests"]
                 if variables.contains_key(var_part) {
                     // Boolean check: variable exists, check if it's truthy
-                    variables.get(var_part).map_or(false, |v| {
+                    variables.get(var_part).is_some_and(|v| {
                         matches!(v.to_lowercase().as_str(), "true" | "yes" | "1")
                     })
                 } else if let Some(underscore_pos) = var_part.find('_') {
@@ -270,7 +263,7 @@ impl TemplateEngine {
                     // Convert underscores back to hyphens for value matching
                     let expected_value = expected_value_raw.replace('_', "-");
 
-                    variables.get(var_name).map_or(false, |v| v == &expected_value || v == expected_value_raw)
+                    variables.get(var_name).is_some_and(|v| v == &expected_value || v == expected_value_raw)
                 } else {
                     // Variable doesn't exist and no underscore found
                     false
@@ -1017,7 +1010,7 @@ impl TemplateEngine {
                     println!("    {}: {}", "Options".bold(), metadata.possible_values.join(", "));
                 } else if metadata.var_type == "boolean" {
                     println!();
-                    println!("    {}: {}", "Type".bold(), "boolean");
+                    println!("    {}: boolean", "Type".bold());
                 }
 
                 // Print default
@@ -1099,7 +1092,7 @@ impl TemplateEngine {
         println!();
 
         // Example 1: Basic usage
-        println!("  {} {}", "#".dimmed(), "Basic (with defaults)");
+        println!("  {} Basic (with defaults)", "#".dimmed());
         println!("  {} ComponentName --type {}", "cli-frontend".cyan(), template_type);
         println!();
 
@@ -1172,7 +1165,7 @@ impl TemplateEngine {
 
         // Example with multiple variables (full featured)
         if config.options_metadata.len() >= 2 {
-            println!("  {} {}", "#".dimmed(), "Full featured");
+            println!("  {} Full featured", "#".dimmed());
             print!("  {} ComponentName --type {}", "cli-frontend".cyan(), template_type);
 
             let mut var_examples = Vec::new();
