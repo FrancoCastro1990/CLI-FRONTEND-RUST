@@ -1,13 +1,7 @@
 #[cfg(test)]
-mod tests {
+mod integration_tests {
     use std::fs;
     use std::path::{Path, PathBuf};
-
-    #[test]
-    fn test_basic_functionality() {
-        // Test básico que siempre pasa
-        assert!(true);
-    }
 
     #[test]
     fn test_templates_directory_exists() {
@@ -93,7 +87,7 @@ mod tests {
 
         // Debe retornar un PathBuf válido
         assert!(
-            templates_dir.as_os_str().len() > 0,
+            !templates_dir.as_os_str().is_empty(),
             "Should return a valid path"
         );
     }

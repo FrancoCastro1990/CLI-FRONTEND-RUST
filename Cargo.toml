@@ -17,7 +17,6 @@ serde = { version = "1.0", features = ["derive"] }
 toml = "0.8"
 handlebars = "4.0"
 anyhow = "1.0"
-thiserror = "1.0"
 tokio = { version = "1.0", features = ["full"] }
 dirs = "5.0"
 walkdir = "2.4"
@@ -27,9 +26,22 @@ uuid = { version = "1.6", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 inquire = "0.6"
 
+[dev-dependencies]
+tempfile = "3.8"
+assert_cmd = "2.0"
+predicates = "3.0"
+criterion = "0.5"
+
+[[bench]]
+name = "template_benchmarks"
+harness = false
+
 [profile.release]
 strip = true
-opt-level = "z"
-lto = true
+opt-level = 3  # Cambio a optimización máxima
+lto = "fat"    # LTO agresivo
 codegen-units = 1
 panic = "abort"
+
+[profile.bench]
+inherits = "release"

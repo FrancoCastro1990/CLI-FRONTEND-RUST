@@ -49,25 +49,37 @@ pub struct Args {
 }
 
 impl Args {
+    /// Generic function to discover items in a directory
+    fn discover_items<F>(dir: &PathBuf, filter: F) -> Vec<String>
+    where
+        F: Fn(&std::fs::DirEntry) -> Option<String>,
+    {
+        if !dir.exists() {
+            return Vec::new();
+        }
+
+        let mut items: Vec<String> = std::fs::read_dir(dir)
+            .ok()
+            .into_iter()
+            .flat_map(|entries| entries.flatten())
+            .filter_map(|entry| filter(&entry))
+            .collect();
+
+        items.sort();
+        items
+    }
+
     /// Discovers available templates from the templates directory
     pub fn discover_templates(templates_dir: &PathBuf) -> Vec<String> {
-        let mut templates = Vec::new();
-
-        if !templates_dir.exists() {
-            return templates;
-        }
-
-        if let Ok(entries) = std::fs::read_dir(templates_dir) {
-            for entry in entries.flatten() {
-                if entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false) {
-                    if let Some(name) = entry.file_name().to_str() {
-                        if !name.starts_with('.') && name != "architectures" {
-                            templates.push(name.to_string());
-                        }
-                    }
+        let mut templates = Self::discover_items(templates_dir, |entry| {
+            if entry.file_type().ok()?.is_dir() {
+                let name = entry.file_name().to_str()?.to_string();
+                if !name.starts_with('.') && name != "architectures" {
+                    return Some(name);
                 }
             }
-        }
+            None
+        });
 
         // Add the special "feature" type which uses architecture configurations
         templates.push("feature".to_string());
@@ -77,26 +89,18 @@ impl Args {
 
     /// Discovers available architectures from the architectures directory
     pub fn discover_architectures(architectures_dir: &PathBuf) -> Vec<String> {
-        let mut architectures = Vec::new();
-        if !architectures_dir.exists() {
-            return architectures;
-        }
-        if let Ok(entries) = std::fs::read_dir(architectures_dir) {
-            for entry in entries.flatten() {
-                if entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
-                    if let Some(name) = entry.file_name().to_str() {
-                        if name.ends_with(".json") && !name.starts_with('.') {
-                            let arch_name = name.strip_suffix(".json").unwrap_or(name);
-                            if arch_name != "default" {
-                                architectures.push(arch_name.to_string());
-                            }
-                        }
+        Self::discover_items(architectures_dir, |entry| {
+            if entry.file_type().ok()?.is_file() {
+                let name = entry.file_name().to_str()?.to_string();
+                if name.ends_with(".json") && !name.starts_with('.') {
+                    let arch_name = name.strip_suffix(".json")?;
+                    if arch_name != "default" {
+                        return Some(arch_name.to_string());
                     }
                 }
             }
-        }
-        architectures.sort();
-        architectures
+            None
+        })
     }
 
     /// Parse --var arguments into a HashMap

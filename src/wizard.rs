@@ -106,7 +106,7 @@ fn prompt_generation_type() -> std::result::Result<GenerationType, InquireError>
 /// Run wizard flow for template generation
 fn run_template_wizard(config: &Config) -> Result<WizardConfig> {
     // Get available templates
-    let templates = Args::discover_templates(&config.templates_dir);
+    let templates = Args::discover_templates(config.templates_dir());
 
     if templates.is_empty() {
         return Err(anyhow::anyhow!("No templates found in templates directory"));
@@ -133,7 +133,7 @@ fn run_template_wizard(config: &Config) -> Result<WizardConfig> {
 /// Run wizard flow for feature generation
 fn run_feature_wizard(config: &Config) -> Result<WizardConfig> {
     // Get available architectures
-    let architectures = Args::discover_architectures(&config.architectures_dir);
+    let architectures = Args::discover_architectures(config.architectures_dir());
 
     if architectures.is_empty() {
         return Err(anyhow::anyhow!(
@@ -162,7 +162,7 @@ fn prompt_name_with_suggestions(template_type: &str) -> Result<String> {
 
     let name = handle_prompt_result(
         Text::new(&format!("Enter the {} name:", template_type))
-            .with_help_message(&help_text)
+            .with_help_message(help_text)
             .with_validator(|input: &str| {
                 if input.trim().is_empty() {
                     Ok(Validation::Invalid("Name cannot be empty".into()))
@@ -190,7 +190,7 @@ fn prompt_additional_options(config: &Config) -> Result<(bool, Option<PathBuf>)>
 
     let create_folder = handle_prompt_result(
         Confirm::new("Create in new folder?")
-            .with_default(config.create_folder)
+            .with_default(config.create_folder())
             .prompt(),
     )?;
 
@@ -203,7 +203,7 @@ fn prompt_additional_options(config: &Config) -> Result<(bool, Option<PathBuf>)>
     let output_dir = if use_custom_dir {
         let dir_input = handle_prompt_result(
             Text::new("Enter output directory path:")
-                .with_default(&config.output_dir.to_string_lossy())
+                .with_default(&config.output_dir().to_string_lossy())
                 .prompt(),
         )?;
         Some(PathBuf::from(dir_input))
@@ -215,7 +215,7 @@ fn prompt_additional_options(config: &Config) -> Result<(bool, Option<PathBuf>)>
 }
 
 /// Get context-aware naming help for different template types
-fn get_naming_help(template_type: &str) -> String {
+fn get_naming_help(template_type: &str) -> &'static str {
     match template_type {
         "component" => "PascalCase (e.g., UserProfile, Navigation, ButtonGroup)",
         "hook" => "camelCase starting with 'use' (e.g., useAuth, useLocalStorage)",
@@ -226,7 +226,6 @@ fn get_naming_help(template_type: &str) -> String {
         "feature" => "PascalCase for the feature name (e.g., UserManagement, Authentication)",
         _ => "Choose a descriptive name for your template",
     }
-    .to_string()
 }
 
 /// Validate name format

@@ -1,6 +1,7 @@
 mod cli;
 mod config;
 mod template_engine;
+mod types;
 mod wizard;
 
 #[cfg(test)]
@@ -21,14 +22,14 @@ async fn main() -> Result<()> {
     let config = Config::load(&args.config).await?;
 
     if args.list {
-        Args::print_simple_list(&config.templates_dir, &config.architectures_dir);
+        Args::print_simple_list(config.templates_dir(), config.architectures_dir());
         return Ok(());
     }
 
     // Handle --describe flag
     if let Some(template_name) = &args.describe {
         let template_engine =
-            TemplateEngine::new(config.templates_dir.clone(), config.output_dir.clone())?;
+            TemplateEngine::new(config.templates_dir().clone(), config.output_dir().clone())?;
 
         template_engine.describe_template(template_name).await?;
         return Ok(());
@@ -52,24 +53,26 @@ async fn main() -> Result<()> {
         .ok_or_else(|| anyhow::anyhow!("No name was provided."))?;
     let template_type = match final_args.template_type {
         Some(t) => t,
-        None => config.default_type.clone(),
+        None => config.default_type().to_string(),
     };
 
     // Determine output directory (CLI arg overrides config)
     let output_dir = match final_args.output_dir {
         Some(dir) => dir,
-        None => config.output_dir.clone(),
+        None => config.output_dir().clone(),
     };
 
     // Initialize template engine
-    let template_engine = TemplateEngine::new(config.templates_dir.clone(), output_dir)?;
+    let template_engine = TemplateEngine::new(config.templates_dir().clone(), output_dir)?;
+
+    let create_folder = !final_args.no_folder && config.create_folder();
 
     // Handle feature type specially
     if template_type == "feature" {
         let architecture = final_args
             .architecture
             .as_deref()
-            .unwrap_or(&config.default_architecture);
+            .unwrap_or(config.default_architecture());
 
         println!(
             "{} Generating feature '{}' with {} architecture...",
@@ -78,7 +81,6 @@ async fn main() -> Result<()> {
             architecture
         );
 
-        let create_folder = !final_args.no_folder && config.create_folder;
         template_engine
             .generate_feature(&name, Some(architecture), create_folder, &config)
             .await?;
@@ -113,8 +115,6 @@ async fn main() -> Result<()> {
         name.bold()
     );
 
-    // Generate template
-    let create_folder = !final_args.no_folder && config.create_folder;
     template_engine
         .generate(&name, &template_type, create_folder, cli_vars)
         .await?;
